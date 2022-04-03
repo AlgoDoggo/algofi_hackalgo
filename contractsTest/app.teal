@@ -1,0 +1,88 @@
+#pragma version 6
+// This whole app works with a single transaction
+global GroupSize
+int 1
+==
+assert
+
+// Allow creation
+txn ApplicationID
+bz allow
+
+txna ApplicationArgs 0
+byte "optin"
+==
+bnz optin
+
+
+itxn_begin
+int pay
+itxn_field TypeEnum
+txna Accounts 1
+itxn_field Receiver
+int 500
+itxn_field Amount
+
+itxn_next
+
+int appl
+itxn_field TypeEnum
+//global MinTxnFee
+//int 2
+//*
+int 0
+itxn_field Fee
+txna Applications 1
+itxn_field ApplicationID
+byte "sef"
+itxn_field ApplicationArgs
+txna Assets 0
+itxn_field Assets
+txna Applications 2
+itxn_field Applications
+int NoOp
+itxn_field OnCompletion
+
+itxn_submit
+
+global CurrentApplicationAddress
+int 0
+asset_holding_get AssetBalance
+store 1 // amount gotten
+
+itxn_begin
+int axfer
+itxn_field TypeEnum
+int 0
+itxn_field Fee
+load 1
+itxn_field AssetAmount
+txn Sender
+itxn_field AssetReceiver
+txna Assets 0
+itxn_field XferAsset
+global CurrentApplicationAddress
+itxn_field Sender
+
+itxn_submit
+int 1
+return
+
+optin:
+itxn_begin
+int axfer
+itxn_field TypeEnum
+int 0
+itxn_field AssetAmount
+txna Assets 0
+itxn_field XferAsset
+global CurrentApplicationAddress
+itxn_field AssetReceiver
+global CurrentApplicationAddress
+itxn_field Sender
+int 0
+itxn_field Fee
+itxn_submit
+
+allow:
+int 1
