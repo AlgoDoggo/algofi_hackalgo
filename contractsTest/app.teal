@@ -48,6 +48,7 @@ itxn_submit
 global CurrentApplicationAddress
 int 0
 asset_holding_get AssetBalance
+pop
 store 1 // amount gotten
 
 itxn_begin

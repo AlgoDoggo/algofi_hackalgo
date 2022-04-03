@@ -1,17 +1,20 @@
-export const appTeal = ({ assetID_testnet, LTNano, stable1, stable2 , Stable1Stable2AppId}) => `
+export const appTeal = ({ assetID_testnet, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap}) => `
 // swap call front-end:
 // foreignApps:[Stable1Stable2AppId, managerID_nanoswap]
 // foreignAssets: [stable1,stable2] stable1 < stable2
-// accounts: [stable1/stable2 nanoswap pool addr]
-// appArgs:["swap", int minimumAmountOut, int assetOut ]
+// accounts: [Stable1Stable2AppAddress aka the Nanoswap pool]
+// appArgs:["swap", int minimumAmountOut,  assetOutID (stable1 or stable2) ]
 
 
 // scratch space : {
 // 1: liquidity token ID for Nanoswap Pool aka LTNano
 // 2: assetID for which the metapool was created
 // 3: LTNano asset amount in the app
+// Swap Specific:
 // 4: LTNano amount out for swap operation
 // 5: ID of asset out, should be either stable1 or stable2
+// 6: ID of asset in, should be either stable1 or stable 2. Once the burn is done, 
+// this asset will be traded in against the other member of that pair.
 //}
 
 
@@ -59,6 +62,7 @@ store 2
 global CurrentApplicationAddress
 load 1
 asset_holding_get AssetBalance
+pop // pop the opt-in date
 store 3 // LTNano asset amount in the app
 
 // Allow bootstrap
@@ -71,16 +75,21 @@ byte "bootstrap"
 &&
 bnz bootstrap
 
-txna ApplicationArgs 0
-byte "swap" 
-==
-bnz swap
-
 // Allow Opt-in.
 txn OnCompletion
 int OptIn
 ==
 bnz allow
+
+// Before we go any further let's verify the pool is bootstrapped
+load 1 
+assert // does liquidity tokenID exist in global state?
+
+txna ApplicationArgs 0
+byte "swap" 
+==
+bnz swap
+
 
 
 err
@@ -115,6 +124,7 @@ mulw // 128 bit value
 global CurrentApplicationAddress
 load 2
 asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
+pop // pop the opt-in
 int 10000
 *
 gtxn 0 AssetAmount // input amount
@@ -150,7 +160,8 @@ int 0
 itxn_field Fee
 load 4 // LTNano amount out
 itxn_field AssetAmount
-txna Accounts 1 // will fail if it is not the address of Stable1Stable2AppId
+//txna Accounts 1 // will fail if it is not the address of Stable1Stable2AppId
+addr ${Stable1Stable2AppAddress}
 itxn_field AssetReceiver
 
 itxn_next
@@ -199,38 +210,103 @@ itxn_submit
 
 // Now that we have both usdc and stbl in our account let's swap one for the other
 
-// check appargs2 is either usdc or stbl
+// check appargs2 is either usdc or stbl. AppArgs2 is the stableCoin we want out.
 txna ApplicationArgs 2
 btoi
 dup
 store 5
 int ${stable1} // usdc
 ==
-load 5
+load 5 // asset out
 int ${stable2} // stbl
 ==
 || 
 assert
 
+int ${stable1} // A
+int ${stable2} // B
+int ${stable1}
+load 5
+== // is assetOut stable1 ?
+select // If so select stable 2 else select stable1
+store 6 // assetIn
+
 // let's start the swap
 
 itxn_begin
 
-// first tx we send the LTNano token in the pool for burning
+// first tx we send the asset1 token in the pool
 int axfer
 itxn_field TypeEnum
-load 5 // Either stable1 or stable2
+load 6 // asset-in, Either stable1 or stable2
 itxn_field XferAsset
 int 0
 itxn_field Fee
-load 4 // LTNano amount out
+global CurrentApplicationAddress
+load 6
+asset_holding_get AssetBalance // load 6 amount
+pop
 itxn_field AssetAmount
-txna Accounts 1 // will fail if it is not the address of Stable1Stable2AppId
+//txna Accounts 1 // will fail if it is not the address of Stable1Stable2AppId
+addr ${Stable1Stable2AppAddress}
 itxn_field AssetReceiver
 
 itxn_next
 
+// second tx is the app call
+int appl
+itxn_field TypeEnum
+//global MinTxnFee
+//int 2
+//*
+int 0
+itxn_field Fee
+//txna ApplicationArgs 1
+int ${Stable1Stable2AppId}
+itxn_field ApplicationID
+byte "sef" // swap exact for
+itxn_field ApplicationArgs
+//When using itxn_field to set an array field (ApplicationArgs Accounts, Assets, or Applications) 
+//each use adds an element to the end of the the array.
+int 0 // here we just set 0 for the minimum out, we will check that value globally later on
+itob 
+itxn_field ApplicationArgs
+load 5 // asset out
+itxn_field Assets
+int ${managerID_nanoswap}
+itxn_field Applications
+int NoOp
+itxn_field OnCompletion
 
+itxn_submit
+
+global CurrentApplicationAddress
+load 5
+asset_holding_get AssetBalance // check if we got more than the minimum set in the args
+pop
+dup
+store 7 // amount we'll send back to the user
+txna ApplicationArgs 2
+btoi
+>=
+assert
+
+// let's send that asset back to the user
+itxn_begin
+
+int axfer
+itxn_field TypeEnum
+load 5 // asset-in, Either stable1 or stable2
+itxn_field XferAsset
+int 0
+itxn_field Fee
+load 7
+itxn_field AssetAmount
+txn Sender
+itxn_field AssetReceiver
+
+itxn_submit
+b allow
 
 
 
@@ -300,9 +376,7 @@ byte "LTNano"
 int ${LTNano}
 app_global_put
 
-
-int 1
-return
+b allow
 
 subroutine_bootstrap:
 
