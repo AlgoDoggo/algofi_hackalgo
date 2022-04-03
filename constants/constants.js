@@ -1,4 +1,5 @@
 export const DoggoAppIndex = 619678973
+export const StblUsdcAppId = 658337046
 //export const D552_algo_app = 
 
 export const managerID_dex = 605753404

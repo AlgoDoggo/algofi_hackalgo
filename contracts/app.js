@@ -1,14 +1,28 @@
-export const appTeal = ({ assetID_testnet, STBL , USDC, LTNano}) => `
+export const appTeal = ({ assetID_testnet, LTNano, stable1, stable2 , Stable1Stable2AppId}) => `
+// swap call front-end:
+// foreignApps:[Stable1Stable2AppId, managerID_nanoswap]
+// foreignAssets: [stable1,stable2] stable1 < stable2
+// accounts: [stable1/stable2 nanoswap pool addr]
+// appArgs:["swap", int minimumAmountOut, int assetOut ]
+
+
 // scratch space : {
 // 1: liquidity token ID for Nanoswap Pool aka LTNano
-// 2: assetID for metapool
+// 2: assetID for which the metapool was created
 // 3: LTNano asset amount in the app
 // 4: LTNano amount out for swap operation
+// 5: ID of asset out, should be either stable1 or stable2
 //}
 
 
 #pragma version 6
 // 658337286: STBL-USCD LTNano
+
+// We follow AlgoFi's convention and say that asset1 will be smaller than asset2
+int ${stable1}
+int ${stable2}
+<
+assert
 
 // Allow creation
 txn ApplicationID
@@ -38,7 +52,7 @@ byte "LTNano" // liquidity token ID for Nanoswap Pool
 app_global_get // will return 0 if pool is not bootstrapped
 store 1
 
-byte "assetID" // liquidity token ID for Nanoswap Pool
+byte "assetID" // assetID for metapool
 app_global_get // will return 0 if pool is not bootstrapped
 store 2
 
@@ -69,10 +83,9 @@ int OptIn
 bnz allow
 
 
-
-
-
 err
+
+
 
 swap:
 
@@ -126,6 +139,100 @@ assert // check amount out is less than LTNano amount
 
 //let's call the nanoswap pools
 
+itxn_begin
+
+// first tx we send the LTNano token in the pool for burning
+int axfer
+itxn_field TypeEnum
+load 1 // LTNano assetID
+itxn_field XferAsset
+int 0
+itxn_field Fee
+load 4 // LTNano amount out
+itxn_field AssetAmount
+txna Accounts 1 // will fail if it is not the address of Stable1Stable2AppId
+itxn_field AssetReceiver
+
+itxn_next
+
+// second tx is an appcall to get usdc back
+int appl
+itxn_field TypeEnum
+//global MinTxnFee
+//int 2
+//*
+int 0
+itxn_field Fee
+//txna Applications 1
+int ${Stable1Stable2AppId}
+itxn_field ApplicationID
+byte "ba1o"
+itxn_field ApplicationArgs
+//txna Assets 0
+int ${stable1}
+itxn_field Assets
+int NoOp
+itxn_field OnCompletion
+
+itxn_next
+
+// third tx is an appcall to get stable2 back
+int appl
+itxn_field TypeEnum
+//global MinTxnFee
+//int 2
+//*
+int 0
+itxn_field Fee
+//txna Applications 1
+int ${Stable1Stable2AppId}
+itxn_field ApplicationID
+byte "ba2o"
+itxn_field ApplicationArgs
+//txna Assets 1
+int ${stable2}
+itxn_field Assets
+int NoOp
+itxn_field OnCompletion
+
+itxn_submit
+
+// Now that we have both usdc and stbl in our account let's swap one for the other
+
+// check appargs2 is either usdc or stbl
+txna ApplicationArgs 2
+btoi
+dup
+store 5
+int ${stable1} // usdc
+==
+load 5
+int ${stable2} // stbl
+==
+|| 
+assert
+
+// let's start the swap
+
+itxn_begin
+
+// first tx we send the LTNano token in the pool for burning
+int axfer
+itxn_field TypeEnum
+load 5 // Either stable1 or stable2
+itxn_field XferAsset
+int 0
+itxn_field Fee
+load 4 // LTNano amount out
+itxn_field AssetAmount
+txna Accounts 1 // will fail if it is not the address of Stable1Stable2AppId
+itxn_field AssetReceiver
+
+itxn_next
+
+
+
+
 
 bootstrap:
 
@@ -150,8 +257,6 @@ gtxn 0 Receiver
 global CurrentApplicationAddress
 ==
 assert
-
-
 
 // The app will now opt-in all the relevant assets
 // STBL, USDC and its LTNano
