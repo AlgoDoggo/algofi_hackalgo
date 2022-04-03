@@ -1,4 +1,4 @@
-export const appTeal = ({ assetID_testnet, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap}) => `
+export const appTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap}) => `
 // swap call front-end:
 // foreignApps:[Stable1Stable2AppId, managerID_nanoswap]
 // foreignAssets: [stable1,stable2] stable1 < stable2
@@ -166,7 +166,7 @@ itxn_field AssetReceiver
 
 itxn_next
 
-// second tx is an appcall to get usdc back
+// second tx is an appcall to get stable1 back
 int appl
 itxn_field TypeEnum
 //global MinTxnFee
@@ -208,9 +208,9 @@ itxn_field OnCompletion
 
 itxn_submit
 
-// Now that we have both usdc and stbl in our account let's swap one for the other
+// Now that we have both stable1 and stable2 in our account let's swap one for the other
 
-// check appargs2 is either usdc or stbl. AppArgs2 is the stableCoin we want out.
+// check appargs2 is either stable1 or stable2. AppArgs2 is the stableCoin we want out.
 txna ApplicationArgs 2
 btoi
 dup
@@ -335,24 +335,24 @@ global CurrentApplicationAddress
 assert
 
 // The app will now opt-in all the relevant assets
-// STBL, USDC and its LTNano
+// stable2, USDC and its LTNano
 
 itxn_begin
 
-// optin-in STBL
-int ${STBL}
+// optin-in stable2
+int ${stable2}
 itxn_field XferAsset
 
 // the rest of fields are common to all inner bootstrap tx
 callsub subroutine_bootstrap
 
-// optin-in USDC
+// optin-in stable1
 itxn_next
-int ${USDC}
+int ${stable1}
 itxn_field XferAsset
 callsub subroutine_bootstrap
 
-// optin-in STBL-USDC LTNano
+// optin-in stable2-stable1 LTNano
 itxn_next
 int ${LTNano}
 itxn_field XferAsset
@@ -360,7 +360,7 @@ callsub subroutine_bootstrap
 
 // optin-in the token this pool is set for
 itxn_next
-int ${assetID_testnet}
+int ${assetID}
 itxn_field XferAsset
 callsub subroutine_bootstrap
 
@@ -369,7 +369,7 @@ itxn_submit
 
 // save assetID and LTNano in app global state
 byte "assetID"
-int ${assetID_testnet}
+int ${assetID}
 app_global_put
 
 byte "LTNano"
