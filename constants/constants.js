@@ -17,9 +17,9 @@ export const AF_NANO_POOL_USDC_STBL = 658337286;
 
 // dex manager apps
 export const D981_d552_testnet_app = 77282939;
-export const managerID_dex_TESTNET = 66008735;
 
-// algofi nanoswap manager app
+// algofi manager apps
+export const managerID_dex_TESTNET = 66008735;
 export const managerID_nanoswap_TESTNET = 77282916;
 
 //assets

@@ -55,7 +55,7 @@ int axfer
 itxn_field TypeEnum
 int ${LTNano} // LTNano assetID
 itxn_field XferAsset
-int 0
+global MinTxnFee
 itxn_field Fee
 load 4 // LTNano amount out
 itxn_field AssetAmount
@@ -68,10 +68,9 @@ itxn_next
 // second tx is an appcall to get stable1 back
 int appl
 itxn_field TypeEnum
-//global MinTxnFee
-//int 2
-//*
-int 0
+global MinTxnFee
+int 2 // appl fee is 2x min for burn in nanoswap pools
+*
 itxn_field Fee
 //txna Applications 1
 int ${Stable1Stable2AppId}
@@ -89,10 +88,9 @@ itxn_next
 // third tx is an appcall to get stable2 back
 int appl
 itxn_field TypeEnum
-//global MinTxnFee
-//int 2
-//*
-int 0
+global MinTxnFee
+int 2
+* // appl fee is 2x min for burn in nanoswap pools
 itxn_field Fee
 //txna Applications 1
 int ${Stable1Stable2AppId}
@@ -139,7 +137,7 @@ int axfer
 itxn_field TypeEnum
 load 6 // asset-in, Either stable1 or stable2
 itxn_field XferAsset
-int 0
+global MinTxnFee
 itxn_field Fee
 global CurrentApplicationAddress
 load 6
@@ -155,10 +153,9 @@ itxn_next
 // second tx is the app call
 int appl
 itxn_field TypeEnum
-//global MinTxnFee
-//int 2
-//*
-int 0
+global MinTxnFee
+int 5 // for a swap in a nanoswap pool fee is 5x the min
+*
 itxn_field Fee
 //txna ApplicationArgs 1
 int ${Stable1Stable2AppId}
@@ -198,7 +195,7 @@ int axfer
 itxn_field TypeEnum
 load 5 // asset-in, Either stable1 or stable2
 itxn_field XferAsset
-int 0
+global MinTxnFee
 itxn_field Fee
 load 7
 itxn_field AssetAmount

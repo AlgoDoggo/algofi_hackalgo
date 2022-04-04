@@ -1,101 +1,83 @@
-import algosdk, { encodeUint64, getApplicationAddress } from "algosdk";
+import algosdk, {
+  encodeUint64,
+  getApplicationAddress,
+  makeApplicationNoOpTxnFromObject,
+  makeAssetTransferTxnWithSuggestedParamsFromObject,
+} from "algosdk";
 import dotenv from "dotenv";
-import fs from "fs";
 import { setupClient } from "../adapters/algoD.js";
-import { DoggoAppIndex as appIndex, managerID_dex, managerID_dex_TESTNET, managerID_nanoswap_TESTNET } from "../constants/constants.js";
+import {
+  D552,
+  D981,
+  D981_d552_testnet_app,
+  managerID_dex,
+  managerID_nanoswap,
+  managerID_nanoswap_TESTNET,
+  STBL,
+  StblUsdcAppId,
+  USDC,
+} from "../constants/constants.js";
 
 dotenv.config();
 
-
 async function swap() {
   try {
-    const captchaMnemo = process.env.Mnemo;
-    var captchaAccount = algosdk.mnemonicToSecretKey(captchaMnemo);   
-
+    const account = algosdk.mnemonicToSecretKey(process.env.Mnemo);
 
     const enc = new TextEncoder();
     const notePlainText = "fee";
-    const note = enc.encode(notePlainText);    
+    const note = enc.encode(notePlainText);
 
     let algodClient = setupClient();
 
     const params = await algodClient.getTransactionParams().do();
-    
+
     params.fee = 1000;
-    params.flatFee = true; 
-   
-    
+    params.flatFee = true;
+
     //"sef" for swap exact for
     //"sfe" for swap for exact, ie with a redeemTX at the end
     //"rsr" for swap for exact, ie with a redeemTX at the end
-    const argsSef = [enc.encode("sef"), encodeUint64(1)];// second arg is minimum amount to receive
-    const argsSfe = [enc.encode("sfe"), encodeUint64(6)];// second arg is amount to receive
-    const argsRsr = [enc.encode("rsr")];// second arg is amount to receive
+    const argsSef = [enc.encode("sef"), encodeUint64(1)]; // second arg is minimum amount to receive
+    const argsSfe = [enc.encode("sfe"), encodeUint64(6)]; // second arg is amount to receive
+    const argsRsr = [enc.encode("rsr")];
 
-    const feePool = 0
-    
-    
-    const tx0 = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    const tx0 = makeAssetTransferTxnWithSuggestedParamsFromObject({
       suggestedParams: {
         ...params,
+        fee:1000,
       },
-      from: captchaAccount.addr,
-      to: getApplicationAddress(appIndex),
-      amount:10**6,
-      note,
+      from: account.addr,
+      to: getApplicationAddress(D981_d552_testnet_app),
+      //to: getApplicationAddress(StblUsdcAppId),
+      //assetIndex: STBL,
+      assetIndex: D552,
+      amount: 10,
     });
 
-    const tx1 = algosdk.makeApplicationNoOpTxnFromObject({ // swap exact for
+    const tx1 = makeApplicationNoOpTxnFromObject({
+      // swap exact for
       suggestedParams: {
         ...params,
-        fee: params.fee*2
+        fee: params.fee * 5, //(fee is 5x for nanoswap 2x for regular swap)
       },
-      from: captchaAccount.addr,
-      appIndex,
+      from: account.addr,
+      //appIndex: StblUsdcAppId,//D981_d552_testnet_app,
+      appIndex: D981_d552_testnet_app,
       appArgs: argsSef,
-      foreignAssets: [77279142],//[352658929],
-      foreignApps: [managerID_nanoswap_TESTNET],// [managerID_dex_TESTNET]
+      //foreignAssets: [USDC],
+      foreignAssets: [D981],
+      //foreignApps:[managerID_nanoswap],
+      foreignApps:[managerID_nanoswap_TESTNET],
     });
 
-    // const tx1 = algosdk.makeApplicationNoOpTxnFromObject({ // swap for exact
-    //   suggestedParams: {
-    //     ...params,
-    //     fee: params.fee*2
-    //   },
-    //   from: captchaAccount.addr,
-    //   appIndex,
-    //   appArgs: argsSfe,
-    //   foreignApps: [dexAppId],
-    //   foreignAssets: [352658929],
-    // });
-    
-    // const tx2 = algosdk.makeApplicationNoOpTxnFromObject({ // swap for exact
-    //   suggestedParams: {
-    //     ...params,
-    //     fee: params.fee*2
-    //   },
-    //   from: captchaAccount.addr,
-    //   appIndex,
-    //   appArgs: argsRsr,
-    //   foreignApps: [dexAppId],
-    //  // foreignAssets: [352658929],
-    // });
-    
     const transactions = [tx0, tx1];
-    //const transactionsSfe = [tx0, tx1,tx2];
- 
+
     algosdk.assignGroupID(transactions);
-    //const transactionsGroupedSfe = algosdk.assignGroupID(transactionsSfe);
-    
 
-    // const t0 = tx0.signTxn(captchaAccount.sk);   
-    // const t1 = tx1.signTxn(captchaAccount.sk);
-    // const t2 = tx2.signTxn(captchaAccount.sk);
+    const signedTxs = transactions.map((t) => t.signTxn(account.sk));
 
-    const signedTxs= transactions.map((t)=>t.signTxn(captchaAccount.sk))
-   
-    const { txId } = await algodClient.sendRawTransaction(signedTxs).do();    
-    //const { txId } = await algodClient.sendRawTransaction([t0, t1, t2]).do();    
+    const { txId } = await algodClient.sendRawTransaction(signedTxs).do();
     console.log("transaction ID:", txId);
   } catch (error) {
     return console.log(error.message);

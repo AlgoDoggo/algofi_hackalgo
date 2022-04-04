@@ -11,4 +11,4 @@ const depositParams = {
 };
 
 //makeDeposit(depositParams)
-//swap()
+swap()
