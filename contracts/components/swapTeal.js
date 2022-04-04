@@ -179,10 +179,11 @@ itxn_field OnCompletion
 
 itxn_submit
 
+// finally we check if we got more than the minimum amount set in appargs 2
 global CurrentApplicationAddress
 load 5
-asset_holding_get AssetBalance // check if we got more than the minimum set in the args
-pop
+asset_holding_get AssetBalance
+pop // remove opt-in info
 dup
 store 7 // amount we'll send back to the user
 txna ApplicationArgs 2

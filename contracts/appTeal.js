@@ -1,5 +1,6 @@
 import { bootstrapTeal } from "./components/bootstrapTeal.js";
 import { swapTeal } from "./components/swapTeal.js";
+import { zapTeal } from "./components/zapTeal.js";
 
 export const appTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap}) => `
 // swap call front-end:
@@ -23,7 +24,6 @@ export const appTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppI
 
 
 #pragma version 6
-// 658337286: STBL-USCD LTNano
 
 // We follow AlgoFi's convention and say that asset1 will be smaller than asset2
 int ${stable1}
@@ -35,7 +35,7 @@ assert
 txn ApplicationID
 bz allow
 
-// Since the contract involves a "sensitive" RekeyTo transaction we're making it immutable
+// We're making this contract immutable
 txn OnCompletion
 int UpdateApplication
 !=
@@ -83,20 +83,29 @@ bnz allow
 
 // Before we go any further let's verify the pool is bootstrapped
 load 1 
-assert // does liquidity tokenID exist in global state?
+assert
 
 txna ApplicationArgs 0
-byte "swap" 
+byte "metaswap" 
 ==
-bnz swap
+bnz metaswap
+
+txna ApplicationArgs 0
+byte "metazap" 
+==
+bnz metazap
 
 
 
 err
 
 
-swap:
+metaswap:
 ${swapTeal({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap})}
+
+metazap:
+${zapTeal({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap})}
+
 
 bootstrap:
 ${bootstrapTeal({ assetID, LTNano, stable1, stable2 })}
