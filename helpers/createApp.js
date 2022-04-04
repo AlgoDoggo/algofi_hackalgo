@@ -5,6 +5,7 @@ import {
   getApplicationAddress,
   makeApplicationClearStateTxnFromObject,
   makeApplicationCreateTxnFromObject,
+  makeApplicationNoOpTxnFromObject,
   makeApplicationOptInTxnFromObject,
   makePaymentTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
@@ -12,7 +13,7 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
-import { appTeal } from "../contracts/app.js";
+import { appTeal } from "../contracts/appTeal.js";
 import {  
   assetID_testnet,
   D981_d552_testnet_app,
@@ -52,20 +53,20 @@ const createApp = async () => {
       approvalProgram: new Uint8Array(Buffer.from(compileApp.result, "base64")),
       clearProgram: new Uint8Array(Buffer.from(compiledClearProg.result, "base64")),
       numGlobalByteSlices: 0,
-      numGlobalInts: 2,
+      numGlobalInts: 0,
       numLocalByteSlices: 0,
       numLocalInts: 0,
       onComplete: OnApplicationComplete.NoOpOC,
     });
 
     let txSigned = tx.signTxn(account.sk);
-    // const { txId } = await algodClient.sendRawTransaction(txSigned).do();
-    // const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
-    // const appId = transactionResponse["application-index"];
-    // console.log("Created new app-id: ", appId);
+    const { txId } = await algodClient.sendRawTransaction(txSigned).do();
+    const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
+    const appId = transactionResponse["application-index"];
+    console.log("Created new app-id: ", appId);
 
-    //  bootstrap it
-    const appId = 81920583
+    // bootstrap it
+    //const appId = 81930954
     
 
     const bootstrap = makePaymentTxnWithSuggestedParamsFromObject({
@@ -79,7 +80,7 @@ const createApp = async () => {
       amount: 10 ** 6,
     });
 
-    const appBootstrap = makeApplicationOptInTxnFromObject({
+    const appBootstrap = makeApplicationNoOpTxnFromObject({
       suggestedParams,
       from: account.addr,
       appIndex: appId,
