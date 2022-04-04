@@ -15,11 +15,18 @@ export const appTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppI
 // 1: is app bootstrapped ?
 // 2: assetID for which the metapool was created
 // 3: LTNano asset amount in the app
-// Swap Specific:
+// MetaSwap Specific:
 // 4: LTNano amount out for swap operation
 // 5: ID of asset out, should be either stable1 or stable2
 // 6: ID of asset in, should be either stable1 or stable 2. Once the burn is done, 
 // this asset will be traded in against the other member of that pair.
+// 7: amount sent back to user
+// Metazap specific:
+// 8: stable in ID for the swap
+// 9: stable out ID for the swap
+// 10: nanoswap pool balance of stable-in
+// 11: nanoswap pool balance of stable-out
+// 12: amount of stable-in to zap, sent by the user
 //}
 
 
@@ -105,7 +112,6 @@ ${swapTeal({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Sta
 
 metazap:
 ${zapTeal({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap})}
-
 
 bootstrap:
 ${bootstrapTeal({ assetID, LTNano, stable1, stable2 })}
