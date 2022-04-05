@@ -7,9 +7,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",
-    "create-app": "nodemon ./helpers/createApp.js",
+    "create-app": "node ./helpers/createApp.js",
     "burn": "node ./helpers/burn.js",
     "mint": "nodemon ./helpers/mint.js",
+    "metaswap": "nodemon ./helpers/metaswap.js",
     "create-test": "node ./contractsTest/createAppTest.js",
     "optin-test": "node ./contractsTest/optinTest.js",
     "swap-test": "nodemon ./contractsTest/swapTest.js"

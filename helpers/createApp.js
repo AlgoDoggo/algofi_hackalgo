@@ -36,9 +36,9 @@ const createApp = async () => {
           assetID: assetID_testnet,
           stable1: D981,
           stable2: D552,
-          LTNano: D981_D552_LTNANO_TESTNET,
-          Stable1Stable2AppId: D981_d552_testnet_app,
-          Stable1Stable2AppAddress: getApplicationAddress(D981_d552_testnet_app),
+          lTNano: D981_D552_LTNANO_TESTNET,
+          stable1Stable2AppId: D981_d552_testnet_app,
+          stable1Stable2AppAddress: getApplicationAddress(D981_d552_testnet_app),
           managerID_nanoswap: managerID_nanoswap_TESTNET,
         })
       )

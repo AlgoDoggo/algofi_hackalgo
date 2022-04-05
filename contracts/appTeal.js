@@ -7,7 +7,7 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 // foreignApps:[stable1Stable2AppId, managerID_nanoswap]
 // foreignAssets: [assetID, lTNano, stable1, stable2] stable1 < stable2
 // accounts: [stable1Stable2AppAddress aka the Nanoswap pool]
-// appArgs:["swap", int minimumAmountOut,  assetOutID (stable1 or stable2): only for metaswap ]
+// appArgs:["metaswap" || "metazap" etc, int minimumAmountOut,  assetOutID (stable1 or stable2): only for metaswap ]
 
 
 // scratch space : {
