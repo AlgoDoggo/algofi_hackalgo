@@ -1,4 +1,4 @@
-export const bootstrapTeal = ({ assetID, LTNano, stable1, stable2 }) => `
+export const bootstrapTeal = ({ assetID, lTNano, stable1, stable2 }) => `
 
 // To bootstrap the pool we'll send it 1 Algo
 // Let's verify those params
@@ -19,7 +19,7 @@ global CurrentApplicationAddress
 assert
 
 // The app will now opt-in all the relevant assets
-// stable2, USDC and its LTNano
+// stable2, USDC and its lTNano
 
 itxn_begin
 
@@ -36,9 +36,9 @@ int ${stable1}
 itxn_field XferAsset
 callsub subroutine_bootstrap
 
-// optin-in stable2-stable1 LTNano
+// optin-in stable2-stable1 lTNano
 itxn_next
-int ${LTNano}
+int ${lTNano}
 itxn_field XferAsset
 callsub subroutine_bootstrap
 
@@ -51,13 +51,13 @@ callsub subroutine_bootstrap
 // send the tx and return
 itxn_submit
 
-// save assetID and LTNano in app global state
+// save assetID and lTNano in app global state
 // byte "assetID"
 // int ${assetID}
 // app_global_put
 
-// byte "LTNano"
-// int ${LTNano}
+// byte "lTNano"
+// int ${lTNano}
 // app_global_put
 
 b allow

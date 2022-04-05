@@ -1,7 +1,7 @@
-export const zapTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap}) => `
+export const zapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 // check that the first transaction is the asset we want to zap and corresponds to either stable1 or stable2
 gtxn 0 XferAsset
-dup
+dup 
 store 8 // save stable-in ID
 int ${stable1}
 ==
@@ -28,13 +28,13 @@ assert
 
 // retrieve the asset ratio of the nanoswap pool
 
-addr ${Stable1Stable2AppAddress}
+addr ${stable1Stable2AppAddress}
 load 8
 asset_holding_get AssetBalance
 pop // remove opt-in info
 store 10 // balance of stable-in asset
 
-addr ${Stable1Stable2AppAddress}
+addr ${stable1Stable2AppAddress}
 load 9
 asset_holding_get AssetBalance
 pop // remove opt-in info
@@ -55,15 +55,14 @@ store 12
 
 // let's start zapping.
 
-// To mint LTnano we must supply an appropriate ratio of stable1 and stable2 such as:
+// To mint lTNano we must supply an appropriate ratio of stable1 and stable2 such as:
 // stable1 sent / stable2 sent = stable1 supply / stable2 supply
 
-// First let's convert stable-in into an appropriate amount of stable1-stable2 for the subsquent LTNano mint
+// First let's convert stable-in into an appropriate amount of stable1-stable2 for the subsquent lTNano mint
 // The math to figure out the amount of stable-in to convert was a little more complicated than thought
-// I have excluded protocol fee calculation to simplify
 // if x is the amount of stable-in to convert, y the amount of stable-out to get
 // s1 the supply of stable-in, s2 the supply of stable-out
-// These equations must be respected for the proper ratio of stable coins to be had before minting LTNano:
+// These equations must be respected for the proper ratio of stable coins to be had before minting lTNano:
 
 // y = s1 - s1*s2 / (s1+x) this is the equation of token we'll get out from the swap
 // (load 12 - x) / y = (s1 + x) / (s2 - y) this is the correct ratio of stable1 stable2 we need after the swap
@@ -101,7 +100,7 @@ load 8 // stable-in ID
 itxn_field XferAsset
 load 13 // from our calculations
 itxn_field AssetAmount
-addr ${Stable1Stable2AppAddress}
+addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
 
 itxn_next
@@ -113,7 +112,7 @@ global MinTxnFee
 int 5 // appl fee is 5x min for swap in nanoswap pools
 *
 itxn_field Fee
-int ${Stable1Stable2AppId}
+int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "sef" // swap exact for
 itxn_field ApplicationArgs
@@ -129,7 +128,7 @@ itxn_field OnCompletion
 
 itxn_submit
 
-// now let's mint our LTNano
+// now let's mint our lTNano
 
 // first get the current balance of stable-in
 global CurrentApplicationAddress
@@ -153,7 +152,7 @@ store 15 // balance of stable-out asset to send for minting
 // retrieve the asset ratio of the nanoswap pools:
 
 load 14
-addr ${Stable1Stable2AppAddress}
+addr ${stable1Stable2AppAddress}
 load 9
 asset_holding_get AssetBalance // s2
 pop // remove opt-in info
@@ -193,7 +192,7 @@ int ${stable1}
 == // is stable-in stable 1?
 select
 itxn_field AssetAmount
-addr ${Stable1Stable2AppAddress}
+addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
 
 itxn_next
@@ -210,19 +209,19 @@ int ${stable2}
 == // is stable-in stable 2?
 select
 itxn_field AssetAmount
-addr ${Stable1Stable2AppAddress}
+addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
 
 itxn_next
 
-// third tx is app call to mint LTNano
+// third tx is app call to mint lTNano
 int appl
 itxn_field TypeEnum
 global MinTxnFee
 int 3 // for a swap in a nanoswap pool fee is 5x the min
 *
 itxn_field Fee
-int ${Stable1Stable2AppId}
+int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "p" // swap exact for
 itxn_field ApplicationArgs
@@ -231,7 +230,7 @@ itxn_field ApplicationArgs
 int 10000 // max slippage allowed by algofi pool, we'll check the metazap value at the end
 itob 
 itxn_field ApplicationArgs
-int ${LTNano} // LTNano id
+int ${lTNano} // lTNano id
 itxn_field Assets
 int ${managerID_nanoswap}
 itxn_field Applications
@@ -243,11 +242,11 @@ itxn_next
 // 4th tx is app call to redeem excess stable1
 int appl
 itxn_field TypeEnum
-int ${Stable1Stable2AppId}
+int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "rpa1r" // algofi's string for redeeming after a mint
 itxn_field ApplicationArgs
-int ${stable1} // LTNano id
+int ${stable1} // lTNano id
 itxn_field Assets
 int NoOp
 itxn_field OnCompletion
@@ -257,26 +256,26 @@ itxn_next
 // 5th tx is app call to redeem excess stable2
 int appl
 itxn_field TypeEnum
-int ${Stable1Stable2AppId}
+int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "rpa2r"
 itxn_field ApplicationArgs
-int ${stable2} // LTNano id
+int ${stable2} // lTNano id
 itxn_field Assets
 int NoOp
 itxn_field OnCompletion
 
 itxn_submit
 
-// now let's calculate how much our freshly minted LTNano is worth in assetID
-// how much LTNano did we mint?
+// now let's calculate how much our freshly minted lTNano is worth in assetID
+// how much lTNano did we mint?
 
 global CurrentApplicationAddress
-int ${LTNano}
+int ${lTNano}
 asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
 pop // pop the opt-in
 load 3 // that's the amount the app had before the mint
-- // LTNano after mint - LTNano before mint
+- // lTNano after mint - lTNano before mint
 dup
 store 18
 
@@ -289,10 +288,10 @@ asset_holding_get AssetBalance // retrieve output supply amount in this case tha
 pop // pop the opt-in
 mulw // (asset_in_amount * 9975 * output_supply) 128 bit value
 
-load 3 // LTNano amount before mint
+load 3 // lTNano amount before mint
 int 10000
 *
-load 18 // LTNano amount we got from minting
+load 18 // lTNano amount we got from minting
 int 9975 // 0.25% fee
 *
 addw // ((input_supply * 10000) + (asset_in_amount * 9975))
@@ -326,9 +325,9 @@ itxn_field AssetReceiver
 
 itxn_next
 
-// when we minted our LTNano with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
-// I'm going to send it back to the user, only the stable coin who was sent by the user in the first place
-// I could send back both but it would force the user to opt-in both stable coins, something he might not want to do
+// when we minted our lTNano with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
+// I'm going to send it back to the users, only the stable coin who was sent by the user in the first place
+// I could send back both but it would force users to opt-in both stable coins, something they might not want to do
 
 int axfer
 itxn_field TypeEnum

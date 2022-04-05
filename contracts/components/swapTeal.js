@@ -1,7 +1,7 @@
-export const swapTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap}) => `
+export const swapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 
 // check that the first transaction is the asset we want to swap and corresponds to the one in the pool
-gtxn 0 XferAsset
+gtxn 0 XferAsset 
 int ${assetID}
 ==
 assert
@@ -17,7 +17,7 @@ assert
 gtxn 0 AssetAmount // input amount
 int 9975 // 0.25% fee
 *
-load 3 // output supply amount in this case that's LTNano
+load 3 // output supply amount in this case that's lTNano
 mulw // 128 bit value
 
 global CurrentApplicationAddress
@@ -37,28 +37,28 @@ pop // pop the remainder of the division
 swap // get rid of the high uint64
 pop // so only low quotient remains on stack
 dup
-store 4 // LTNano amount out
+store 4 // lTNano amount out
 dup
 int 0
 >
 assert // check amount out is more than 0
-load 3 // LTNano amount
+load 3 // lTNano amount
 <
-assert // check amount out is less than LTNano amount
+assert // check amount out is less than lTNano amount
 
 //let's call the nanoswap pools
 
 itxn_begin
 
-// first tx we send the LTNano token in the pool for burning
+// first tx we send the lTNano token in the pool for burning
 int axfer
 itxn_field TypeEnum
-int ${LTNano} // LTNano assetID
+int ${lTNano} // lTNano assetID
 itxn_field XferAsset
-load 4 // LTNano amount out
+load 4 // lTNano amount out
 itxn_field AssetAmount
-//txna Accounts 1 // will fail if it is not the address of Stable1Stable2AppId
-addr ${Stable1Stable2AppAddress}
+//txna Accounts 1 // will fail if it is not the address of stable1Stable2AppId
+addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
 
 itxn_next
@@ -71,7 +71,7 @@ int 2 // appl fee is 2x min for burn in nanoswap pools
 *
 itxn_field Fee
 //txna Applications 1
-int ${Stable1Stable2AppId}
+int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "ba1o"
 itxn_field ApplicationArgs
@@ -91,7 +91,7 @@ int 2
 * // appl fee is 2x min for burn in nanoswap pools
 itxn_field Fee
 //txna Applications 1
-int ${Stable1Stable2AppId}
+int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "ba2o"
 itxn_field ApplicationArgs
@@ -140,8 +140,8 @@ load 6
 asset_holding_get AssetBalance // load 6 amount
 pop
 itxn_field AssetAmount
-//txna Accounts 1 // will fail if it is not the address of Stable1Stable2AppId
-addr ${Stable1Stable2AppAddress}
+//txna Accounts 1 // will fail if it is not the address of stable1Stable2AppId
+addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
 
 itxn_next
@@ -153,7 +153,7 @@ global MinTxnFee
 int 5 // for a swap in a nanoswap pool fee is 5x the min
 *
 itxn_field Fee
-int ${Stable1Stable2AppId}
+int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "sef" // swap exact for
 itxn_field ApplicationArgs

@@ -2,22 +2,22 @@ import { bootstrapTeal } from "./components/bootstrapTeal.js";
 import { swapTeal } from "./components/swapTeal.js";
 import { zapTeal } from "./components/zapTeal.js";
 
-export const appTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap}) => `
-// swap call front-end:
-// foreignApps:[Stable1Stable2AppId, managerID_nanoswap]
-// foreignAssets: [assetID, LTNano, stable1, stable2] stable1 < stable2
-// accounts: [Stable1Stable2AppAddress aka the Nanoswap pool]
+export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
+// swap call front-end: 
+// foreignApps:[stable1Stable2AppId, managerID_nanoswap]
+// foreignAssets: [assetID, lTNano, stable1, stable2] stable1 < stable2
+// accounts: [stable1Stable2AppAddress aka the Nanoswap pool]
 // appArgs:["swap", int minimumAmountOut,  assetOutID (stable1 or stable2): only for metaswap ]
 
 
 // scratch space : {
-// ////1: liquidity token ID for Nanoswap Pool aka LTNano
+// ////1: liquidity token ID for Nanoswap Pool aka lTNano
 // 1: is app bootstrapped ?
 // //// 2: assetID for which the metapool was created
-// 3: LTNano asset amount in the app
+// 3: lTNano asset amount in the app
 
 // MetaSwap Specific:
-// 4: LTNano amount out for swap operation
+// 4: lTNano amount out for swap operation
 // 5: ID of asset out, should be either stable1 or stable2
 // 6: ID of asset in, should be either stable1 or stable 2. Once the burn is done, 
 // this asset will be traded in against the other member of that pair.
@@ -34,7 +34,7 @@ export const appTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppI
 // 15: amount of stable-out in the app account
 // 16: theoretical amount of stable-out to send for minting
 // 17: actual amount of stable-out to send for minting
-// 18: LTNano amount mint
+// 18: lTNano amount mint
 // 19: final amount of assetID to send back
 //}
 
@@ -71,15 +71,15 @@ int 2
 ==
 assert
 
-//byte "LTNano" // liquidity token ID for Nanoswap Pool
+//byte "lTNano" // liquidity token ID for Nanoswap Pool
 //app_global_get // will return 0 if pool is not bootstrapped
 //store 1
 
 global CurrentApplicationAddress
-int ${LTNano}
+int ${lTNano}
 asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
-store 1 // is app bootstrapped aka opted-in LTNano
-store 3 // LTNano asset amount in the app account
+store 1 // is app bootstrapped aka opted-in lTNano
+store 3 // lTNano asset amount in the app account
 
 // Allow bootstrap
 txna ApplicationArgs 0
@@ -117,13 +117,13 @@ err
 
 
 metaswap:
-${swapTeal({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap})}
+${swapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
 
 metazap:
-${zapTeal({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppId, Stable1Stable2AppAddress, managerID_nanoswap})}
+${zapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
 
 bootstrap:
-${bootstrapTeal({ assetID, LTNano, stable1, stable2 })}
+${bootstrapTeal({ assetID, lTNano, stable1, stable2 })}
 
 
 allow:
