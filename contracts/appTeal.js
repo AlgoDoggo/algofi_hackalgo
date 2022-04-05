@@ -1,4 +1,5 @@
 import { bootstrapTeal } from "./components/bootstrapTeal.js";
+import { checkFeesTeal } from "./components/checkFeesTeal.js";
 import { swapTeal } from "./components/swapTeal.js";
 import { zapTeal } from "./components/zapTeal.js";
 
@@ -11,9 +12,8 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 
 
 // scratch space : {
-// ////1: liquidity token ID for Nanoswap Pool aka lTNano
 // 1: is app bootstrapped ?
-// //// 2: assetID for which the metapool was created
+// 2: algo amount in the app
 // 3: lTNano asset amount in the app
 
 // MetaSwap Specific:
@@ -65,15 +65,9 @@ int CloseOut
 &&
 assert
 
-// This whole app works with 2 transactions
-global GroupSize
-int 2
-==
-assert
-
-//byte "lTNano" // liquidity token ID for Nanoswap Pool
-//app_global_get // will return 0 if pool is not bootstrapped
-//store 1
+global CurrentApplicationAddress
+balance
+store 2 // algo amount in the app
 
 global CurrentApplicationAddress
 int ${lTNano}
@@ -89,6 +83,10 @@ load 1 // if pool is not bootstrapped load 1 will be 0
 int 0
 ==
 &&
+global GroupSize
+int 2
+==
+&&
 bnz bootstrap
 
 // Allow Opt-in.
@@ -99,6 +97,12 @@ bnz allow
 
 // Before we go any further let's verify the pool is bootstrapped
 load 1 
+assert
+
+// This whole app works with 2 transactions
+global GroupSize
+int 3
+==
 assert
 
 txna ApplicationArgs 0
@@ -125,6 +129,10 @@ ${zapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stab
 bootstrap:
 ${bootstrapTeal({ assetID, lTNano, stable1, stable2 })}
 
+
+
+checkFees:
+${checkFeesTeal}
 
 allow:
 int 1

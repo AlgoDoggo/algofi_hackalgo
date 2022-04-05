@@ -1,11 +1,11 @@
 export const zapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 // check that the first transaction is the asset we want to zap and corresponds to either stable1 or stable2
-gtxn 0 XferAsset
+gtxn 1 XferAsset
 dup 
 store 8 // save stable-in ID
 int ${stable1}
 ==
-gtxn 0 XferAsset
+gtxn 1 XferAsset
 int ${stable2}
 ==
 ||
@@ -15,13 +15,13 @@ assert
 int ${stable1}
 int ${stable2}
 int ${stable1}
-gtxn 0 XferAsset
+gtxn 1 XferAsset
 ==
 select
 store 9 // stable-out ID
 
 // check it's going to the app account
-gtxn 0 AssetReceiver
+gtxn 1 AssetReceiver
 global CurrentApplicationAddress
 ==
 assert
@@ -41,7 +41,7 @@ pop // remove opt-in info
 store 11 // balance of stable-out asset
 
 // save the amount of stable-in to zap
-// here I could use gtxn 0 AssetAmount but I chose to use the metapool asset balance rather. 
+// here I could use gtxn 1 AssetAmount but I chose to use the metapool asset balance rather. 
 // else if somebody inadvertently sent any stable-in to our metapool it would be stuck forever.
 
 global CurrentApplicationAddress
@@ -72,24 +72,26 @@ store 12
 // x and load 12 being both positive numbers the only solution is
 // x = -s1 + sqrt( s1* ( s1 + load 12))
 // let's rewrite it and compensate for the 0.25% fee loss
-// x = (sqrt( s1* ( s1 + load 12)) -s1) * 10000 / 9975
+// x = (sqrt( s1 * ( s1 + load 12)) - s1) * 10000 / 9975
 
 load 10 // s1, load 12 still twice on the stack
 +
+itob // going for byteslice arithmetic to avoid overflow issues
 load 10
-* // we could get into overflow issues if s1 is very large, yet using mulw is not practical here
-// as there is not sqrt for 128 bit values.
-sqrt
+itob 
+b*
+bsqrt
+btoi // it's cheaper to do the following substraction with uints than with byte slice arithmetic (b-)
 load 10
 - // here we have x, not adjusted for the fee the nanopool is going to charge
-int 10000
-*
-int 9975
-/ // x, adjusted for 0.25% fee
+int 10000 // = byte 0x2710 
+mulw
+int 9975 // = byte 0x26f7 
+divw // x adjusted for 0.25% fee
 - // still had a load 12 on stack so this is load 12 - x_adjusted
 store 13 // stable-in amount to trade
 
-// let's swap
+// let's swap stable-in for stable-out
 
 itxn_begin
 
@@ -109,7 +111,7 @@ itxn_next
 int appl
 itxn_field TypeEnum
 global MinTxnFee
-int 5 // appl fee is 5x min for swap in nanoswap pools
+int 6 // appl fee is 5x min for swap in nanoswap pools, sometimes 6x
 *
 itxn_field Fee
 int ${stable1Stable2AppId}
@@ -157,16 +159,10 @@ load 9
 asset_holding_get AssetBalance // s2
 pop // remove opt-in info
 mulw // load 14 * s2
-int 0 
 load 10 // balance of stable-in asset
 load 13 // amount we swapped earlier
 + // s1 is the balance in nanopool before the swap + the amount we swapped in
-addw // convert s1 to uint128 
-divmodw 
-pop // remove all unecessary values
-pop
-swap
-pop
+divw // A,B / C. Fail if C == 0 or if result overflows. A,B as uint128
 dup
 store 16 // that's the correct amount of stable-out to send for minting
 load 15 
@@ -343,7 +339,7 @@ itxn_field AssetReceiver
 
 itxn_submit
 
-b allow
+b checkFees
 
 
 

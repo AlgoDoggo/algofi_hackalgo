@@ -3,6 +3,7 @@ import algosdk, {
   getApplicationAddress,
   makeApplicationNoOpTxnFromObject,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
+  makePaymentTxnWithSuggestedParamsFromObject,
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
@@ -40,9 +41,18 @@ async function metaswap() {
 
     // appArgs:["metaswap", int minimumAmountOut,  assetOutID (stable1 or stable2) ]
 
-    const argsMetaswap = [enc.encode("metaswap"), encodeUint64(90), encodeUint64(D981)];
-    
-    const tx0 = makeAssetTransferTxnWithSuggestedParamsFromObject({
+    const argsMetaswap = [enc.encode("metaswap"), encodeUint64(90), encodeUint64(D552)];
+
+    const tx0 = makePaymentTxnWithSuggestedParamsFromObject({
+      suggestedParams: {
+        ...params,
+      },
+      from: account.addr,
+      to: getApplicationAddress(metapool_testnet_app),
+      amount: 12000,
+    });
+
+    const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
       suggestedParams: {
         ...params,
         fee: 1000,
@@ -50,10 +60,10 @@ async function metaswap() {
       from: account.addr,
       to: getApplicationAddress(metapool_testnet_app),
       assetIndex: test,
-      amount: 10**10,
+      amount: 10 ** 13,
     });
 
-    const tx1 = makeApplicationNoOpTxnFromObject({
+    const tx2 = makeApplicationNoOpTxnFromObject({
       // swap exact for
       suggestedParams: {
         ...params,
@@ -68,7 +78,7 @@ async function metaswap() {
       foreignApps: [D981_d552_testnet_app, managerID_nanoswap_TESTNET],
     });
 
-    const transactions = [tx0, tx1];
+    const transactions = [tx0, tx1, tx2];
 
     algosdk.assignGroupID(transactions);
 
@@ -82,4 +92,4 @@ async function metaswap() {
 }
 export default metaswap;
 
-metaswap()
+metaswap();

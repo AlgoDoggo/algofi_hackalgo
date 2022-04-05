@@ -66,7 +66,7 @@ const createApp = async () => {
     console.log("Created new app-id: ", appId);
 
     // bootstrap it
-    //const appId = 81930954
+    //const appId = 82302220
     
 
     const bootstrap = makePaymentTxnWithSuggestedParamsFromObject({

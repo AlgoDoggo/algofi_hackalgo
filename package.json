@@ -11,6 +11,7 @@
     "burn": "node ./helpers/burn.js",
     "mint": "nodemon ./helpers/mint.js",
     "metaswap": "nodemon ./helpers/metaswap.js",
+    "metazap": "nodemon ./helpers/metazap.js",
     "create-test": "node ./contractsTest/createAppTest.js",
     "optin-test": "node ./contractsTest/optinTest.js",
     "swap-test": "nodemon ./contractsTest/swapTest.js"

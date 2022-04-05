@@ -1,20 +1,20 @@
 export const swapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 
 // check that the first transaction is the asset we want to swap and corresponds to the one in the pool
-gtxn 0 XferAsset 
+gtxn 1 XferAsset 
 int ${assetID}
 ==
 assert
 
 // check it's going to the app account
-gtxn 0 AssetReceiver
+gtxn 1 AssetReceiver
 global CurrentApplicationAddress
 ==
 assert
 
 //  calculated_amount_out = (asset_in_amount * 9975 * output_supply) / ((input_supply * 10000) + (asset_in_amount * 9975))
 
-gtxn 0 AssetAmount // input amount
+gtxn 1 AssetAmount // input amount
 int 9975 // 0.25% fee
 *
 load 3 // output supply amount in this case that's lTNano
@@ -26,7 +26,7 @@ asset_holding_get AssetBalance // retrieve input supply amount in this case that
 pop // pop the opt-in
 int 10000
 *
-gtxn 0 AssetAmount // input amount
+gtxn 1 AssetAmount // input amount
 int 9975 // 0.25% fee
 *
 addw // ((input_supply * 10000) + (asset_in_amount * 9975))
@@ -150,7 +150,7 @@ itxn_next
 int appl
 itxn_field TypeEnum
 global MinTxnFee
-int 5 // for a swap in a nanoswap pool fee is 5x the min
+int 6 // for a swap in a nanoswap pool fee is at least 5x the min
 *
 itxn_field Fee
 int ${stable1Stable2AppId}
@@ -196,6 +196,6 @@ txn Sender
 itxn_field AssetReceiver
 
 itxn_submit
-b allow
+b checkFees
 
 `
