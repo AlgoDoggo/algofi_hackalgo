@@ -175,7 +175,7 @@ select // if true select load 15 else load 16
 store 17
 
 
-// For minting on Algofi it's important to send first the smallest ID so stable 1
+// For minting on Algofi it's important to send first the smallest stable ID so stable 1
 
 itxn_begin
 
@@ -184,7 +184,12 @@ int axfer
 itxn_field TypeEnum
 int ${stable1} // stable-in ID
 itxn_field XferAsset
-load 14 // current balance of stable1
+load 17 // stable out amount to send
+load 14 // stable in amount to send
+load 8
+int ${stable1}
+== // is stable-in stable 1?
+select
 itxn_field AssetAmount
 addr ${Stable1Stable2AppAddress}
 itxn_field AssetReceiver
@@ -196,7 +201,12 @@ int axfer
 itxn_field TypeEnum
 int ${stable2} // stable-out ID
 itxn_field XferAsset
-load 15 // current balance of stable2
+load 17 // stable out amount to send
+load 14 // stable in amount to send
+load 8
+int ${stable2}
+== // is stable-in stable 2?
+select
 itxn_field AssetAmount
 addr ${Stable1Stable2AppAddress}
 itxn_field AssetReceiver
