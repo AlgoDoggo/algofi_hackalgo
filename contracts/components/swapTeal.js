@@ -153,7 +153,6 @@ global MinTxnFee
 int 5 // for a swap in a nanoswap pool fee is 5x the min
 *
 itxn_field Fee
-//txna ApplicationArgs 1
 int ${Stable1Stable2AppId}
 itxn_field ApplicationID
 byte "sef" // swap exact for
@@ -172,14 +171,14 @@ itxn_field OnCompletion
 
 itxn_submit
 
-// finally we check if we got more than the minimum amount set in appargs 2
+// finally we check if we got more than the minimum amount set in appargs 1
 global CurrentApplicationAddress
 load 5
 asset_holding_get AssetBalance
 pop // remove opt-in info
 dup
 store 7 // amount we'll send back to the user
-txna ApplicationArgs 2
+txna ApplicationArgs 1
 btoi
 >=
 assert

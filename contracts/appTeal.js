@@ -7,20 +7,22 @@ export const appTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppI
 // foreignApps:[Stable1Stable2AppId, managerID_nanoswap]
 // foreignAssets: [assetID, LTNano, stable1, stable2] stable1 < stable2
 // accounts: [Stable1Stable2AppAddress aka the Nanoswap pool]
-// appArgs:["swap", int minimumAmountOut,  assetOutID (stable1 or stable2) ]
+// appArgs:["swap", int minimumAmountOut,  assetOutID (stable1 or stable2): only for metaswap ]
 
 
 // scratch space : {
 // ////1: liquidity token ID for Nanoswap Pool aka LTNano
 // 1: is app bootstrapped ?
-// 2: assetID for which the metapool was created
+// //// 2: assetID for which the metapool was created
 // 3: LTNano asset amount in the app
+
 // MetaSwap Specific:
 // 4: LTNano amount out for swap operation
 // 5: ID of asset out, should be either stable1 or stable2
 // 6: ID of asset in, should be either stable1 or stable 2. Once the burn is done, 
 // this asset will be traded in against the other member of that pair.
 // 7: amount sent back to user
+
 // Metazap specific:
 // 8: stable in ID for the swap
 // 9: stable out ID for the swap
@@ -32,6 +34,8 @@ export const appTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppI
 // 15: amount of stable-out in the app account
 // 16: theoretical amount of stable-out to send for minting
 // 17: actual amount of stable-out to send for minting
+// 18: LTNano amount mint
+// 19: final amount of assetID to send back
 //}
 
 

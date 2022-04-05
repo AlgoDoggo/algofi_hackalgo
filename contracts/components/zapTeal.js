@@ -41,7 +41,9 @@ pop // remove opt-in info
 store 11 // balance of stable-out asset
 
 // save the amount of stable-in to zap
-// here I'm using the app asset balance rather than gtxn 0 AssetAmount
+// here I could use gtxn 0 AssetAmount but I chose to use the metapool asset balance rather. 
+// else if somebody inadvertently sent any stable-in to our metapool it would be stuck forever.
+
 global CurrentApplicationAddress
 load 8 // stable-in ID
 asset_holding_get AssetBalance 
@@ -266,7 +268,83 @@ itxn_field OnCompletion
 
 itxn_submit
 
-//now let's swap the freshly minted LTNano for assetID
+// now let's calculate how much our freshly minted LTNano is worth in assetID
+// how much LTNano did we mint?
+
+global CurrentApplicationAddress
+int ${LTNano}
+asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
+pop // pop the opt-in
+load 3 // that's the amount the app had before the mint
+- // LTNano after mint - LTNano before mint
+dup
+store 18
+
+//  calculated_amount_out = (asset_in_amount * 9975 * output_supply) / ((input_supply * 10000) + (asset_in_amount * 9975))
+int 9975 // 0.25% fee
+*
+global CurrentApplicationAddress
+int ${assetID}
+asset_holding_get AssetBalance // retrieve output supply amount in this case that's assetID
+pop // pop the opt-in
+mulw // (asset_in_amount * 9975 * output_supply) 128 bit value
+
+load 3 // LTNano amount before mint
+int 10000
+*
+load 18 // LTNano amount we got from minting
+int 9975 // 0.25% fee
+*
+addw // ((input_supply * 10000) + (asset_in_amount * 9975))
+
+divmodw // division with 128 bit value
+pop // pop the remainder of the division
+pop // pop the remainder of the division
+swap // get rid of the high uint64
+pop // so only low quotient remains on stack
+dup
+store 19 // assetID amount out
+
+// finally we check if we got more assetID than the minimum amount set in appargs 2
+txna ApplicationArgs 1
+btoi
+>=
+assert
+
+// let's send this back to the user
+
+itxn_begin
+
+int axfer
+itxn_field TypeEnum
+int ${assetID} 
+itxn_field XferAsset
+load 19 // assetID amount out
+itxn_field AssetAmount
+txn Sender
+itxn_field AssetReceiver
+
+itxn_next
+
+// when we minted our LTNano with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
+// I'm going to send it back to the user, only the stable coin who was sent by the user in the first place
+// I could send back both but it would force the user to opt-in both stable coins, something he might not want to do
+
+int axfer
+itxn_field TypeEnum
+load 8 // stable-in ID
+itxn_field XferAsset
+global CurrentApplicationAddress
+load 8 // stable-in ID
+asset_holding_get AssetBalance // get what's left in the metapool
+pop // remove opt-in info
+itxn_field AssetAmount
+txn Sender
+itxn_field AssetReceiver
+
+itxn_submit
+
+b allow
 
 
 
