@@ -54,7 +54,7 @@ store 12
 // let's start zapping.
 
 // To mint LTnano we must supply an appropriate ratio of stable1 and stable2 such as:
-// stable1 sent / stable1 sent = stable1 supply / stable2 supply
+// stable1 sent / stable2 sent = stable1 supply / stable2 supply
 
 // First let's convert stable-in into an appropriate amount of stable1-stable2 for the subsquent LTNano mint
 // The math to figure out the amount of stable-in to convert was a little more complicated than thought
@@ -128,21 +128,54 @@ itxn_field OnCompletion
 itxn_submit
 
 // now let's mint our LTNano
-// For minting on Algofi it's important to send first the smallest ID so stable 1
 
-// first get the current balance of stable 1
+// first get the current balance of stable-in
 global CurrentApplicationAddress
-int ${stable1} // stable1 ID
+load 8 // stable-in ID
 asset_holding_get AssetBalance
 pop // remove opt-in info
 store 14 // balance of stable-in asset
 
-// first get the current balance of stable 2
+// first get the current balance of stable-out
 global CurrentApplicationAddress
-int ${stable2} // stable-out ID
+load 9 // stable-out ID
 asset_holding_get AssetBalance
 pop // remove opt-in info
-store 15 // balance of stable-in asset
+store 15 // balance of stable-out asset to send for minting
+
+// here an adversary could have sent stable out to the metapool to modify the stable 1 - stable 2 ratio
+// and make all minting and therefore metazaps impossible
+// the reason for this is algofi max slippage on minting is 1% or int 10000 (after scaling)
+// let's prevent this by making sure the stable-out amount sent = load 14 * s2 / s1
+
+// retrieve the asset ratio of the nanoswap pools:
+
+load 14
+addr ${Stable1Stable2AppAddress}
+load 9
+asset_holding_get AssetBalance // s2
+pop // remove opt-in info
+mulw // load 14 * s2
+int 0 
+load 10 // balance of stable-in asset
+load 13 // amount we swapped earlier
++ // s1 is the balance in nanopool before the swap + the amount we swapped in
+addw // convert s1 to uint128 
+divmodw 
+pop // remove all unecessary values
+pop
+swap
+pop
+dup
+store 16 // that's the correct amount of stable-out to send for minting
+load 15 
+dup2
+>= // load 16 should be greater or equal than load 15 the asset balance
+select // if true select load 15 else load 16
+store 17
+
+
+// For minting on Algofi it's important to send first the smallest ID so stable 1
 
 itxn_begin
 
