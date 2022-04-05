@@ -53,7 +53,7 @@ import algosdk, {
         from: account.addr,
         to: getApplicationAddress(D981_d552_testnet_app),
         assetIndex: D981,
-        amount: 5000000,
+        amount: 50000,
       });
 
       const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -64,7 +64,7 @@ import algosdk, {
         from: account.addr,
         to: getApplicationAddress(D981_d552_testnet_app),
         assetIndex: D552,
-        amount: 5000000,
+        amount: 50000,
       });
   
       const tx2 = makeApplicationNoOpTxnFromObject({

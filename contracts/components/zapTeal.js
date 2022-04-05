@@ -41,7 +41,11 @@ pop // remove opt-in info
 store 11 // balance of stable-out asset
 
 // save the amount of stable-in to zap
-gtxn 0 AssetAmount
+// here I'm using the app asset balance rather than gtxn 0 AssetAmount
+global CurrentApplicationAddress
+load 8 // stable-in ID
+asset_holding_get AssetBalance 
+pop // remove opt-in info
 dup
 dup
 store 12
@@ -93,8 +97,6 @@ int axfer
 itxn_field TypeEnum
 load 8 // stable-in ID
 itxn_field XferAsset
-global MinTxnFee
-itxn_field Fee
 load 13 // from our calculations
 itxn_field AssetAmount
 addr ${Stable1Stable2AppAddress}
@@ -126,5 +128,103 @@ itxn_field OnCompletion
 itxn_submit
 
 // now let's mint our LTNano
+// For minting on Algofi it's important to send first the smallest ID so stable 1
+
+// first get the current balance of stable 1
+global CurrentApplicationAddress
+int ${stable1} // stable1 ID
+asset_holding_get AssetBalance
+pop // remove opt-in info
+store 14 // balance of stable-in asset
+
+// first get the current balance of stable 2
+global CurrentApplicationAddress
+int ${stable2} // stable-out ID
+asset_holding_get AssetBalance
+pop // remove opt-in info
+store 15 // balance of stable-in asset
+
+itxn_begin
+
+// first tx we send the stable-in to the pool
+int axfer
+itxn_field TypeEnum
+int ${stable1} // stable-in ID
+itxn_field XferAsset
+load 14 // current balance of stable1
+itxn_field AssetAmount
+addr ${Stable1Stable2AppAddress}
+itxn_field AssetReceiver
+
+itxn_next
+
+// second tx we send the stable-in to the pool
+int axfer
+itxn_field TypeEnum
+int ${stable2} // stable-out ID
+itxn_field XferAsset
+load 15 // current balance of stable2
+itxn_field AssetAmount
+addr ${Stable1Stable2AppAddress}
+itxn_field AssetReceiver
+
+itxn_next
+
+// third tx is app call to mint LTNano
+int appl
+itxn_field TypeEnum
+global MinTxnFee
+int 3 // for a swap in a nanoswap pool fee is 5x the min
+*
+itxn_field Fee
+int ${Stable1Stable2AppId}
+itxn_field ApplicationID
+byte "p" // swap exact for
+itxn_field ApplicationArgs
+//When using itxn_field to set an array field (ApplicationArgs Accounts, Assets, or Applications) 
+//each use adds an element to the end of the the array.
+int 10000 // max slippage allowed by algofi pool, we'll check the metazap value at the end
+itob 
+itxn_field ApplicationArgs
+int ${LTNano} // LTNano id
+itxn_field Assets
+int ${managerID_nanoswap}
+itxn_field Applications
+int NoOp
+itxn_field OnCompletion
+
+itxn_next
+
+// 4th tx is app call to redeem excess stable1
+int appl
+itxn_field TypeEnum
+int ${Stable1Stable2AppId}
+itxn_field ApplicationID
+byte "rpa1r" // algofi's string for redeeming after a mint
+itxn_field ApplicationArgs
+int ${stable1} // LTNano id
+itxn_field Assets
+int NoOp
+itxn_field OnCompletion
+
+itxn_next
+
+// 5th tx is app call to redeem excess stable2
+int appl
+itxn_field TypeEnum
+int ${Stable1Stable2AppId}
+itxn_field ApplicationID
+byte "rpa2r"
+itxn_field ApplicationArgs
+int ${stable2} // LTNano id
+itxn_field Assets
+int NoOp
+itxn_field OnCompletion
+
+itxn_submit
+
+//now let's swap the freshly minted LTNano for assetID
+
+
 
 `

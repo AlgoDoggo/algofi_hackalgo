@@ -55,8 +55,6 @@ int axfer
 itxn_field TypeEnum
 int ${LTNano} // LTNano assetID
 itxn_field XferAsset
-global MinTxnFee
-itxn_field Fee
 load 4 // LTNano amount out
 itxn_field AssetAmount
 //txna Accounts 1 // will fail if it is not the address of Stable1Stable2AppId
@@ -137,8 +135,6 @@ int axfer
 itxn_field TypeEnum
 load 6 // asset-in, Either stable1 or stable2
 itxn_field XferAsset
-global MinTxnFee
-itxn_field Fee
 global CurrentApplicationAddress
 load 6
 asset_holding_get AssetBalance // load 6 amount
@@ -195,8 +191,6 @@ int axfer
 itxn_field TypeEnum
 load 5 // asset-in, Either stable1 or stable2
 itxn_field XferAsset
-global MinTxnFee
-itxn_field Fee
 load 7
 itxn_field AssetAmount
 txn Sender

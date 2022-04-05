@@ -28,6 +28,9 @@ export const appTeal = ({ assetID, LTNano, stable1, stable2 , Stable1Stable2AppI
 // 11: nanoswap pool balance of stable-out
 // 12: amount of stable-in to zap, sent by the user
 // 13: amount of stable-in to exchange for the other stable coin so that we may get an appropriate ratio for minting
+// 14: amount of stable1 to send to the nanoswap for the mint
+// 15: amount of stable2 to send to the nanoswap for the mint
+
 //}
 
 
