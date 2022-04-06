@@ -1,7 +1,7 @@
 import { bootstrapTeal } from "./branches/bootstrapTeal.js";
 import { checkFeesTeal } from "./branches/checkFeesTeal.js";
-import { swapTeal } from "./branches/swapTeal.js";
-import { zapTeal } from "./branches/zapTeal.js";
+import { swapTeal } from "./branches/metaswapTeal.js";
+import { zapTeal } from "./branches/metazapTeal.js";
 
 export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 // swap call front-end: 
@@ -128,10 +128,10 @@ err
 
 
 metaswap:
-${swapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
+${metaswapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
 
 metazap:
-${zapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
+${metazapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
 
 bootstrap:
 ${bootstrapTeal({ assetID, lTNano, stable1, stable2 })}

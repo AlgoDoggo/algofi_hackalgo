@@ -1,4 +1,4 @@
-export const swapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
+export const metaswapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 
 // check that the first transaction is the asset we want to swap and corresponds to the one in the pool
 gtxn 1 XferAsset 

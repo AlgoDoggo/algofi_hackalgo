@@ -1,4 +1,4 @@
-export const zapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
+export const metazapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 // check that the first transaction is the asset we want to zap and corresponds to either stable1 or stable2
 gtxn 1 XferAsset
 dup 

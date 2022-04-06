@@ -54,7 +54,8 @@ itxn_submit
 
 // create this app liquidity token
 itxn_begin
-
+int 0
+itxn_field Fee
 int acfg
 itxn_field TypeEnum
 int 0

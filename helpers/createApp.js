@@ -60,20 +60,20 @@ const createApp = async () => {
     });
 
     let txSigned = tx.signTxn(account.sk);
-    // const { txId } = await algodClient.sendRawTransaction(txSigned).do();
-    // const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
-    // const appId = transactionResponse["application-index"];
-    // console.log("Created new app-id: ", appId);
+    const { txId } = await algodClient.sendRawTransaction(txSigned).do();
+    const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
+    const appId = transactionResponse["application-index"];
+    console.log("Created new app-id: ", appId);
 
     // bootstrap it
-    const appId = 82478041
+    //const appId = 82478041
     
 
     const bootstrap = makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams: {
         ...suggestedParams,
         flatFee: true,
-        fee: 5000,
+        fee: 6000,
       },
       from: account.addr,
       to: getApplicationAddress(appId),
