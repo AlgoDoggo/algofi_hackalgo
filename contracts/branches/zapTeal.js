@@ -339,6 +339,9 @@ itxn_field AssetReceiver
 
 itxn_submit
 
+int 11 // number of MinTxnFee consumed by the metapool
+store 20
+
 b checkFees
 
 

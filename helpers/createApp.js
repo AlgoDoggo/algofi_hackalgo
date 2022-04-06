@@ -53,20 +53,20 @@ const createApp = async () => {
       approvalProgram: new Uint8Array(Buffer.from(compileApp.result, "base64")),
       clearProgram: new Uint8Array(Buffer.from(compiledClearProg.result, "base64")),
       numGlobalByteSlices: 0,
-      numGlobalInts: 0,
+      numGlobalInts: 1,
       numLocalByteSlices: 0,
       numLocalInts: 0,
       onComplete: OnApplicationComplete.NoOpOC,
     });
 
     let txSigned = tx.signTxn(account.sk);
-    const { txId } = await algodClient.sendRawTransaction(txSigned).do();
-    const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
-    const appId = transactionResponse["application-index"];
-    console.log("Created new app-id: ", appId);
+    // const { txId } = await algodClient.sendRawTransaction(txSigned).do();
+    // const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
+    // const appId = transactionResponse["application-index"];
+    // console.log("Created new app-id: ", appId);
 
     // bootstrap it
-    //const appId = 82302220
+    const appId = 82478041
     
 
     const bootstrap = makePaymentTxnWithSuggestedParamsFromObject({

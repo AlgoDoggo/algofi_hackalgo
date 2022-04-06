@@ -57,7 +57,6 @@ int ${lTNano} // lTNano assetID
 itxn_field XferAsset
 load 4 // lTNano amount out
 itxn_field AssetAmount
-//txna Accounts 1 // will fail if it is not the address of stable1Stable2AppId
 addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
 
@@ -70,12 +69,10 @@ global MinTxnFee
 int 2 // appl fee is 2x min for burn in nanoswap pools
 *
 itxn_field Fee
-//txna Applications 1
 int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "ba1o"
 itxn_field ApplicationArgs
-//txna Assets 2
 int ${stable1}
 itxn_field Assets
 int NoOp
@@ -90,12 +87,10 @@ global MinTxnFee
 int 2
 * // appl fee is 2x min for burn in nanoswap pools
 itxn_field Fee
-//txna Applications 1
 int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "ba2o"
 itxn_field ApplicationArgs
-//txna Assets 3
 int ${stable2}
 itxn_field Assets
 int NoOp
@@ -140,7 +135,6 @@ load 6
 asset_holding_get AssetBalance // load 6 amount
 pop
 itxn_field AssetAmount
-//txna Accounts 1 // will fail if it is not the address of stable1Stable2AppId
 addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
 
@@ -196,6 +190,10 @@ txn Sender
 itxn_field AssetReceiver
 
 itxn_submit
+
+int 12 // number of MinTxnFee consumed by the metapool
+store 20
+
 b checkFees
 
 `

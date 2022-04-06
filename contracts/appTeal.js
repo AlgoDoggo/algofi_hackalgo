@@ -1,7 +1,7 @@
-import { bootstrapTeal } from "./components/bootstrapTeal.js";
-import { checkFeesTeal } from "./components/checkFeesTeal.js";
-import { swapTeal } from "./components/swapTeal.js";
-import { zapTeal } from "./components/zapTeal.js";
+import { bootstrapTeal } from "./branches/bootstrapTeal.js";
+import { checkFeesTeal } from "./branches/checkFeesTeal.js";
+import { swapTeal } from "./branches/swapTeal.js";
+import { zapTeal } from "./branches/zapTeal.js";
 
 export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 // swap call front-end: 
@@ -12,7 +12,7 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 
 
 // scratch space : {
-// 1: is app bootstrapped ?
+// 1: Metapool Liquidity token ID
 // 2: algo amount in the app
 // 3: lTNano asset amount in the app
 
@@ -36,6 +36,9 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 // 17: actual amount of stable-out to send for minting
 // 18: lTNano amount mint
 // 19: final amount of assetID to send back
+
+// CheckFeess specific:
+// 20: number of MinTxnFee consumed by the metapool
 //}
 
 
@@ -65,6 +68,10 @@ int CloseOut
 &&
 assert
 
+byte "Metapool LT"
+app_global_get
+store 1 // Metapool Liquidity token ID
+
 global CurrentApplicationAddress
 balance
 store 2 // algo amount in the app
@@ -72,7 +79,7 @@ store 2 // algo amount in the app
 global CurrentApplicationAddress
 int ${lTNano}
 asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
-store 1 // is app bootstrapped aka opted-in lTNano
+pop // is app opted-in lTNano
 store 3 // lTNano asset amount in the app account
 
 // Allow bootstrap
@@ -99,7 +106,7 @@ bnz allow
 load 1 
 assert
 
-// This whole app works with 2 transactions
+// This whole app works with 3 transactions
 global GroupSize
 int 3
 ==

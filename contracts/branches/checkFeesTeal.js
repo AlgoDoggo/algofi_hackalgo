@@ -10,10 +10,9 @@ global CurrentApplicationAddress
 assert
 
 gtxn 0 Amount
-load 2 // algo amount at the start of the app
-global CurrentApplicationAddress
-balance // algo amount at the end of the app
--
+global MinTxnFee
+load 20 // number of MinTxnFee consumed by the metapool
+*
 >=
 assert
 

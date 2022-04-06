@@ -48,19 +48,40 @@ int ${assetID}
 itxn_field XferAsset
 callsub subroutine_bootstrap
 
+// send the opt-ins
+itxn_submit
+
+
+// create this app liquidity token
+itxn_begin
+
+int acfg
+itxn_field TypeEnum
+int 0
+~
+itxn_field ConfigAssetTotal
+int 6
+itxn_field ConfigAssetDecimals
+int 0
+itxn_field ConfigAssetDefaultFrozen
+byte "METAPOOL"
+itxn_field ConfigAssetUnitName
+byte "Metapool LT ${assetID}-${lTNano}"
+itxn_field ConfigAssetName
+byte "https://github.com/AlgoDoggo/algofi_hackalgo" 
+itxn_field ConfigAssetURL
+
 // send the tx and return
 itxn_submit
 
-// save assetID and lTNano in app global state
-// byte "assetID"
-// int ${assetID}
-// app_global_put
+// save Metapool Liquidity token ID in app global state
+byte "Metapool LT"
+itxn CreatedAssetID
+app_global_put
 
-// byte "lTNano"
-// int ${lTNano}
-// app_global_put
 
 b allow
+
 
 subroutine_bootstrap:
 
