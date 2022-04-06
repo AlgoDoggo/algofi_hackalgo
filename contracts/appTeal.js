@@ -1,7 +1,8 @@
 import { bootstrapTeal } from "./branches/bootstrapTeal.js";
 import { checkFeesTeal } from "./branches/checkFeesTeal.js";
-import { swapTeal } from "./branches/metaswapTeal.js";
-import { zapTeal } from "./branches/metazapTeal.js";
+import { mintTeal } from "./branches/mintTeal.js";
+import { metaswapTeal } from "./branches/metaswapTeal.js";
+import { metazapTeal } from "./branches/metazapTeal.js";
 
 export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 // swap call front-end: 
@@ -10,8 +11,12 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 // accounts: [stable1Stable2AppAddress aka the Nanoswap pool]
 // appArgs:["metaswap" || "metazap" etc, int minimumAmountOut,  assetOutID (stable1 or stable2): only for metaswap ]
 
+// mint call front end:
+// gtxn 0: mint app call
+// gtxn 1: send assetID
+// gtxn 2: send lTNano
 
-// scratch space : {
+// scratch space :
 // 1: Metapool Liquidity token ID
 // 2: algo amount in the app
 // 3: lTNano asset amount in the app
@@ -39,7 +44,10 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 
 // CheckFeess specific:
 // 20: number of MinTxnFee consumed by the metapool
-//}
+
+// Mint specific:
+// 21: issued amount of Metapool LT
+// 22: amount of Metapool LT to send
 
 
 #pragma version 6
@@ -126,6 +134,8 @@ bnz metazap
 
 err
 
+mint:
+${mintTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
 
 metaswap:
 ${metaswapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
