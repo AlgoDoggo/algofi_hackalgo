@@ -27,28 +27,28 @@ itxn_begin
 int ${stable2}
 itxn_field XferAsset
 // the rest of fields are common to all inner bootstrap tx
-callsub subroutine_bootstrap
+callsub bootstrap_commonFields
 
 // optin-in stable1
 itxn_next
 
 int ${stable1}
 itxn_field XferAsset
-callsub subroutine_bootstrap
+callsub bootstrap_commonFields
 
 // optin-in stable2-stable1 lTNano
 itxn_next
 
 int ${lTNano}
 itxn_field XferAsset
-callsub subroutine_bootstrap
+callsub bootstrap_commonFields
 
 // optin-in the token this pool is set for
 itxn_next
 
 int ${assetID}
 itxn_field XferAsset
-callsub subroutine_bootstrap
+callsub bootstrap_commonFields
 
 // send the opt-ins
 itxn_submit
@@ -86,7 +86,9 @@ app_global_put
 b allow
 
 
-subroutine_bootstrap:
+////////////////////// subroutines
+
+bootstrap_commonFields:
 
 // opt-in is an asset transfer
 int axfer

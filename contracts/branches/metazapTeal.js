@@ -255,7 +255,6 @@ byte "rpa2r"
 itxn_field ApplicationArgs
 int ${stable2} // lTNano id
 itxn_field Assets
-
 callsub common_appl_fields
 
 itxn_submit
@@ -319,8 +318,9 @@ itxn_field AssetReceiver
 itxn_next
 
 // when we minted our lTNano with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
-// I'm going to send it back to the users, only the stable coin who was sent by the user in the first place
-// I could send back both but it would force users to opt-in both stable coins, something they might not want to do
+// The way we've calculated ratios, this redeem should always be stable-in asset since the stable-out amount sent should always
+// be slightly smaller or equal than the proper ratio
+
 
 int axfer
 itxn_field TypeEnum

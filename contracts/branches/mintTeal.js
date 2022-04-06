@@ -1,5 +1,6 @@
-export const mintTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
-// check the two assets sent are the right ones
+export const mintTeal = ({ assetID, lTNano }) => `
+
+// check the two assets sent are the right ones and going to the app
 gtxn 1 XferAsset // by convention we'll send assetID first
 int ${assetID}
 ==
@@ -7,19 +8,17 @@ gtxn 2 XferAsset
 int ${lTNano}
 ==
 &&
+gtxn 1 AssetReceiver
+global CurrentApplicationAddress
+==
+&&
+gtxn 2 AssetReceiver
+global CurrentApplicationAddress
+==
+&&
 assert
 
-// calculate the issued amount of Metapool LT
-int 0
-~ // bitwise invert value of 0 is 2**64 - 1
-global CurrentApplicationAddress
-load 1
-asset_holding_get AssetBalance // liquidity token amount in the app
-pop
-- // (2**64 - 1 ) - actual balance
-dup
-store 21 // issued amount of Metapool LT
-
+load 21 // issued amount of Metapool LT
 bz first_mint // if 0 LT issued then it's first mint
 
 
@@ -32,10 +31,7 @@ bz first_mint // if 0 LT issued then it's first mint
 gtxn 1 AssetAmount
 load 21
 mulw
-global CurrentApplicationAddress
-int ${assetID}
-asset_holding_get AssetBalance // liquidity token amount in the app
-pop
+load 27 // assetID supply
 divw // assetID amount * issued Metapool LT / assetID supply
 dup // we're going to leave that value on stack
 store 24 
@@ -43,10 +39,7 @@ store 24
 gtxn 2 AssetAmount
 load 21
 mulw
-global CurrentApplicationAddress
-int ${lTNano}
-asset_holding_get AssetBalance // liquidity token amount in the app
-pop
+load 28 // lTNano supply
 divw // lTNano amount * issued Metapool LT / lTNano supply
 dup
 store 25 // lTNano amount * issued Metapool LT / lTNano supply
