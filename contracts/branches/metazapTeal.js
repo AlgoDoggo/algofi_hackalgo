@@ -125,8 +125,7 @@ load 9 // asset out
 itxn_field Assets
 int ${managerID_nanoswap}
 itxn_field Applications
-int NoOp
-itxn_field OnCompletion
+callsub common_appl_fields
 
 itxn_submit
 
@@ -230,8 +229,7 @@ int ${lTNano} // lTNano id
 itxn_field Assets
 int ${managerID_nanoswap}
 itxn_field Applications
-int NoOp
-itxn_field OnCompletion
+callsub common_appl_fields
 
 itxn_next
 
@@ -244,8 +242,7 @@ byte "rpa1r" // algofi's string for redeeming after a mint
 itxn_field ApplicationArgs
 int ${stable1} // lTNano id
 itxn_field Assets
-int NoOp
-itxn_field OnCompletion
+callsub common_appl_fields
 
 itxn_next
 
@@ -258,8 +255,8 @@ byte "rpa2r"
 itxn_field ApplicationArgs
 int ${stable2} // lTNano id
 itxn_field Assets
-int NoOp
-itxn_field OnCompletion
+
+callsub common_appl_fields
 
 itxn_submit
 
@@ -343,7 +340,5 @@ int 11 // number of MinTxnFee consumed by the metapool
 store 20
 
 b checkFees
-
-
 
 `

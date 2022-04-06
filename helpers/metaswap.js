@@ -15,7 +15,7 @@ import {
   managerID_dex,
   managerID_nanoswap,
   managerID_nanoswap_TESTNET,
-  metapool_testnet_app,
+  metapool_app_TESTNET,
   STBL,
   StblUsdcAppId,
   test,
@@ -48,7 +48,7 @@ async function metaswap() {
         ...params,
       },
       from: account.addr,
-      to: getApplicationAddress(metapool_testnet_app),
+      to: getApplicationAddress(metapool_app_TESTNET),
       amount: 12000,
     });
 
@@ -58,7 +58,7 @@ async function metaswap() {
         fee: 1000,
       },
       from: account.addr,
-      to: getApplicationAddress(metapool_testnet_app),
+      to: getApplicationAddress(metapool_app_TESTNET),
       assetIndex: test,
       amount: 10 ** 13,
     });
@@ -71,7 +71,7 @@ async function metaswap() {
       },
       from: account.addr,
       //appIndex: StblUsdcAppId,//D981_d552_testnet_app,
-      appIndex: metapool_testnet_app,
+      appIndex: metapool_app_TESTNET,
       appArgs: argsMetaswap,
       accounts: [getApplicationAddress(D981_d552_testnet_app)],
       foreignAssets: [test, D981_D552_LTNANO_TESTNET, D981, D552],

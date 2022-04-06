@@ -75,8 +75,8 @@ byte "ba1o"
 itxn_field ApplicationArgs
 int ${stable1}
 itxn_field Assets
-int NoOp
-itxn_field OnCompletion
+
+callsub common_appl_fields
 
 itxn_next
 
@@ -93,8 +93,8 @@ byte "ba2o"
 itxn_field ApplicationArgs
 int ${stable2}
 itxn_field Assets
-int NoOp
-itxn_field OnCompletion
+
+callsub common_appl_fields
 
 itxn_submit
 
@@ -160,8 +160,8 @@ load 5 // asset out
 itxn_field Assets
 int ${managerID_nanoswap}
 itxn_field Applications
-int NoOp
-itxn_field OnCompletion
+
+callsub common_appl_fields
 
 itxn_submit
 

@@ -26,24 +26,26 @@ itxn_begin
 // optin-in stable2
 int ${stable2}
 itxn_field XferAsset
-
 // the rest of fields are common to all inner bootstrap tx
 callsub subroutine_bootstrap
 
 // optin-in stable1
 itxn_next
+
 int ${stable1}
 itxn_field XferAsset
 callsub subroutine_bootstrap
 
 // optin-in stable2-stable1 lTNano
 itxn_next
+
 int ${lTNano}
 itxn_field XferAsset
 callsub subroutine_bootstrap
 
 // optin-in the token this pool is set for
 itxn_next
+
 int ${assetID}
 itxn_field XferAsset
 callsub subroutine_bootstrap

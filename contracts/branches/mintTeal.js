@@ -37,7 +37,8 @@ int ${assetID}
 asset_holding_get AssetBalance // liquidity token amount in the app
 pop
 divw // assetID amount * issued Metapool LT / assetID supply
-// we're going to leave that value on stack
+dup // we're going to leave that value on stack
+store 24 
 
 gtxn 2 AssetAmount
 load 21
@@ -47,14 +48,49 @@ int ${lTNano}
 asset_holding_get AssetBalance // liquidity token amount in the app
 pop
 divw // lTNano amount * issued Metapool LT / lTNano supply
-// second value on stack, let's just pick the smallest
+dup
+store 25 // lTNano amount * issued Metapool LT / lTNano supply
+// second value on stack, let's just pick the smallest now
 dup2
 > // is first value bigger than second value ?
-dup // here I want to record wether it's assetID or ltNano that was supplied in excess amount
+// let's keep that value on stack for now
+// here I want to record wether it's assetID or ltNano that was supplied in excess amount
+int ${assetID}
+int ${lTNano}
+dig 2 // copying the 0 or 1 from > comparison
 int 0
 ==
-select // if yes pick second value else first value
+select // if 0 it means lTNano was sent in excess amount else it's assetID
+store 23 // asset that was sent in excess
+select // now we're back at picking the small amount of the two
 store 22 // amount of Metapool LT to send
+
+
+// the excess token that was sent will need to returned to the user such as:
+// Excess Metapool LT = Math.max(load 24, load 25) - (amount of Metapool LT to send + 1)
+// redeem amount = Excess Metapool LT * load 23 supply / Metapool LT supply
+
+// what is the largest amount ?
+load 24
+load 25
+dup2
+<
+select
+load 22
+int 1 // I'm adding 1 here to avoid shenanigans with the way load 22 is calculated
+// specifically how the remainder is left out of divisions and the load 22 value could be slightly lower
+// than actual value which in turn could be an attack vector to redeem more than fair amount
+// more research needed to confirm
++
+- // Excess Metapool LT
+global CurrentApplicationAddress
+load 23
+asset_holding_get AssetBalance // liquidity token amount in the app
+pop
+mulw
+load 21
+divw
+store 26
 
 b send_Metapool_LT
 
@@ -89,21 +125,31 @@ itxn_field AssetReceiver
 int 0
 itxn_field Fee
 
+itxn_submit
+
+load 26
+int 0
+==
+bnz allow
+
 // let's send back the user the extra tokens in case he sent too much of one or the other
 
-itxn_next
+itxn_begin
 
 int 0
 itxn_field Fee
 int axfer
 itxn_field TypeEnum
-load 1 // Metapool Liquidity token ID
+load 23 // Metapool Liquidity token ID
 itxn_field XferAsset
-load 22 // amount of Metapool LT to send
+load 26 // amount of Metapool LT to send
 itxn_field AssetAmount
 txn Sender
 itxn_field AssetReceiver
-int 0
-itxn_field Fee
+
+itxn_submit
+
+b allow
+
 
 `

@@ -16,7 +16,7 @@ import algosdk, {
     managerID_dex,
     managerID_nanoswap,
     managerID_nanoswap_TESTNET,
-    metapool_testnet_app,
+    metapool_app_TESTNET,
     STBL,
     StblUsdcAppId,
     test,
@@ -50,7 +50,7 @@ import algosdk, {
           ...params,
         },
         from: account.addr,
-        to: getApplicationAddress(metapool_testnet_app),
+        to: getApplicationAddress(metapool_app_TESTNET),
         amount: 11000,
       });
       
@@ -60,7 +60,7 @@ import algosdk, {
           fee: 1000,
         },
         from: account.addr,
-        to: getApplicationAddress(metapool_testnet_app),
+        to: getApplicationAddress(metapool_app_TESTNET),
         assetIndex: D981,
         amount: 10**6,
       });
@@ -73,7 +73,7 @@ import algosdk, {
         },
         from: account.addr,
         //appIndex: StblUsdcAppId,//D981_d552_testnet_app,
-        appIndex: metapool_testnet_app,
+        appIndex: metapool_app_TESTNET,
         appArgs: argsMetaswap,
         accounts: [getApplicationAddress(D981_d552_testnet_app)],
         foreignAssets: [test, D981_D552_LTNANO_TESTNET, D981, D552],

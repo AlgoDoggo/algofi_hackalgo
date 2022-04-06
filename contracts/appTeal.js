@@ -3,6 +3,7 @@ import { checkFeesTeal } from "./branches/checkFeesTeal.js";
 import { mintTeal } from "./branches/mintTeal.js";
 import { metaswapTeal } from "./branches/metaswapTeal.js";
 import { metazapTeal } from "./branches/metazapTeal.js";
+import { common_appl_fields } from "./subroutines/common_appl_fields.js";
 
 export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 // swap call front-end: 
@@ -48,6 +49,10 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 // Mint specific:
 // 21: issued amount of Metapool LT
 // 22: amount of Metapool LT to send
+// 23: asset that was sent in excess
+// 24: assetID amount * issued Metapool LT / assetID supply
+// 25: lTNano amount * issued Metapool LT / lTNano supply
+// 26: amount of asset that was sent in excess
 
 
 #pragma version 6
@@ -130,9 +135,15 @@ byte "metazap"
 ==
 bnz metazap
 
-
+txna ApplicationArgs 0
+byte "mint" 
+==
+bnz mint
 
 err
+
+
+// branches
 
 mint:
 ${mintTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
@@ -147,6 +158,13 @@ bootstrap:
 ${bootstrapTeal({ assetID, lTNano, stable1, stable2 })}
 
 
+//common subroutines
+
+common_appl_fields:
+${common_appl_fields}
+
+
+// end of program
 
 checkFees:
 ${checkFeesTeal}
