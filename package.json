@@ -10,6 +10,7 @@
     "create-app": "node ./helpers/createApp.js",
     "burn": "nodemon ./helpers/burn.js",
     "mint": "nodemon ./helpers/mint.js",
+    "swap": "nodemon ./helpers/swap.js",
     "metaswap": "nodemon ./helpers/metaswap.js",
     "metazap": "nodemon ./helpers/metazap.js",
     "create-test": "node ./contractsTest/createAppTest.js",

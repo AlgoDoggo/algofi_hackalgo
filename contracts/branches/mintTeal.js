@@ -55,12 +55,12 @@ int 0
 ==
 select // if 0 it means lTNano was sent in excess amount else it's assetID
 store 23 // asset that was sent in excess
-select // now we're back at picking the small amount of the two
+select // now we're back at picking the smallest amount of the two
 store 22 // amount of Metapool LT to send
 
 
 // the excess token that was sent will need to returned to the user such as:
-// Excess Metapool LT = Math.max(load 24, load 25) - (amount of Metapool LT to send + 1)
+// Excess Metapool LT = Math.max(load 24, load 25) - (amount of Metapool LT to send ) - 1
 // redeem amount = Excess Metapool LT * load 23 supply / Metapool LT supply
 
 // what is the largest amount ?
@@ -70,20 +70,48 @@ dup2
 <
 select
 load 22
-int 1 // I'm adding 1 here to avoid shenanigans with the way load 22 is calculated
+- // Excess Metapool LT
+// I'm substracting 1 here to avoid shenanigans with the way load 22 is calculated
 // specifically how the remainder is left out of divisions and the load 22 value could be slightly lower
 // than actual value which in turn could be an attack vector to redeem more than fair amount
 // more research needed to confirm
-+
-- // Excess Metapool LT
+int 1
+dig 1 // Excess Metapool LT
+int 0
+==
+select // if excess metapool LT is 0 substracting 1 would crash the program
+int 1 
+-
+
 global CurrentApplicationAddress
-load 23
+load 23 // asset that was sent in excess
 asset_holding_get AssetBalance // liquidity token amount in the app
 pop
 mulw
 load 21
 divw
-store 26
+dup // let's leave one redeem amount on stack for later
+store 26 // redeem amount
+
+// now let's check we haven't exceeded max slippage
+gtxn 1 AssetAmount
+gtxn 2 AssetAmount
+int ${lTNano}
+load 23
+==
+select // pick the asset amount from the asset that was sent in excess
+txna ApplicationArgs 1 // max slippage, for example 1 percent = int 10000
+btoi
+dup // max slippage cannot be higher than 1%
+int 10000
+<=
+assert
+mulw // asset amount * max slippage
+int 1000000
+divw
+<=
+assert // redeem amount <= asset amount * max slippage
+
 
 b send_Metapool_LT
 

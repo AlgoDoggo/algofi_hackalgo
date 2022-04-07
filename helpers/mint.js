@@ -39,10 +39,8 @@ import algosdk, {
       const params = await algodClient.getTransactionParams().do();
   
       params.fee = 1000;
-      params.flatFee = true;
-
+      params.flatFee = true; 
   
-      // appArgs:["metaswap", int minimumAmountOut]
       const optIn = makeAssetTransferTxnWithSuggestedParamsFromObject({
         suggestedParams: {
           ...params,
@@ -54,16 +52,17 @@ import algosdk, {
       });
      
       const optInSigned = optIn.signTxn(account.sk)
-      await algodClient.sendRawTransaction(optInSigned).do()
+      //await algodClient.sendRawTransaction(optInSigned).do()
 
       const tx0 = makeApplicationNoOpTxnFromObject({        
         suggestedParams: {
           ...params,
-          fee: params.fee * 3, //(fee + get Metapool token + get excess amount)
+          fee: params.fee * 3, // (fee + get Metapool token + get excess amount)
         },
         from: account.addr,
         appIndex: metapool_app_TESTNET,
-        appArgs: [enc.encode("mint")],
+        // second arg is max slippage in %. We'll follow Algofi's convention and scale it by 10000
+        appArgs: [enc.encode("mint"),encodeUint64(10000)],
         foreignAssets: [test, D981_D552_LTNANO_TESTNET, metapoolLT],
       });
 
@@ -84,7 +83,7 @@ import algosdk, {
         from: account.addr,
         to: getApplicationAddress(metapool_app_TESTNET),
         assetIndex: D981_D552_LTNANO_TESTNET,
-        amount: 2000,
+        amount: 2020,
       });
   
       

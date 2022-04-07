@@ -26,7 +26,7 @@ import algosdk, {
   
   dotenv.config();
   
-  async function burn() {
+  async function swap() {
     try {
       const account = algosdk.mnemonicToSecretKey(process.env.Mnemo);
   
@@ -39,31 +39,33 @@ import algosdk, {
       const params = await algodClient.getTransactionParams().do();
   
       params.fee = 1000;
-      params.flatFee = true;
-     
+      params.flatFee = true;        
 
       const tx0 = makeApplicationNoOpTxnFromObject({        
         suggestedParams: {
           ...params,
-          fee: params.fee * 3, //(fee + get assetID + get ltNano)
+          fee: params.fee * 2, //(fee + get Metapool token + get excess amount)
         },
         from: account.addr,
         appIndex: metapool_app_TESTNET,
-        appArgs: [enc.encode("burn")],
+        // second arg is the minimum amount of asset out expected
+        appArgs: [enc.encode("swap"), encodeUint64(9)], 
         foreignAssets: [test, D981_D552_LTNANO_TESTNET, metapoolLT],
       });
 
-      
       const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
         suggestedParams: {
           ...params,
         },
         from: account.addr,
-        assetIndex: metapoolLT,
+        assetIndex: D981_D552_LTNANO_TESTNET,
         to: getApplicationAddress(metapool_app_TESTNET),
         amount: 100,
       });
-                 
+      
+     
+  
+      
   
       const transactions = [tx0, tx1];
   
@@ -77,7 +79,7 @@ import algosdk, {
       return console.log(error.message);
     }
   }
-  export default burn;
+  export default swap;
   
-  burn()
+  swap()
   

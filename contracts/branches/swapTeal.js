@@ -18,6 +18,7 @@ int ${lTNano}
 load 31
 int ${assetID}
 ==
+select
 store 32 // id of asset out
 
 // check it's going to the app account
@@ -45,7 +46,7 @@ int ${lTNano}
 load 31
 ==
 select
-10000
+int 10000
 *
 gtxn 1 AssetAmount
 int 9975
@@ -57,18 +58,25 @@ pop
 pop
 swap
 pop
+dup
 store 33 // amount of asset-out to send
+
+// let's check we got more than the min amount set in appArgs
+txna ApplicationArgs 1
+btoi
+>=
+assert
 
 // let's send the swapped asset to the user
 
 itxn_begin
 
+int axfer
+itxn_field TypeEnum
 load 32 // ID of asset-out
 itxn_field XferAsset
 load 33 // amount of asset-out to send
 itxn_field AssetAmount
-int axfer
-itxn_field TypeEnum
 txn Sender
 itxn_field AssetReceiver
 int 0
