@@ -75,7 +75,6 @@ byte "ba1o"
 itxn_field ApplicationArgs
 int ${stable1}
 itxn_field Assets
-
 callsub common_appl_fields
 
 itxn_next
@@ -93,7 +92,6 @@ byte "ba2o"
 itxn_field ApplicationArgs
 int ${stable2}
 itxn_field Assets
-
 callsub common_appl_fields
 
 itxn_submit
@@ -113,8 +111,8 @@ int ${stable2} // stbl
 || 
 assert
 
-int ${stable1} // A
-int ${stable2} // B
+int ${stable1} 
+int ${stable2} 
 int ${stable1}
 load 5
 == // is assetOut stable1 ?
@@ -160,7 +158,6 @@ load 5 // asset out
 itxn_field Assets
 int ${managerID_nanoswap}
 itxn_field Applications
-
 callsub common_appl_fields
 
 itxn_submit

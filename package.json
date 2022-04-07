@@ -13,9 +13,9 @@
     "swap": "nodemon ./helpers/swap.js",
     "metaswap": "nodemon ./helpers/metaswap.js",
     "metazap": "nodemon ./helpers/metazap.js",
-    "create-test": "node ./contractsTest/createAppTest.js",
-    "optin-test": "node ./contractsTest/optinTest.js",
-    "swap-test": "nodemon ./contractsTest/swapTest.js"
+    "algofi-burn": "node ./algofiSdk/burn.js",
+    "algofi-mint": "node ./algofiSdk/mint.js",
+    "algofi-swap": "nodemon ./algofiSdk/swap.js"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +23,7 @@
   "dependencies": {
     "algosdk": "^1.15.0",
     "dotenv": "^16.0.0",
+    "mocha": "^9.2.2",
     "nodemon": "^2.0.15"
   }
 }

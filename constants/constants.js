@@ -1,18 +1,3 @@
-// MAINNET
-
-// dex manager app
-export const DoggoAppIndex = 619678973;
-export const StblUsdcAppId = 658337046;
-
-//algofi manager apps
-export const managerID_dex = 605753404;
-export const managerID_nanoswap = 658336870;
-
-//assets
-export const STBL = 465865291;
-export const USDC = 31566704;
-export const AF_NANO_POOL_USDC_STBL = 658337286;
-
 // TESTNET
 
 // dex manager apps
@@ -30,3 +15,19 @@ export const D552 = 77279142;
 export const D981_D552_LTNANO_TESTNET = 77282957;
 export const test = 54215619;
 export const metapoolLT = 82724920
+
+
+// MAINNET
+
+// dex manager app
+export const DoggoAppIndex = 619678973;
+export const StblUsdcAppId = 658337046;
+
+//algofi manager apps
+export const managerID_dex = 605753404;
+export const managerID_nanoswap = 658336870;
+
+//assets
+export const STBL = 465865291;
+export const USDC = 31566704;
+export const AF_NANO_POOL_USDC_STBL = 658337286;

@@ -64,7 +64,7 @@ store 12
 // s1 the supply of stable-in, s2 the supply of stable-out
 // These equations must be respected for the proper ratio of stable coins to be had before minting lTNano:
 
-// y = s1 - s1*s2 / (s1+x) this is the equation of token we'll get out from the swap
+// y = s1 - s1 * s2 / (s1 + x) this is the equation of token we'll get out from the swap
 // (load 12 - x) / y = (s1 + x) / (s2 - y) this is the correct ratio of stable1 stable2 we need after the swap
 
 // There is two solutions to these equations

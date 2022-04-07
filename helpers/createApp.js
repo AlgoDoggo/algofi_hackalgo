@@ -3,10 +3,8 @@ import fs from "fs";
 import {
   assignGroupID,
   getApplicationAddress,
-  makeApplicationClearStateTxnFromObject,
   makeApplicationCreateTxnFromObject,
   makeApplicationNoOpTxnFromObject,
-  makeApplicationOptInTxnFromObject,
   makePaymentTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
   OnApplicationComplete,
@@ -14,7 +12,7 @@ import {
 } from "algosdk";
 import dotenv from "dotenv";
 import { appTeal } from "../contracts/appTeal.js";
-import {  
+import {
   assetID_testnet,
   D981_d552_testnet_app,
   managerID_nanoswap_TESTNET,
@@ -67,8 +65,6 @@ const createApp = async () => {
 
     // bootstrap it
     //const appId = 82478041
-    
-
     const bootstrap = makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams: {
         ...suggestedParams,
@@ -89,10 +85,8 @@ const createApp = async () => {
     });
 
     const transactions = [bootstrap, appBootstrap];
-    assignGroupID(transactions);  
-
+    assignGroupID(transactions);
     txSigned = transactions.map((t) => t.signTxn(account.sk));
-    
     await algodClient.sendRawTransaction(txSigned).do();
   } catch (error) {
     console.error(error.message);

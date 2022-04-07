@@ -64,7 +64,7 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 
 #pragma version 6
 
-// We follow AlgoFi's convention and say that asset1 will be smaller than asset2
+// We follow AlgoFi's convention and say that stable1 will be smaller than stable2
 int ${stable1}
 int ${stable2}
 <
