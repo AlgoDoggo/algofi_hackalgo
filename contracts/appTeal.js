@@ -5,6 +5,7 @@ import { metaswapTeal } from "./branches/metaswapTeal.js";
 import { metazapTeal } from "./branches/metazapTeal.js";
 import { common_appl_fields } from "./subroutines/common_appl_fields.js";
 import { burnTeal } from "./branches/burnTeal.js";
+import { swapTeal } from "./branches/swapTeal.js";
 
 export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 // swap call front-end: 
@@ -124,15 +125,15 @@ bnz allow
 load 1 
 assert
 
-// This whole app works with 3 transactions
-global GroupSize
-int 3
-==
-assert
-
 global CurrentApplicationAddress
 balance
 store 2 // algo amount in the app
+
+// all the following branches have at most 3 tx
+global GroupSize
+int 3
+<=
+assert
 
 txna ApplicationArgs 0
 byte "metaswap" 
@@ -172,10 +173,22 @@ byte "mint"
 ==
 bnz mint
 
+// all the following branches have 2 tx
+global GroupSize
+int 2
+==
+assert
+
 txna ApplicationArgs 0
 byte "burn" 
 ==
 bnz burn
+
+txna ApplicationArgs 0
+byte "swap" 
+==
+bnz swap
+
 
 err
 
@@ -187,6 +200,9 @@ ${mintTeal({ assetID, lTNano })}
 
 burn:
 ${burnTeal({ assetID, lTNano })}
+
+swap:
+${swapTeal({ assetID, lTNano })}
 
 metaswap:
 ${metaswapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
