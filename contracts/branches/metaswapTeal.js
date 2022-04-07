@@ -12,24 +12,24 @@ global CurrentApplicationAddress
 ==
 assert
 
-//  calculated_amount_out = (asset_in_amount * 9975 * output_supply) / ((input_supply * 10000) + (asset_in_amount * 9975))
+//  calculated_amount_out = (assetID amount * 9975 * lTNano supply) / ((assetID supply * 10000) + (assetID amount * 9975))
 
-gtxn 1 AssetAmount // input amount
+gtxn 1 AssetAmount 
 int 9975 // 0.25% fee
 *
-load 3 // output supply amount in this case that's lTNano
+load 3 // lTNano supply
 mulw // 128 bit value
 
 global CurrentApplicationAddress
 int ${assetID}
-asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
+asset_holding_get AssetBalance // assetID supply
 pop // pop the opt-in
 int 10000
 *
 gtxn 1 AssetAmount // input amount
 int 9975 // 0.25% fee
 *
-addw // ((input_supply * 10000) + (asset_in_amount * 9975))
+addw // ((assetID supply * 10000) + (assetID amount * 9975))
 
 divmodw // division with 128 bit value
 pop // pop the remainder of the division

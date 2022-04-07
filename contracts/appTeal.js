@@ -8,22 +8,19 @@ import { burnTeal } from "./branches/burnTeal.js";
 import { swapTeal } from "./branches/swapTeal.js";
 
 export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
-// swap call front-end: 
+// appl call arrays: 
 // foreignApps:[stable1Stable2AppId, managerID_nanoswap]
 // foreignAssets: [assetID, lTNano, stable1, stable2] stable1 < stable2
 // accounts: [stable1Stable2AppAddress aka the Nanoswap pool]
 // appArgs:["metaswap" || "metazap" etc, int minimumAmountOut,  assetOutID (stable1 or stable2): only for metaswap ]
 
-// mint call front end:
-// gtxn 0: mint app call
-// gtxn 1: send assetID
-// gtxn 2: send lTNano
-
 // scratch space :
 // 1: Metapool Liquidity token ID
 // 2: algo amount in the app
 // 3: lTNano asset amount in the app
-
+// 21: issued amount of Metapool LT
+// 27: assetID supply
+// 28: lTNano supply
 
 // MetaSwap Specific:
 // 4: lTNano amount out for swap operation
@@ -49,11 +46,6 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 // CheckFeess specific:
 // 20: number of MinTxnFee consumed by the metapool
 
-
-// 21: issued amount of Metapool LT
-// 27: assetID supply
-// 28: lTNano supply
-
 // Mint specific:
 // 22: amount of Metapool LT to send
 // 23: asset that was sent in excess
@@ -64,6 +56,11 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 // Burn specific:
 // 29: assetID amount to send back
 // 30: lTNano amount to send back
+
+// Swap specific:
+// 31: ID of asset-in 
+// 32: ID of asset-out
+// 33: amount of asset-out
 
 #pragma version 6
 
@@ -222,8 +219,9 @@ ${common_appl_fields}
 
 // end of program
 
-checkFees:
-${checkFeesTeal}
+// Checking fees is necessary for metaswap and metazap only
+checkFees: 
+${checkFeesTeal}  
 
 allow:
 int 1
