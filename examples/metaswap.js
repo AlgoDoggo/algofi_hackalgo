@@ -50,7 +50,7 @@ async function metaswap() {
       from: account.addr,
       to: getApplicationAddress(metapool_app_TESTNET),
       assetIndex: test,
-      amount: 10 ** 10,
+      amount: 1000,
     });
 
     const tx2 = makeApplicationNoOpTxnFromObject({

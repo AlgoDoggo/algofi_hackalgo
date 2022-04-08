@@ -43,7 +43,7 @@ async function mint() {
       from: account.addr,
       appIndex: metapool_app_TESTNET,
       // second arg is max slippage in %. We'll follow Algofi's convention and scale it by 10000
-      appArgs: [enc.encode("mint"), encodeUint64(10000)],
+      appArgs: [enc.encode("mint"), encodeUint64(1000000)],
       foreignAssets: [test, D981_D552_LTNANO_TESTNET, metapoolLT],
     });
 
@@ -64,7 +64,7 @@ async function mint() {
       from: account.addr,
       to: getApplicationAddress(metapool_app_TESTNET),
       assetIndex: D981_D552_LTNANO_TESTNET,
-      amount: 2020,
+      amount: 2000,
     });
 
     const transactions = [tx0, tx1, tx2];

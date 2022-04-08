@@ -48,10 +48,10 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 
 // Mint specific:
 // 22: amount of Metapool LT to send
-// 23: asset that was sent in excess
+// 23: ID of asset that was sent in excess
 // 24: assetID amount * issued Metapool LT / assetID supply
 // 25: lTNano amount * issued Metapool LT / lTNano supply
-// 26: amount of asset that was sent in excess
+// 26: redeem amount of asset that was sent in excess
 
 // Burn specific:
 // 29: assetID amount to send back

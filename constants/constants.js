@@ -2,7 +2,7 @@
 
 // dex manager apps
 export const D981_d552_testnet_app = 77282939;
-export const metapool_app_TESTNET = 82724900;
+export const metapool_app_TESTNET = 82766453;
 
 // algofi manager apps
 export const managerID_dex_TESTNET = 66008735;
@@ -14,7 +14,7 @@ export const D981 = 77279127;
 export const D552 = 77279142;
 export const D981_D552_LTNANO_TESTNET = 77282957;
 export const test = 54215619;
-export const metapoolLT = 82724920
+export const metapoolLT = 82766471;
 
 
 // MAINNET

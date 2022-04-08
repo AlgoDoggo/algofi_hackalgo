@@ -7,12 +7,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",
-    "create-app": "node ./helpers/createApp.js",
-    "burn": "nodemon ./helpers/burn.js",
-    "mint": "nodemon ./helpers/mint.js",
-    "swap": "nodemon ./helpers/swap.js",
-    "metaswap": "nodemon ./helpers/metaswap.js",
-    "metazap": "nodemon ./helpers/metazap.js",
+    "create-app": "node ./examples/createApp.js",
+    "burn": "node ./examples/burn.js",
+    "mint": "node ./examples/mint.js",
+    "swap": "node ./examples/swap.js",
+    "metaswap": "node ./examples/metaswap.js",
+    "metazap": "node ./examples/metazap.js",
     "algofi-burn": "node ./algofiSdk/burn.js",
     "algofi-mint": "node ./algofiSdk/mint.js",
     "algofi-swap": "nodemon ./algofiSdk/swap.js"

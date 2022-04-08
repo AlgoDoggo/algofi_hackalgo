@@ -102,10 +102,10 @@ load 23
 select // pick the asset amount from the asset that was sent in excess
 txna ApplicationArgs 1 // max slippage, for example 1 percent = int 10000
 btoi
-dup // max slippage cannot be higher than 1%
-int 10000
-<=
-assert
+// dup // You can uncomment the following 4 lines if you want to set a hard ceiling on max slippage 
+// int 10000 // here it would make for a max slippage of 1%
+// <=
+// assert
 mulw // asset amount * max slippage
 int 1000000
 divw

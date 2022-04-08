@@ -50,7 +50,7 @@ async function metazap() {
       from: account.addr,
       to: getApplicationAddress(metapool_app_TESTNET),
       assetIndex: D981,
-      amount: 10 ** 6,
+      amount: 1000,
     });
 
     const tx2 = makeApplicationNoOpTxnFromObject({
