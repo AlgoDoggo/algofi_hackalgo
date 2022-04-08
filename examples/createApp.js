@@ -13,17 +13,17 @@ import {
 import dotenv from "dotenv";
 import { appTeal } from "../contracts/appTeal.js";
 import {
-  assetID_testnet,
-  D981_d552_testnet_app,
-  managerID_nanoswap_TESTNET,
-  D981_D552_LTNANO_TESTNET,
-  D552,
-  D981,
+  assetID,
+  stable1_stable2_app,
+  managerID_nanoswap,
+  LTNano,
+  stable2,
+  stable1,
 } from "../constants/constants.js";
 dotenv.config();
 
 const createApp = async () => {
-  try {
+  
     const account = mnemonicToSecretKey(process.env.Mnemo);
     const algodClient = setupClient();
     const suggestedParams = await algodClient.getTransactionParams().do();
@@ -31,13 +31,13 @@ const createApp = async () => {
     const compileApp = await algodClient
       .compile(
         appTeal({
-          assetID: assetID_testnet,
-          stable1: D981,
-          stable2: D552,
-          lTNano: D981_D552_LTNANO_TESTNET,
-          stable1Stable2AppId: D981_d552_testnet_app,
-          stable1Stable2AppAddress: getApplicationAddress(D981_d552_testnet_app),
-          managerID_nanoswap: managerID_nanoswap_TESTNET,
+          assetID: assetID,
+          stable1: stable1,
+          stable2: stable2,
+          lTNano: LTNano,
+          stable1Stable2AppId: stable1_stable2_app,
+          stable1Stable2AppAddress: getApplicationAddress(stable1_stable2_app),
+          managerID_nanoswap: managerID_nanoswap,
         })
       )
       .do();
@@ -80,7 +80,7 @@ const createApp = async () => {
       suggestedParams,
       from: account.addr,
       appIndex: appId,
-      foreignAssets: [D981, D552, D981_D552_LTNANO_TESTNET, assetID_testnet],
+      foreignAssets: [stable1, stable2, LTNano, assetID],
       appArgs: [new Uint8Array(Buffer.from("bootstrap", "utf-8"))],
     });
 
@@ -88,9 +88,7 @@ const createApp = async () => {
     assignGroupID(transactions);
     txSigned = transactions.map((t) => t.signTxn(account.sk));
     await algodClient.sendRawTransaction(txSigned).do();
-  } catch (error) {
-    console.error(error.message);
-  }
+  
 };
 
-createApp();
+createApp().catch((error) => console.log(error.message));;

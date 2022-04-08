@@ -1,33 +1,18 @@
 // TESTNET
 
-// dex manager apps
-export const D981_d552_testnet_app = 77282939;
-export const metapool_app_TESTNET = 82766453;
+// pool apps
+export const stable1_stable2_app = 77282939; // D981-D552 nanopool
+export const metapool_app = 82766453;
 
 // algofi manager apps
-export const managerID_dex_TESTNET = 66008735;
-export const managerID_nanoswap_TESTNET = 77282916;
+export const managerID_dex = 66008735;
+export const managerID_nanoswap = 77282916;
 
 //assets
-export const assetID_testnet = 54215619;
-export const D981 = 77279127;
-export const D552 = 77279142;
-export const D981_D552_LTNANO_TESTNET = 77282957;
-export const test = 54215619;
-export const metapoolLT = 82766471;
+export const assetID = 54215619; // This is the token for which the metapool is created
+export const LTNano = 77282957; // This is the stablecoins nanopool liquidity tokens
+export const stable1 = 77279127; // D981
+export const stable2 = 77279142; // D552
+export const metapoolLT = 82766471; // This is the liquidity token of the metapool
 
 
-// MAINNET
-
-// dex manager app
-export const DoggoAppIndex = 619678973;
-export const StblUsdcAppId = 658337046;
-
-//algofi manager apps
-export const managerID_dex = 605753404;
-export const managerID_nanoswap = 658336870;
-
-//assets
-export const STBL = 465865291;
-export const USDC = 31566704;
-export const AF_NANO_POOL_USDC_STBL = 658337286;

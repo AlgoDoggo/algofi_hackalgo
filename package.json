@@ -5,14 +5,15 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha ./test --timeout 20000",
+    "coverage": "nyc npm run test",
     "start": "nodemon index.js",
     "create-app": "node ./examples/createApp.js",
     "burn": "node ./examples/burn.js",
     "mint": "node ./examples/mint.js",
     "swap": "node ./examples/swap.js",
-    "metaswap": "node ./examples/metaswap.js",
-    "metazap": "node ./examples/metazap.js",
+    "metaswap": "nodemon ./examples/metaswap.js",
+    "metazap": "nodemon ./examples/metazap.js",
     "algofi-burn": "node ./algofiSdk/burn.js",
     "algofi-mint": "node ./algofiSdk/mint.js",
     "algofi-swap": "nodemon ./algofiSdk/swap.js"
@@ -22,8 +23,12 @@
   "license": "ISC",
   "dependencies": {
     "algosdk": "^1.15.0",
-    "dotenv": "^16.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
     "mocha": "^9.2.2",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "nyc": "^15.1.0"
   }
 }
