@@ -19,7 +19,7 @@ global CurrentApplicationAddress
 assert
 
 // The app will now opt-in all the relevant assets
-// stable2, USDC and its lTNano
+// assetID, stable1, stable2 and their liquity token lTNano
 
 itxn_begin
 
@@ -54,7 +54,7 @@ callsub bootstrap_commonFields
 itxn_submit
 
 
-// create this app liquidity token
+// create this metapool liquidity token
 itxn_begin
 int 0
 itxn_field Fee
@@ -110,7 +110,6 @@ itxn_field Fee
 global CurrentApplicationAddress
 itxn_field AssetReceiver
 
-//back to the main
 retsub
 
 `

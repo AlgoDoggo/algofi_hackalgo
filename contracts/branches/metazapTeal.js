@@ -59,7 +59,7 @@ store 12
 // stable1 sent / stable2 sent = stable1 supply / stable2 supply
 
 // First let's convert stable-in into an appropriate amount of stable1-stable2 for the subsquent lTNano mint
-// The math to figure out the amount of stable-in to convert was a little more complicated than thought
+// The math to figure out the amount of stable-in to convert is the following:
 // if x is the amount of stable-in to convert, y the amount of stable-out to get
 // s1 the supply of stable-in, s2 the supply of stable-out
 // These equations must be respected for the proper ratio of stable coins to be had before minting lTNano:
@@ -138,7 +138,7 @@ asset_holding_get AssetBalance
 pop // remove opt-in info
 store 14 // balance of stable-in asset
 
-// first get the current balance of stable-out
+// then get the current balance of stable-out
 global CurrentApplicationAddress
 load 9 // stable-out ID
 asset_holding_get AssetBalance
@@ -218,11 +218,10 @@ int 3 // for a swap in a nanoswap pool fee is 5x the min
 itxn_field Fee
 int ${stable1Stable2AppId}
 itxn_field ApplicationID
-byte "p" // swap exact for
+byte "p" // "p" as pooling
 itxn_field ApplicationArgs
-//When using itxn_field to set an array field (ApplicationArgs Accounts, Assets, or Applications) 
-//each use adds an element to the end of the the array.
-int 10000 // max slippage allowed by algofi pool, we'll check the metazap value at the end
+// max slippage allowed by algofi pool, we'll check the metazap value against our user expectation at the end
+int 10000 // 1%
 itob 
 itxn_field ApplicationArgs
 int ${lTNano} // lTNano id
@@ -240,7 +239,7 @@ int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "rpa1r" // algofi's string for redeeming after a mint
 itxn_field ApplicationArgs
-int ${stable1} // lTNano id
+int ${stable1} 
 itxn_field Assets
 callsub common_appl_fields
 
@@ -253,7 +252,7 @@ int ${stable1Stable2AppId}
 itxn_field ApplicationID
 byte "rpa2r"
 itxn_field ApplicationArgs
-int ${stable2} // lTNano id
+int ${stable2} 
 itxn_field Assets
 callsub common_appl_fields
 
@@ -296,7 +295,7 @@ pop // so only low quotient remains on stack
 dup
 store 19 // assetID amount out
 
-// finally we check if we got more assetID than the minimum amount set in appargs 2
+// finally we check if we got more assetID than the minimum amount set in appargs 1
 txna ApplicationArgs 1
 btoi
 >=

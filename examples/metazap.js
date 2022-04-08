@@ -31,9 +31,6 @@ async function metazap() {
     params.fee = 1000;
     params.flatFee = true;
 
-    // appArgs:["metaswap", int minimumAmountOut]
-    const argsMetaswap = [enc.encode("metazap"), encodeUint64(90)];
-
     const tx0 = makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams: {
         ...params,
@@ -60,7 +57,8 @@ async function metazap() {
       },
       from: account.addr,
       appIndex: metapool_app_TESTNET,
-      appArgs: argsMetaswap,
+      // appArgs:["metazap", int minimumAmountOut]
+      appArgs: [enc.encode("metazap"), encodeUint64(90)],
       accounts: [getApplicationAddress(D981_d552_testnet_app)],
       foreignAssets: [test, D981_D552_LTNANO_TESTNET, D981, D552],
       foreignApps: [D981_d552_testnet_app, managerID_nanoswap_TESTNET],

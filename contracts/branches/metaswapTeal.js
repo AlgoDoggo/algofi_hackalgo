@@ -103,10 +103,10 @@ txna ApplicationArgs 2
 btoi
 dup
 store 5
-int ${stable1} // usdc
+int ${stable1} // D981
 ==
 load 5 // asset out
-int ${stable2} // stbl
+int ${stable2} // D552
 ==
 || 
 assert
