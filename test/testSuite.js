@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { strict } from "assert";
-import { assetID, stable1, stable2 } from "../constants/constants.js";
+import { assetID, lTNano, stable1, stable2 } from "../constants/constants.js";
 import burn from "../examples/burn.js";
 import mint from "../examples/mint.js";
 import metaswap from "../examples/metaswap.js";
@@ -104,7 +104,7 @@ describe("burnChecks", () => {
   });
 });
 */
-
+/*
 describe("swapChecks", () => {
   it("handle 0 amount", async () => {
     await strict.rejects(swap({ amount: 0, asset: assetID, minAmountOut: 0 }));
@@ -133,7 +133,7 @@ describe("swapChecks", () => {
   it("test slippage control", async () => {
     await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: BigInt(2n ** 64n - 1n) }));
   });
-  it("test math for swapping assetID and nanopool LT", async () => {
+  it("test math for swapping asset for nanopool LT", async () => {
     const assetID_amount = 100;
     const asset_swapped = assetID
     const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({asset:asset_swapped, assetAmount : assetID_amount });
@@ -141,8 +141,16 @@ describe("swapChecks", () => {
     assert.approximately(amountOut, expectedAmountOut, 1);
     strict.equal(assetOut,expectedAssetOut)
   });
+  it("test math for swapping nanopool LT for asset", async () => {
+    const assetID_amount = 100;
+    const asset_swapped = lTNano
+    const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({asset:asset_swapped, assetAmount : assetID_amount });
+    const { amountOut, assetOut } = await swap({ amount: assetID_amount, asset: asset_swapped, minAmountOut: 1 })
+    assert.approximately(amountOut, expectedAmountOut, 1);
+    strict.equal(assetOut,expectedAssetOut)
+  });
 });
-
+*/
 /*
 describe("metaswapChecks", () => {
   it("handle 0 amount", async () => {
