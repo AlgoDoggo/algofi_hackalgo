@@ -46,6 +46,14 @@ callsub burn_commonFields
 
 itxn_submit
 
+// update global state
+byte "issued Metapool LT"
+dup
+app_global_get
+gtxn 1 AssetAmount // amount of Metapool LT burned
+-
+app_global_put
+
 b allow
 
 

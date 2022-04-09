@@ -11,7 +11,7 @@ import { setupClient } from "../adapters/algoD.js";
 import {
   stable2,
   stable1,
-  LTNano,
+  lTNano,
   stable1_stable2_app,
   managerID_nanoswap,
   metapool_app,
@@ -63,7 +63,7 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }) {
     appIndex: metapool_app,
     appArgs: argsMetaswap,
     accounts: [nanopool_address],
-    foreignAssets: [assetID, LTNano, stable1, stable2],
+    foreignAssets: [assetID, lTNano, stable1, stable2],
     foreignApps: [stable1_stable2_app, managerID_nanoswap],
   });
 

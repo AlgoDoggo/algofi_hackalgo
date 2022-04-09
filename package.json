@@ -10,7 +10,7 @@
     "start": "nodemon index.js",
     "create-app": "node ./examples/createApp.js",
     "burn": "node ./examples/burn.js",
-    "mint": "node ./examples/mint.js",
+    "mint": "nodemon ./examples/mint.js",
     "swap": "node ./examples/swap.js",
     "metaswap": "nodemon ./examples/metaswap.js",
     "metazap": "nodemon ./examples/metazap.js",

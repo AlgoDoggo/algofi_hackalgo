@@ -6,7 +6,7 @@ import {
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
-import { LTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../constants/constants.js";
+import { lTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();
@@ -28,7 +28,7 @@ const burn = async ({ burnAmount }) => {
     from: account.addr,
     appIndex: metapool_app,
     appArgs: [enc.encode("burn")],
-    foreignAssets: [assetID, LTNano, metapoolLT],
+    foreignAssets: [assetID, lTNano, metapoolLT],
   });
 
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({

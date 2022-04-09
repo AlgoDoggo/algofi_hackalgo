@@ -1,4 +1,3 @@
-import getQuote from "./helpers/getquote.js";
+import { getMintQuote } from "./helpers/getQuote.js";
 
-getQuote()
-
+getMintQuote().catch((err) => console.error(err.message));

@@ -7,7 +7,7 @@ import {
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
-import { LTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../constants/constants.js";
+import { lTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();
@@ -30,7 +30,7 @@ async function swap({ asset, amount, minAmountOut }) {
     appIndex: metapool_app,
     // second arg is the minimum amount of asset out expected
     appArgs: [enc.encode("swap"), encodeUint64(minAmountOut)],
-    foreignAssets: [assetID, LTNano, metapoolLT],
+    foreignAssets: [assetID, lTNano, metapoolLT],
   });
 
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({

@@ -61,7 +61,7 @@ store 22 // amount of Metapool LT to send
 
 // the excess token that was sent will need to returned to the user such as:
 // Excess Metapool LT = Math.max(load 24, load 25) - (amount of Metapool LT to send ) - 1
-// redeem amount = Excess Metapool LT * load 23 supply / Metapool LT supply
+// redeem amount = Excess Metapool LT * load 23 supply / Metapool LT issued
 
 // what is the largest amount ?
 load 24
@@ -85,7 +85,7 @@ int 1
 
 global CurrentApplicationAddress
 load 23 // asset that was sent in excess
-asset_holding_get AssetBalance // liquidity token amount in the app
+asset_holding_get AssetBalance // amount in the app
 pop
 mulw
 load 21
@@ -148,12 +148,21 @@ itxn_field Fee
 
 itxn_submit
 
-load 26
-int 0
-==
-bnz allow
+// adding the following as a workaround current indexer limitation
+// to retrieve issued metapool lt doing = 2**64-1 - current balance works in the smart contract
+// but wouldn't work in the front-end since the indexer gives inaccurate values
+// for very large numbers > 17 digits
+byte "issued Metapool LT"
+dup
+app_global_get
+load 22 // amount of Metapool LT to send
++
+app_global_put
 
-// let's send back the user the extra tokens in case he sent too much of one or the other
+load 26 // is there any amount to redeem?
+bz allow
+
+// if so let's send it back
 
 itxn_begin
 

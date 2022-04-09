@@ -6,7 +6,7 @@ import {
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
-import { stable1_stable2_app, stable1, stable2, LTNano, nanopool_address } from "../constants/constants.js";
+import { stable1_stable2_app, stable1, stable2, lTNano, nanopool_address } from "../constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();
@@ -28,7 +28,7 @@ async function burn() {
     },
     from: account.addr,
     to: nanopool_address,
-    assetIndex: LTNano,
+    assetIndex: lTNano,
     amount: 10,
   });
 

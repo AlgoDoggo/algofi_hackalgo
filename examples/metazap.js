@@ -11,7 +11,7 @@ import { setupClient } from "../adapters/algoD.js";
 import {
   stable2,
   stable1,
-  LTNano,
+  lTNano,
   stable1_stable2_app,
   managerID_nanoswap,
   metapool_app,
@@ -61,7 +61,7 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }) {
     // appArgs:["metazap", int minimumAmountOut]
     appArgs: [enc.encode("metazap"), encodeUint64(minAssetToGet)],
     accounts: [nanopool_address],
-    foreignAssets: [assetID, LTNano, stable1, stable2],
+    foreignAssets: [assetID, lTNano, stable1, stable2],
     foreignApps: [stable1_stable2_app, managerID_nanoswap],
   });
 
