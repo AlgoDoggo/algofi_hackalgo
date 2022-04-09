@@ -29,7 +29,7 @@ describe("mintChecks", () => {
     await strict.rejects(mint({ optIn: false, assetID_amount: 1000, LTNano_amount: null, maxSlippage: 1000000 }));
     await strict.rejects(mint({ optIn: false, assetID_amount: 1000, LTNano_amount: 2000, maxSlippage: null }));
   });
-  it("handle wrong types amount", async () => {
+  it("handle wrong types", async () => {
     await strict.rejects(mint({ assetID_amount: "hello", LTNano_amount: 2000, maxSlippage: 1000000 }));
     await strict.rejects(mint({ assetID_amount: 1000, LTNano_amount: "hello", maxSlippage: 1000000 }));
     await strict.rejects(mint({ assetID_amount: 1000, LTNano_amount: 2000, maxSlippage: "hello" }));
@@ -55,7 +55,7 @@ describe("burnChecks", () => {
   it("handle null amount", async () => {
     await strict.rejects(burn({ burnAmount: null }));
   });
-  it("handle wrong types amount", async () => {
+  it("handle wrong types", async () => {
     await strict.rejects(burn({ burnAmount: "hello" }));
     await strict.rejects(burn({ burnAmount: {} }));
     await strict.rejects(burn({ burnAmount: [] }));
@@ -136,7 +136,7 @@ describe("swapChecks", () => {
     await strict.rejects(swap({ amount: 100, asset: null, minAmountOut: 1 }));
     await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: null }));
   });
-  it("handle wrong types amount", async () => {
+  it("handle wrong types params", async () => {
     await strict.rejects(swap({ amount: "hello", asset: assetID, minAmountOut: 1 }));
     await strict.rejects(swap({ amount: 100, asset: "hello", minAmountOut: 1 }));
     await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: "hello" }));

@@ -1,7 +1,6 @@
 import {
   assignGroupID,
   encodeUint64,
-  getApplicationAddress,
   makeApplicationNoOpTxnFromObject,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
@@ -14,6 +13,7 @@ import {
   LTNano,
   stable1_stable2_app,
   managerID_nanoswap,
+  nanopool_address,
 } from "../constants/constants.js";
 
 dotenv.config();
@@ -37,7 +37,7 @@ async function mint() {
       fee: 1000,
     },
     from: account.addr,
-    to: getApplicationAddress(stable1_stable2_app),
+    to: nanopool_address,
     assetIndex: stable1,
     amount: 50000,
   });
@@ -48,7 +48,7 @@ async function mint() {
       fee: 1000,
     },
     from: account.addr,
-    to: getApplicationAddress(stable1_stable2_app),
+    to: nanopool_address,
     assetIndex: stable2,
     amount: 50000,
   });

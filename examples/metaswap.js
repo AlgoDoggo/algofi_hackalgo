@@ -1,7 +1,6 @@
 import {
   assignGroupID,
   encodeUint64,
-  getApplicationAddress,
   makeApplicationNoOpTxnFromObject,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   makePaymentTxnWithSuggestedParamsFromObject,
@@ -17,6 +16,8 @@ import {
   managerID_nanoswap,
   metapool_app,
   assetID,
+  metapool_address,
+  nanopool_address,
 } from "../constants/constants.js";
 
 dotenv.config();
@@ -39,7 +40,7 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }) {
       ...params,
     },
     from: account.addr,
-    to: getApplicationAddress(metapool_app),
+    to: metapool_address,
     amount: 12000,
   });
 
@@ -48,7 +49,7 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }) {
       ...params,
     },
     from: account.addr,
-    to: getApplicationAddress(metapool_app),
+    to: metapool_address,
     assetIndex: assetID,
     amount: assetAmount,
   });
@@ -61,7 +62,7 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }) {
     from: account.addr,
     appIndex: metapool_app,
     appArgs: argsMetaswap,
-    accounts: [getApplicationAddress(stable1_stable2_app)],
+    accounts: [nanopool_address],
     foreignAssets: [assetID, LTNano, stable1, stable2],
     foreignApps: [stable1_stable2_app, managerID_nanoswap],
   });
@@ -70,7 +71,7 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }) {
   assignGroupID(transactions);
   const signedTxs = transactions.map((t) => t.signTxn(account.sk));
   const { txId } = await algodClient.sendRawTransaction(signedTxs).do();
-  console.log("transaction ID:", txId);
+  console.log("metaswap transaction ID:", txId);
 }
 export default metaswap;
 

@@ -1,14 +1,13 @@
 import {
   assignGroupID,
   encodeUint64,
-  getApplicationAddress,
   makeApplicationNoOpTxnFromObject,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
-import { stable2, stable1, stable1_stable2_app, managerID_nanoswap } from "../constants/constants.js";
+import { stable2, stable1, stable1_stable2_app, managerID_nanoswap, nanopool_address } from "../constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();
@@ -34,7 +33,7 @@ async function swap() {
       fee: 1000,
     },
     from: account.addr,
-    to: getApplicationAddress(stable1_stable2_app),
+    to: nanopool_address,
     assetIndex: stable2,
     amount: 10,
   });

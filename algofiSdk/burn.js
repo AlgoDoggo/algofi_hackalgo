@@ -1,18 +1,12 @@
 import {
   assignGroupID,
-  getApplicationAddress,
   makeApplicationNoOpTxnFromObject,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
-import {
-  stable1_stable2_app,
-  stable1,
-  stable2,
-  LTNano,
-} from "../constants/constants.js";
+import { stable1_stable2_app, stable1, stable2, LTNano, nanopool_address } from "../constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();
@@ -33,7 +27,7 @@ async function burn() {
       ...params,
     },
     from: account.addr,
-    to: getApplicationAddress(stable1_stable2_app),
+    to: nanopool_address,
     assetIndex: LTNano,
     amount: 10,
   });

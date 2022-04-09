@@ -1,3 +1,5 @@
+import { getApplicationAddress } from "algosdk";
+
 // TESTNET
 
 // pool apps
@@ -15,4 +17,6 @@ export const stable1 = 77279127; // D981
 export const stable2 = 77279142; // D552
 export const metapoolLT = 82766471; // This is the liquidity token of the metapool
 
-
+//addresses
+export const metapool_address = getApplicationAddress(metapool_app)
+export const nanopool_address = getApplicationAddress(stable1_stable2_app)

@@ -1,14 +1,13 @@
 import {
   assignGroupID,
   encodeUint64,
-  getApplicationAddress,
   makeApplicationNoOpTxnFromObject,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
-import { LTNano, metapoolLT, metapool_app, assetID } from "../constants/constants.js";
+import { LTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();
@@ -55,7 +54,7 @@ const mint = async ({ optIn, assetID_amount, LTNano_amount, maxSlippage }) => {
     },
     from: account.addr,
     assetIndex: assetID,
-    to: getApplicationAddress(metapool_app),
+    to: metapool_address,
     amount: assetID_amount,
   });
 
@@ -64,7 +63,7 @@ const mint = async ({ optIn, assetID_amount, LTNano_amount, maxSlippage }) => {
       ...params,
     },
     from: account.addr,
-    to: getApplicationAddress(metapool_app),
+    to: metapool_address,
     assetIndex: LTNano,
     amount: LTNano_amount,
   });
@@ -73,7 +72,7 @@ const mint = async ({ optIn, assetID_amount, LTNano_amount, maxSlippage }) => {
   assignGroupID(transactions);
   const signedTxs = transactions.map((t) => t.signTxn(account.sk));
   const { txId } = await algodClient.sendRawTransaction(signedTxs).do();
-  console.log("transaction ID:", txId);
+  console.log("mint transaction ID:", txId);
 };
 export default mint;
 

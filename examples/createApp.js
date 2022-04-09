@@ -19,6 +19,7 @@ import {
   LTNano,
   stable2,
   stable1,
+  nanopool_address,
 } from "../constants/constants.js";
 dotenv.config();
 
@@ -36,7 +37,7 @@ const createApp = async () => {
           stable2: stable2,
           lTNano: LTNano,
           stable1Stable2AppId: stable1_stable2_app,
-          stable1Stable2AppAddress: getApplicationAddress(stable1_stable2_app),
+          stable1Stable2AppAddress: nanopool_address,
           managerID_nanoswap: managerID_nanoswap,
         })
       )
