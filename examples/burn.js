@@ -3,6 +3,7 @@ import {
   makeApplicationNoOpTxnFromObject,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
+  waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
@@ -45,7 +46,12 @@ const burn = async ({ burnAmount }) => {
   assignGroupID(transactions);
   const signedTxs = transactions.map((t) => t.signTxn(account.sk));
   const { txId } = await algodClient.sendRawTransaction(signedTxs).do();
-  console.log("burn transaction ID:", txId);
+  const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
+  const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
+  const { aamt: assetOut } = innerTX?.find((i) => i?.txn?.xaid === assetID)?.txn;
+  const { aamt: lTNanoOut } = innerTX?.find((i) => i?.txn?.xaid === lTNano)?.txn;
+  console.log(`Burned ${burnAmount} metapool LT, received ${assetOut} asset and ${lTNanoOut} nanopool LT`);
+  return { assetOut, lTNanoOut };
 };
 export default burn;
 

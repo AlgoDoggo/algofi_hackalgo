@@ -6,15 +6,14 @@ import mint from "../examples/mint.js";
 import metaswap from "../examples/metaswap.js";
 import metazap from "../examples/metazap.js";
 import swap from "../examples/swap.js";
-import { fetchPoolState, getMintQuote } from "../helpers/getQuote.js";
-
+import { fetchPoolState, getBurnQuote, getMintQuote, getSwapQuote } from "../helpers/getQuote.js";
+/*
 describe("generalChecks", () => {
   it("stable1 < stable2", () => {
     assert.isBelow(stable1, stable2);
   });
 });
 
-/*
 describe("mintChecks", () => {
   it("handle 0 amount", async () => {
     await strict.rejects(mint({ optIn: false, assetID_amount: 0, lTNano_amount: 2000, maxSlippage: 1000000 }));
@@ -43,52 +42,44 @@ describe("mintChecks", () => {
     await strict.rejects(mint({ assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: [] }));
   });
   it("test max slippage protection", async () => {
-    await strict.rejects(mint({ assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: 1 }));
+    const assetID_amount = 100;
+    const { assetID_needed, lTNano_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
+    await strict.rejects(mint({ assetID_amount: assetID_needed, lTNano_amount: lTNano_needed * 2, maxSlippage: 1 }));
   });
   it("test math for minting precise metapool LT", async () => {
-    const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolState();
-    const ratio = assetSupply / lTNanoSupply;
     const assetID_amount = 1000;
-    const lTNano_amount = Math.floor(assetID_amount / ratio);
+    const { assetID_needed, lTNano_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
     const { mintAmount } = await mint({
-      assetID_amount,
-      lTNano_amount,
+      assetID_amount: assetID_needed,
+      lTNano_amount: lTNano_needed,
       maxSlippage: 1000,
     });
-    // 	Metapool LT out = Math.min(
-    // 	assetID amount * issued Metapool LT / assetID supply,
-    // 	lTNano amount * issued Metapool LT / lTNano supply
-    // )
-    const expectedMintAmount = Math.floor(
-      Math.min((assetID_amount * metapoolLTIssued) / assetSupply, (lTNano_amount * metapoolLTIssued) / lTNanoSupply)
-    );
-    assert.approximately(mintAmount, expectedMintAmount,1);
+    assert.approximately(mintAmount, expectedMintAmount, 1);
   });
   it("test math for minting approximate metapool LT", async () => {
-    const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolState();
-    const ratio = assetSupply / lTNanoSupply;
     const assetID_amount = 1000;
-    const lTNano_amount = Math.floor((assetID_amount * 1.05) / ratio);
+    const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolState();
+    const { assetID_needed, lTNano_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
     const { mintAmount, redeemAmount } = await mint({
-      assetID_amount,
-      lTNano_amount,
+      assetID_amount: assetID_needed,
+      lTNano_amount: Math.floor(lTNano_needed * 1.05),
       maxSlippage: 100000,
     });
-    const expectedMintAmount = Math.floor(
-      Math.min((assetID_amount * metapoolLTIssued) / assetSupply, (lTNano_amount * metapoolLTIssued) / lTNanoSupply)
-    );
-    assert.approximately(mintAmount, expectedMintAmount,1);
+    assert.approximately(mintAmount, expectedMintAmount, 1);
     // Excess Metapool LT = Math.max(load 24, load 25) - (amount of Metapool LT to send ) - 1
     // redeem amount = Excess Metapool LT * load 23 supply / Metapool LT issued
     const excess =
-      Math.max((assetID_amount * metapoolLTIssued) / assetSupply, (lTNano_amount * metapoolLTIssued) / lTNanoSupply) -
+      Math.max(
+        (assetID_needed * metapoolLTIssued) / assetSupply,
+        (Math.floor(lTNano_needed * 1.05) * metapoolLTIssued) / lTNanoSupply
+      ) -
       mintAmount -
       1;
-    const expectedRedeemAmount = Math.floor((excess * lTNanoSupply) / metapoolLTIssued);
-    assert.approximately(redeemAmount, expectedRedeemAmount,1);
+    const expectedRedeemAmount = (excess * lTNanoSupply) / metapoolLTIssued;
+    assert.approximately(redeemAmount, expectedRedeemAmount, 1);
   });
 });
-*/
+
 describe("burnChecks", () => {
   it("handle 0 amount", async () => {
     await strict.rejects(burn({ burnAmount: 0 }));
@@ -104,8 +95,55 @@ describe("burnChecks", () => {
     await strict.rejects(burn({ burnAmount: {} }));
     await strict.rejects(burn({ burnAmount: [] }));
   });
+  it("test math for burning metapool LT", async () => {
+    const burnAmount = 100;
+    const { assetOut: expectedAssetOut, lTNanoOut: expectedLTNanoOut } = await getBurnQuote(burnAmount);
+    const { assetOut, lTNanoOut } = await burn({ burnAmount });
+    assert.approximately(assetOut, expectedAssetOut, 1);
+    assert.approximately(lTNanoOut, expectedLTNanoOut, 1);
+  });
+});
+*/
+
+describe("swapChecks", () => {
+  it("handle 0 amount", async () => {
+    await strict.rejects(swap({ amount: 0, asset: assetID, minAmountOut: 0 }));
+  });
+  it("handle undefined amount", async () => {
+    await strict.rejects(swap({ amount: undefined, asset: assetID, minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: undefined, minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: undefined }));
+  });
+  it("handle null amount", async () => {
+    await strict.rejects(swap({ amount: null, asset: assetID, minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: null, minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: null }));
+  });
+  it("handle wrong types params", async () => {
+    await strict.rejects(swap({ amount: "hello", asset: assetID, minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: "hello", minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: "hello" }));
+    await strict.rejects(swap({ amount: { test: 5 }, asset: assetID, minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: { test: 5 }, minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: { test: 5 } }));
+    await strict.rejects(swap({ amount: [], asset: assetID, minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: [], minAmountOut: 1 }));
+    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: [] }));
+  });
+  it("test slippage control", async () => {
+    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: BigInt(2n ** 64n - 1n) }));
+  });
+  it("test math for swapping assetID and nanopool LT", async () => {
+    const assetID_amount = 100;
+    const asset_swapped = assetID
+    const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({asset:asset_swapped, assetAmount : assetID_amount });
+    const { amountOut, assetOut } = await swap({ amount: assetID_amount, asset: asset_swapped, minAmountOut: 1 })
+    assert.approximately(amountOut, expectedAmountOut, 1);
+    strict.equal(assetOut,expectedAssetOut)
+  });
 });
 
+/*
 describe("metaswapChecks", () => {
   it("handle 0 amount", async () => {
     await strict.rejects(metaswap({ assetAmount: 0, stableID: stable1, stableMinReturn: 9 }));
@@ -195,4 +233,4 @@ describe("swapChecks", () => {
     await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: BigInt(2n ** 64n - 1n) }));
   });
 });
-
+*/

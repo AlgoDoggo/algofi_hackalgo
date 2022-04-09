@@ -74,14 +74,14 @@ const mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage }) => {
   const signedTxs = transactions.map((t) => t.signTxn(account.sk));
   const { txId } = await algodClient.sendRawTransaction(signedTxs).do();
   let transactionResponse = await waitForConfirmation(algodClient, txId, 5);
-  const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);  
+  const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
   const { aamt: mintAmount } = innerTX?.find((i) => i?.txn?.xaid === metapoolLT)?.txn;
   const { aamt: redeemAmount, xaid: redeemAsset } = innerTX?.find(
     (i) => i?.txn?.xaid === assetID || i?.txn?.xaid === lTNano
   )?.txn ?? { aamt: 0, xaid: "" };
   console.log("minted:", mintAmount, "metapool liquidity token");
-  console.log(`redeemed: ${redeemAmount} of ${redeemAsset} token`);
-  
+  if (redeemAmount) console.log(`redeemed: ${redeemAmount} of ${redeemAsset} token`);
+
   return { mintAmount, redeemAmount, redeemAsset };
 };
 export default mint;

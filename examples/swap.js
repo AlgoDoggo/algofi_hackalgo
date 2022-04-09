@@ -4,6 +4,7 @@ import {
   makeApplicationNoOpTxnFromObject,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
+  waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
@@ -47,8 +48,16 @@ async function swap({ asset, amount, minAmountOut }) {
   assignGroupID(transactions);
   const signedTxs = transactions.map((t) => t.signTxn(account.sk));
   const { txId } = await algodClient.sendRawTransaction(signedTxs).do();
-  console.log("swap transaction ID:", txId);
+  const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
+  const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
+  const { aamt: amountOut, xaid: assetOut } = innerTX[0]?.txn;
+  if (asset === assetID) {
+    console.log(`Swapped ${amount} asset for ${amountOut} nanopool LT`);
+  } else {
+    console.log(`Swapped ${amount} nanopool LT for ${amountOut} asset`);
+  }
+  return { amountOut, assetOut };
 }
 export default swap;
 
-//swap({ amount: 100, asset: assetID, minAmountOut: 1 }).catch((error) => console.log(error.message));
+//swap({ amount: 10, asset: assetID, minAmountOut: 1 }).catch((error) => console.log(error.message));
