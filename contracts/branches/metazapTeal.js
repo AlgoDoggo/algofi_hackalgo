@@ -323,7 +323,7 @@ int ${assetID}
 itxn_field XferAsset
 load 19 // assetID amount out
 itxn_field AssetAmount
-callsub common_Zap_fields
+callsub common_zap_fields
 
 itxn_next
 
@@ -336,7 +336,7 @@ load 8 // stable-in ID
 asset_holding_get AssetBalance // get what's left in the metapool
 pop // remove opt-in info
 itxn_field AssetAmount
-callsub common_Zap_fields
+callsub common_zap_fields
 
 itxn_next
 
@@ -349,7 +349,7 @@ load 9 // stable-in ID
 asset_holding_get AssetBalance // get what's left in the metapool
 pop // remove opt-in info
 itxn_field AssetAmount
-callsub common_Zap_fields
+callsub common_zap_fields
 
 itxn_submit
 
@@ -360,7 +360,7 @@ b checkFees
 
 /////////////////////subroutines
 
-common_Zap_fields:
+common_zap_fields:
 
 int axfer
 itxn_field TypeEnum

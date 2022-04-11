@@ -10,7 +10,7 @@ export const metapool_app = 83226655;
 export const managerID_dex = 66008735;
 export const managerID_nanoswap = 77282916;
 
-//assets
+//assets - needs opt-in
 export const assetID = 54215619; // This is the token for which the metapool is created
 export const lTNano = 77282957; // This is the stablecoins nanopool liquidity tokens
 export const stable1 = 77279127; // D981

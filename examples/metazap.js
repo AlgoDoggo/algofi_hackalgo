@@ -5,6 +5,8 @@ import {
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   makePaymentTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
+  signTransaction,
+  waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
@@ -68,9 +70,13 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }) {
 
   const transactions = [tx0, tx1, tx2];
   assignGroupID(transactions);
-  const signedTxs = transactions.map((t) => t.signTxn(account.sk));
-  const { txId } = await algodClient.sendRawTransaction(signedTxs).do();
-  console.log("metazap transaction ID:", txId);
+  const signedTxs = transactions.map((t) => signTransaction(t, account.sk));
+  await algodClient.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
+  const transactionResponse = await waitForConfirmation(algodClient, signedTxs[2].txID, 5);
+  const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
+  const { aamt: assetOutAmount } = innerTX?.find((i) => i?.txn?.xaid === assetID)?.txn;
+  console.log(`metazapped ${zapAmount} ${stableToZap} for ${assetOutAmount } asset`);
+  return {assetOutAmount}
 }
 export default metazap;
 

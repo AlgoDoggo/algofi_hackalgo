@@ -74,7 +74,7 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }) {
   const transactionResponse = await waitForConfirmation(algodClient, signedTxs[2].txID, 5);
   const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
   const { aamt: stableOutAmount } = innerTX?.find((i) => i?.txn?.xaid === stableID)?.txn;
-  console.log(`Metaswapped ${assetAmount} asset for ${stableOutAmount} of ${stable1} stablecoin`);
+  console.log(`Metaswapped ${assetAmount} asset for ${stableOutAmount} of ${stableID} stablecoin`);
   return { stableOutAmount };
 }
 export default metaswap;

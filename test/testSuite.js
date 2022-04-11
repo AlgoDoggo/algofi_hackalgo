@@ -180,9 +180,17 @@ describe("metaswapChecks", () => {
   it("test slippage control", async () => {
     await strict.rejects(metaswap({ assetAmount: 1000, stableID: stable1, stableMinReturn: BigInt(2n ** 64n - 1n) }));
   });
-  it("test math for metaswap", async () => {
+  it("test math metaswap for stable1", async () => {
     const amountIn = 100;
     const stableOut = stable1;
+    const { stableOutAmount: expectedStableOutAmount } = await getMetaSwapQuote({ amountIn, stableOut });
+    const { stableOutAmount } = await metaswap({ assetAmount: amountIn, stableID: stableOut, stableMinReturn: 0 });
+    // metaswap estimates are a little more complex I'm adding a 2% tolerance on expectation vs reality
+    assert.approximately(stableOutAmount, expectedStableOutAmount, expectedStableOutAmount * 0.02);
+  });
+  it("test math, metaswap for stable2", async () => {
+    const amountIn = 100;
+    const stableOut = stable2;
     const { stableOutAmount: expectedStableOutAmount } = await getMetaSwapQuote({ amountIn, stableOut });
     const { stableOutAmount } = await metaswap({ assetAmount: amountIn, stableID: stableOut, stableMinReturn: 0 });
     // metaswap estimates are a little more complex I'm adding a 2% tolerance on expectation vs reality
@@ -217,36 +225,6 @@ describe("metazapChecks", () => {
   });
   it("test slippage control", async () => {
     await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 0, minAssetToGet: BigInt(2n ** 64n - 1n) }));
-  });
-});
-
-describe("swapChecks", () => {
-  it("handle 0 amount", async () => {
-    await strict.rejects(swap({ amount: 0, asset: assetID, minAmountOut: 0 }));
-  });
-  it("handle undefined amount", async () => {
-    await strict.rejects(swap({ amount: undefined, asset: assetID, minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: undefined, minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: undefined }));
-  });
-  it("handle null amount", async () => {
-    await strict.rejects(swap({ amount: null, asset: assetID, minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: null, minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: null }));
-  });
-  it("handle wrong types params", async () => {
-    await strict.rejects(swap({ amount: "hello", asset: assetID, minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: "hello", minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: "hello" }));
-    await strict.rejects(swap({ amount: { test: 5 }, asset: assetID, minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: { test: 5 }, minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: { test: 5 } }));
-    await strict.rejects(swap({ amount: [], asset: assetID, minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: [], minAmountOut: 1 }));
-    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: [] }));
-  });
-  it("test slippage control", async () => {
-    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: BigInt(2n ** 64n - 1n) }));
   });
 });
 */
