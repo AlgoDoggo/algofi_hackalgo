@@ -5,6 +5,8 @@ import {
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   makePaymentTxnWithSuggestedParamsFromObject,
   mnemonicToSecretKey,
+  signTransaction,
+  waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../adapters/algoD.js";
@@ -32,9 +34,6 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }) {
   params.fee = 1000;
   params.flatFee = true;
 
-  // appArgs:["metaswap", int minimumAmountOut, assetOutID (stable1 or stable2) ]
-  const argsMetaswap = [enc.encode("metaswap"), encodeUint64(stableMinReturn), encodeUint64(stableID)];
-
   const tx0 = makePaymentTxnWithSuggestedParamsFromObject({
     suggestedParams: {
       ...params,
@@ -61,7 +60,8 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }) {
     },
     from: account.addr,
     appIndex: metapool_app,
-    appArgs: argsMetaswap,
+    // appArgs:["metaswap", int minimumAmountOut, assetOutID (stable1 or stable2) ]
+    appArgs: [enc.encode("metaswap"), encodeUint64(stableMinReturn), encodeUint64(stableID)],
     accounts: [nanopool_address],
     foreignAssets: [assetID, lTNano, stable1, stable2],
     foreignApps: [stable1_stable2_app, managerID_nanoswap],
@@ -69,10 +69,14 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }) {
 
   const transactions = [tx0, tx1, tx2];
   assignGroupID(transactions);
-  const signedTxs = transactions.map((t) => t.signTxn(account.sk));
-  const { txId } = await algodClient.sendRawTransaction(signedTxs).do();
-  console.log("metaswap transaction ID:", txId);
+  const signedTxs = transactions.map((t) => signTransaction(t, account.sk));
+  await algodClient.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
+  const transactionResponse = await waitForConfirmation(algodClient, signedTxs[2].txID, 5);
+  const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
+  const { aamt: stableOutAmount } = innerTX?.find((i) => i?.txn?.xaid === stableID)?.txn;
+  console.log(`Metaswapped ${assetAmount} asset for ${stableOutAmount} of ${stable1} stablecoin`);
+  return { stableOutAmount };
 }
 export default metaswap;
 
-//metaswap({ assetAmount: 1000, stableID: stable1, stableMinReturn: 0 }).catch((error) => console.log(error.message));
+//metaswap({ assetAmount: 100, stableID: stable1, stableMinReturn: 0 }).catch((error) => console.log(error.message));

@@ -142,7 +142,7 @@ itxn_next
 int appl
 itxn_field TypeEnum
 global MinTxnFee
-int 6 // for a swap in a nanoswap pool fee is at least 5x the min
+int 5 // for a swap in a nanoswap pool fee is at least 5x the min
 *
 itxn_field Fee
 int ${stable1Stable2AppId}
@@ -188,7 +188,7 @@ itxn_field AssetReceiver
 
 itxn_submit
 
-int 12 // number of MinTxnFee consumed by the metapool
+int 11 // number of MinTxnFee consumed by the metapool
 store 20
 
 b checkFees

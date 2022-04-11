@@ -88,7 +88,7 @@ export const getBurnQuote = async (burnAmount) => {
   return { assetOut, lTNanoOut };
 };
 
-export const getSwapQuote = async ({ asset, assetAmount }) => {
+export const getSwapQuote = async ({ asset, assetAmount, meta }) => {
   const { assetSupply, lTNanoSupply } = await fetchPoolState();
   //  amount_out = (asset_in_amount * 9975 * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * 9975))
   if (asset === assetID) {
@@ -96,7 +96,7 @@ export const getSwapQuote = async ({ asset, assetAmount }) => {
       (BigInt(assetAmount) * 9975n * BigInt(lTNanoSupply)) /
         (BigInt(assetSupply) * 10000n + BigInt(assetAmount) * 9975n)
     );
-    console.log(`Send ${assetAmount} asset, you will receive ${amount_out} nanopool LT`);
+    !meta && console.log(`Send ${assetAmount} asset, you will receive ${amount_out} nanopool LT`);
     return { amountOut: amount_out, assetOut: lTNano };
   }
   if (asset === lTNano) {
@@ -104,7 +104,7 @@ export const getSwapQuote = async ({ asset, assetAmount }) => {
       (BigInt(assetAmount) * 9975n * BigInt(assetSupply)) /
         (BigInt(lTNanoSupply) * 10000n + BigInt(assetAmount) * 9975n)
     );
-    console.log(`Send ${assetAmount} nanopool LT, you will receive ${amount_out} asset`);
+    !meta && console.log(`Send ${assetAmount} nanopool LT, you will receive ${amount_out} asset`);
     return { amountOut: amount_out, assetOut: assetID };
   }
   throw new Error("Error, input params invalid");
@@ -112,21 +112,20 @@ export const getSwapQuote = async ({ asset, assetAmount }) => {
 
 export const getMetaSwapQuote = async ({ amountIn, stableOut }) => {
   // estimate how much LTNano we'll get
-  const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });
+  const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn, meta: true });
 
   //estimate how much stable coins we'll get from burning LTNano
-  const { assetSupply, lTNanoSupply, stable1Supply, stable2Supply, metapoolLTIssued, lTNanoIssued } =
+  const {  stable1Supply, stable2Supply,  lTNanoIssued } =
     await fetchPoolState();
   const stable1Out = (BigInt(stable1Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued);
   const stable2Out = (BigInt(stable2Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued);
-
   //estimate the stable swap in the nanopool
-  //  amount_out = (asset_in_amount * 9975 * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * 9975))
+  // amount_out = (asset_in_amount * 9975 * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * 9975))
   if (stableOut === stable1) {
     const amount_out =
       (BigInt(stable2Out) * 9975n * BigInt(stable1Supply)) /
       (BigInt(stable2Supply) * 10000n + BigInt(stable2Out) * 9975n);
-    const stableOutAmount = stable1Out + amount_out;
+    const stableOutAmount = Number(stable1Out + amount_out);
     console.log(`Metaswapping ${amountIn} asset will get you ${stableOutAmount} stable1 token`);
     return { stableOutAmount };
   }
@@ -134,7 +133,48 @@ export const getMetaSwapQuote = async ({ amountIn, stableOut }) => {
     const amount_out =
       (BigInt(stable1Out) * 9975n * BigInt(stable2Supply)) /
       (BigInt(stable1Supply) * 10000n + BigInt(stable1Out) * 9975n);
-    const stableOutAmount = stable2Out + amount_out;
+    const stableOutAmount = Number(stable2Out + amount_out);
+    console.log(`Metaswapping ${amountIn} asset will get you ${stableOutAmount} stable1 token`);
+    return { stableOutAmount };
+  }
+  throw new Error("Input params invalid");
+};
+
+export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
+  if(stableIn !== stable1 && stableIn !==stable2)throw new Error("Stablecoin input invalid");
+  // if x is the amount of stable-in to convert, s1 the supply of stable-in in the nanopool
+  // x = (sqrt( s1 * ( s1 + amountIn)) - s1) * 10000 / 9975
+  const { assetSupply, lTNanoSupply, stable1Supply, stable2Supply, metapoolLTIssued, lTNanoIssued } =
+  await fetchPoolState();
+  let x
+  if(stableIn === stable1){
+    x =  BigInt((Math.sqrt(stable1Supply*( stable1Supply+amountIn)) - stable1Supply))*10000n/9975n
+  }else{
+    x =  BigInt((Math.sqrt(stable2Supply*( stable2Supply+amountIn)) - stable2Supply))*10000n/9975n
+  }
+  
+  // estimate how much LTNano we'll get
+  const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn, meta: true });
+
+  //estimate how much stable coins we'll get from burning LTNano
+  
+  const stable1Out = (BigInt(stable1Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued);
+  const stable2Out = (BigInt(stable2Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued);
+  //estimate the stable swap in the nanopool
+  // amount_out = (asset_in_amount * 9975 * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * 9975))
+  if (stableOut === stable1) {
+    const amount_out =
+      (BigInt(stable2Out) * 9975n * BigInt(stable1Supply)) /
+      (BigInt(stable2Supply) * 10000n + BigInt(stable2Out) * 9975n);
+    const stableOutAmount = Number(stable1Out + amount_out);
+    console.log(`Metaswapping ${amountIn} asset will get you ${stableOutAmount} stable1 token`);
+    return { stableOutAmount };
+  }
+  if (stableOut === stable2) {
+    const amount_out =
+      (BigInt(stable1Out) * 9975n * BigInt(stable2Supply)) /
+      (BigInt(stable1Supply) * 10000n + BigInt(stable1Out) * 9975n);
+    const stableOutAmount = Number(stable2Out + amount_out);
     console.log(`Metaswapping ${amountIn} asset will get you ${stableOutAmount} stable1 token`);
     return { stableOutAmount };
   }

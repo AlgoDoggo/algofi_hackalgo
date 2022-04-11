@@ -32,13 +32,13 @@ addr ${stable1Stable2AppAddress}
 load 8
 asset_holding_get AssetBalance
 pop // remove opt-in info
-store 10 // balance of stable-in asset
+store 10 // balance of stable-in asset or s1
 
 addr ${stable1Stable2AppAddress}
 load 9
 asset_holding_get AssetBalance
 pop // remove opt-in info
-store 11 // balance of stable-out asset
+store 11 // balance of stable-out asset or s2
 
 // save the amount of stable-in to zap
 // here I could use gtxn 1 AssetAmount but I chose to use the metapool asset balance rather. 
@@ -48,7 +48,6 @@ global CurrentApplicationAddress
 load 8 // stable-in ID
 asset_holding_get AssetBalance 
 pop // remove opt-in info
-dup
 dup
 store 12
 
@@ -74,7 +73,7 @@ store 12
 // let's rewrite it and compensate for the 0.25% fee loss
 // x = (sqrt( s1 * ( s1 + load 12)) - s1) * 10000 / 9975
 
-load 10 // s1, load 12 still twice on the stack
+load 10 // s1, load 12 still once on the stack
 +
 itob // going for byteslice arithmetic to avoid overflow issues
 load 10
@@ -88,7 +87,6 @@ int 10000 // = byte 0x2710
 mulw
 int 9975 // = byte 0x26f7 
 divw // x adjusted for 0.25% fee
-- // still had a load 12 on stack so this is load 12 - x_adjusted
 store 13 // stable-in amount to trade
 
 // let's swap stable-in for stable-out
@@ -132,11 +130,12 @@ itxn_submit
 // now let's mint our lTNano
 
 // first get the current balance of stable-in
-global CurrentApplicationAddress
-load 8 // stable-in ID
-asset_holding_get AssetBalance
-pop // remove opt-in info
+load 12 // what we had
+load 13 // what we swapped
+-
+dup
 store 14 // balance of stable-in asset
+store 16 // amount of stable-in to send for minting
 
 // then get the current balance of stable-out
 global CurrentApplicationAddress
@@ -162,26 +161,41 @@ load 10 // balance of stable-in asset
 load 13 // amount we swapped earlier
 + // s1 is the balance in nanopool before the swap + the amount we swapped in
 divw // A,B / C. Fail if C == 0 or if result overflows. A,B as uint128
-dup
-store 16 // that's the correct amount of stable-out to send for minting
-load 15 
-dup2
->= // load 16 should be greater or equal than load 15 the asset balance
-select // if true select load 15 else load 16
-store 17
+dup /// theoretical amount of stable-out to send for minting
+store 17 // actual amount of stable-out to send for minting
+load 15  // balance of stable-out asset
+<= // make sure there is enought stable-out asset
+bnz start_minting
 
+// if there is not enough stable-out asset then let's reverse the math
+// first the actual amount of stable-out to send is all we have
+load 15
+dup
+store 17
+// now let's figure out the amount of stable in to send
+// stable-in amount to send = load 15 * s1 / s2
+load 10
+load 13
++
+mulw
+addr ${stable1Stable2AppAddress}
+load 9
+asset_holding_get AssetBalance // s2
+pop // remove opt-in info
+divw
+store 16
 
 // For minting on Algofi it's important to send first the smallest stable ID so stable 1
-
+start_minting:
 itxn_begin
 
-// first tx we send the stable-in to the pool
+// first tx we send stable1 to the pool
 int axfer
 itxn_field TypeEnum
-int ${stable1} // stable-in ID
+int ${stable1} 
 itxn_field XferAsset
 load 17 // stable out amount to send
-load 14 // stable in amount to send
+load 16 // stable in amount to send
 load 8
 int ${stable1}
 == // is stable-in stable 1?
@@ -198,7 +212,7 @@ itxn_field TypeEnum
 int ${stable2} // stable-out ID
 itxn_field XferAsset
 load 17 // stable out amount to send
-load 14 // stable in amount to send
+load 16 // stable in amount to send
 load 8
 int ${stable2}
 == // is stable-in stable 2?
@@ -213,7 +227,7 @@ itxn_next
 int appl
 itxn_field TypeEnum
 global MinTxnFee
-int 3 // for a swap in a nanoswap pool fee is 5x the min
+int 4 // this one has a dynamic budget as well 
 *
 itxn_field Fee
 int ${stable1Stable2AppId}
@@ -305,24 +319,16 @@ assert
 
 itxn_begin
 
-int axfer
-itxn_field TypeEnum
 int ${assetID} 
 itxn_field XferAsset
 load 19 // assetID amount out
 itxn_field AssetAmount
-txn Sender
-itxn_field AssetReceiver
+callsub common_Zap_fields
 
 itxn_next
 
 // when we minted our lTNano with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
-// The way we've calculated ratios, this redeem should always be stable-in asset since the stable-out amount sent should always
-// be slightly smaller or equal than the proper ratio
 
-
-int axfer
-itxn_field TypeEnum
 load 8 // stable-in ID
 itxn_field XferAsset
 global CurrentApplicationAddress
@@ -330,14 +336,38 @@ load 8 // stable-in ID
 asset_holding_get AssetBalance // get what's left in the metapool
 pop // remove opt-in info
 itxn_field AssetAmount
-txn Sender
-itxn_field AssetReceiver
+callsub common_Zap_fields
+
+itxn_next
+
+// when we minted our lTNano with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
+
+load 9 // stable-in ID
+itxn_field XferAsset
+global CurrentApplicationAddress
+load 9 // stable-in ID
+asset_holding_get AssetBalance // get what's left in the metapool
+pop // remove opt-in info
+itxn_field AssetAmount
+callsub common_Zap_fields
 
 itxn_submit
 
-int 11 // number of MinTxnFee consumed by the metapool
+int 13 // number of MinTxnFee consumed by the metapool
 store 20
 
 b checkFees
+
+/////////////////////subroutines
+
+common_Zap_fields:
+
+int axfer
+itxn_field TypeEnum
+txn Sender
+itxn_field AssetReceiver
+
+retsub
+
 
 `

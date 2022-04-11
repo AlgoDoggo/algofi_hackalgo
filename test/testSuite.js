@@ -6,7 +6,7 @@ import mint from "../examples/mint.js";
 import metaswap from "../examples/metaswap.js";
 import metazap from "../examples/metazap.js";
 import swap from "../examples/swap.js";
-import { fetchPoolState, getBurnQuote, getMintQuote, getSwapQuote } from "../helpers/getQuote.js";
+import { fetchPoolState, getBurnQuote, getMetaSwapQuote, getMintQuote, getSwapQuote } from "../helpers/getQuote.js";
 /*
 describe("generalChecks", () => {
   it("stable1 < stable2", () => {
@@ -151,7 +151,7 @@ describe("swapChecks", () => {
   });
 });
 */
-/*
+
 describe("metaswapChecks", () => {
   it("handle 0 amount", async () => {
     await strict.rejects(metaswap({ assetAmount: 0, stableID: stable1, stableMinReturn: 9 }));
@@ -180,8 +180,16 @@ describe("metaswapChecks", () => {
   it("test slippage control", async () => {
     await strict.rejects(metaswap({ assetAmount: 1000, stableID: stable1, stableMinReturn: BigInt(2n ** 64n - 1n) }));
   });
+  it("test math for metaswap", async () => {
+    const amountIn = 100;
+    const stableOut = stable1;
+    const { stableOutAmount: expectedStableOutAmount } = await getMetaSwapQuote({ amountIn, stableOut });
+    const { stableOutAmount } = await metaswap({ assetAmount: amountIn, stableID: stableOut, stableMinReturn: 0 });
+    // metaswap estimates are a little more complex I'm adding a 2% tolerance on expectation vs reality
+    assert.approximately(stableOutAmount, expectedStableOutAmount, expectedStableOutAmount * 0.02);
+  });
 });
-
+/*
 describe("metazapChecks", () => {
   it("handle 0 amount", async () => {
     await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 0, minAssetToGet: 0 }));

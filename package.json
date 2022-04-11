@@ -15,7 +15,7 @@
     "metaswap": "nodemon ./examples/metaswap.js",
     "metazap": "nodemon ./examples/metazap.js",
     "algofi-burn": "node ./algofiSdk/burn.js",
-    "algofi-mint": "node ./algofiSdk/mint.js",
+    "algofi-mint": "nodemon ./algofiSdk/mint.js",
     "algofi-swap": "nodemon ./algofiSdk/swap.js"
   },
   "keywords": [],

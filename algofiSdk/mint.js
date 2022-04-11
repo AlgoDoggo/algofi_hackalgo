@@ -34,29 +34,27 @@ async function mint() {
   const tx0 = makeAssetTransferTxnWithSuggestedParamsFromObject({
     suggestedParams: {
       ...params,
-      fee: 1000,
     },
     from: account.addr,
     to: nanopool_address,
     assetIndex: stable1,
-    amount: 50000,
+    amount: 500,
   });
 
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
     suggestedParams: {
       ...params,
-      fee: 1000,
     },
     from: account.addr,
     to: nanopool_address,
     assetIndex: stable2,
-    amount: 50000,
+    amount: 752,
   });
 
   const tx2 = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...params,
-      fee: params.fee * 3,
+      fee: params.fee * 4,
     },
     from: account.addr,
     appIndex: stable1_stable2_app,
@@ -68,7 +66,6 @@ async function mint() {
   const tx3 = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...params,
-      fee: 1000,
     },
     from: account.addr,
     appIndex: stable1_stable2_app,
@@ -79,7 +76,6 @@ async function mint() {
   const tx4 = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...params,
-      fee: 1000,
     },
     from: account.addr,
     appIndex: stable1_stable2_app,

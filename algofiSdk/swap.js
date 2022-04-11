@@ -35,7 +35,7 @@ async function swap() {
     from: account.addr,
     to: nanopool_address,
     assetIndex: stable2,
-    amount: 10,
+    amount: 10**11,
   });
 
   const tx1 = makeApplicationNoOpTxnFromObject({

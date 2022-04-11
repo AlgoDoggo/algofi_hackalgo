@@ -38,7 +38,7 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }) {
     },
     from: account.addr,
     to: metapool_address,
-    amount: 11000,
+    amount: 13000,
   });
 
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -54,7 +54,7 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }) {
   const tx2 = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...params,
-      fee: params.fee * 6, //(fee is at least 5x for nanoswap 2x for regular swap)
+      fee: params.fee * 5, //(fee is at least 5x for nanoswap 2x for regular swap)
     },
     from: account.addr,
     appIndex: metapool_app,
@@ -65,6 +65,7 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }) {
     foreignApps: [stable1_stable2_app, managerID_nanoswap],
   });
 
+
   const transactions = [tx0, tx1, tx2];
   assignGroupID(transactions);
   const signedTxs = transactions.map((t) => t.signTxn(account.sk));
@@ -73,4 +74,4 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }) {
 }
 export default metazap;
 
-//metazap({ stableToZap: stable1, zapAmount: 4, minAssetToGet: 0 }).catch((error) => console.log(error.message));
+metazap({ stableToZap: stable2, zapAmount: 1000, minAssetToGet: 1 }).catch((error) => console.log(error.message));
