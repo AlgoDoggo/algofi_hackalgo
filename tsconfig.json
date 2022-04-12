@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "checkJs": false,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "lib": ["ES2021", "dom"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowUnreachableCode": true,
+    "useUnknownInCatchVariables": false // TypeScript 4.4+ only!
+  },
+  "ts-node": {    
+    "esm": true,
+    "transpileOnly": true
+  },
+  "include": ["**/*.ts", "src/**/*.ts", "examples/**/*.ts"],
+  "exclude": ["node_modules", "<node_internals>/**"]
+}

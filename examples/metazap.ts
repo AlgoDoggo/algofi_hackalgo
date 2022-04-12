@@ -25,9 +25,15 @@ import {
 dotenv.config();
 const enc = new TextEncoder();
 
-async function metazap({ stableToZap, zapAmount, minAssetToGet }) {
+interface Metazap {
+  stableToZap: number;
+  zapAmount: number | bigint;
+  minAssetToGet: number | bigint;
+}
+
+async function metazap({ stableToZap, zapAmount, minAssetToGet }: Metazap) {
   if (!stableToZap || !zapAmount) throw new Error("invalid metazap parameters");
-  const account = mnemonicToSecretKey(process.env.Mnemo);
+  const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
   const params = await algodClient.getTransactionParams().do();
 
@@ -67,7 +73,6 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }) {
     foreignApps: [stable1_stable2_app, managerID_nanoswap],
   });
 
-
   const transactions = [tx0, tx1, tx2];
   assignGroupID(transactions);
   const signedTxs = transactions.map((t) => signTransaction(t, account.sk));
@@ -75,9 +80,9 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }) {
   const transactionResponse = await waitForConfirmation(algodClient, signedTxs[2].txID, 5);
   const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
   const { aamt: assetOutAmount } = innerTX?.find((i) => i?.txn?.xaid === assetID)?.txn;
-  console.log(`metazapped ${zapAmount} ${stableToZap} for ${assetOutAmount } asset`);
-  return {assetOutAmount}
+  console.log(`metazapped ${zapAmount} ${stableToZap} for ${assetOutAmount} asset`);
+  return { assetOutAmount };
 }
 export default metazap;
 
-metazap({ stableToZap: stable2, zapAmount: 1000, minAssetToGet: 1 }).catch((error) => console.log(error.message));
+//metazap({ stableToZap: stable2, zapAmount: 1000, minAssetToGet: 1 }).catch((error) => console.log(error.message));

@@ -13,9 +13,15 @@ import { lTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../
 dotenv.config();
 const enc = new TextEncoder();
 
-async function swap({ asset, amount, minAmountOut }) {
+interface Swap {
+  asset: number;
+  amount: number | bigint;
+  minAmountOut: number | bigint;
+}
+
+async function swap({ asset, amount, minAmountOut }: Swap) {
   if (!asset || !amount) throw new Error("invalid swap parameters");
-  const account = mnemonicToSecretKey(process.env.Mnemo);
+  const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
   const params = await algodClient.getTransactionParams().do();
 
@@ -60,4 +66,4 @@ async function swap({ asset, amount, minAmountOut }) {
 }
 export default swap;
 
-swap({ amount: 200, asset: assetID, minAmountOut: 1 }).catch((error) => console.log(error.message));
+//swap({ amount: 200, asset: assetID, minAmountOut: 1 }).catch((error) => console.log(error.message));

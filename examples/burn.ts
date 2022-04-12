@@ -12,9 +12,9 @@ import { lTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../
 dotenv.config();
 const enc = new TextEncoder();
 
-const burn = async ({ burnAmount }) => {
+const burn = async ({ burnAmount }: { burnAmount: number | bigint }) => {
   if (!burnAmount) throw new Error("invalid burn amount");
-  const account = mnemonicToSecretKey(process.env.Mnemo);
+  const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
   const params = await algodClient.getTransactionParams().do();
 

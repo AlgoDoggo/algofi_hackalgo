@@ -13,9 +13,16 @@ import { lTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../
 dotenv.config();
 const enc = new TextEncoder();
 
-const mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage }) => {
+interface Mint {
+  optIn: boolean;
+  assetID_amount: number | bigint;
+  lTNano_amount: number | bigint;
+  maxSlippage: number;
+}
+
+const mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage }: Mint) => {
   if (!assetID_amount || !lTNano_amount || !maxSlippage) throw new Error("invalid mint parameters");
-  const account = mnemonicToSecretKey(process.env.Mnemo);
+  const account = mnemonicToSecretKey(process.env.Mnemo!); // ! Non-null assertion operator
   let algodClient = setupClient();
   const params = await algodClient.getTransactionParams().do();
 

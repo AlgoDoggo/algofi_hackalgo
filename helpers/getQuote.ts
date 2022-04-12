@@ -50,14 +50,19 @@ export const fetchPoolState = async () => {
   return { assetSupply, lTNanoSupply, stable1Supply, stable2Supply, metapoolLTIssued, lTNanoIssued };
 };
 
-export const getMintQuote = async ({ assetID_amount, lTNano_amount }) => {
+type MintQuote = {
+  assetID_amount?: number;
+  lTNano_amount?: number;
+};
+
+export const getMintQuote = async ({ assetID_amount, lTNano_amount }: MintQuote) => {
   if (!assetID_amount && !lTNano_amount) throw new Error("Error, input params needed");
   const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolState();
   let lTNano_needed, assetID_needed;
   if (assetID_amount) {
     lTNano_needed = Math.floor((assetID_amount * lTNanoSupply) / assetSupply);
     assetID_needed = Math.floor(assetID_amount);
-  } else {
+  } else if (lTNano_amount) {
     assetID_needed = Math.floor((lTNano_amount * assetSupply) / lTNanoSupply);
     lTNano_needed = Math.floor(lTNano_amount);
   }
@@ -161,7 +166,7 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
   const stable2Out = (BigInt(stable2Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued);
   //estimate the stable swap in the nanopool
   // amount_out = (asset_in_amount * 9975 * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * 9975))
-  if (stableOut === stable1) {
+  if (stableIn === stable1) {
     const amount_out =
       (BigInt(stable2Out) * 9975n * BigInt(stable1Supply)) /
       (BigInt(stable2Supply) * 10000n + BigInt(stable2Out) * 9975n);
@@ -169,7 +174,7 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
     console.log(`Metaswapping ${amountIn} asset will get you ${stableOutAmount} stable1 token`);
     return { stableOutAmount };
   }
-  if (stableOut === stable2) {
+  if (stableIn === stable2) {
     const amount_out =
       (BigInt(stable1Out) * 9975n * BigInt(stable2Supply)) /
       (BigInt(stable1Supply) * 10000n + BigInt(stable1Out) * 9975n);

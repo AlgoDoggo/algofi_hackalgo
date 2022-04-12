@@ -25,9 +25,15 @@ import {
 dotenv.config();
 const enc = new TextEncoder();
 
-async function metaswap({ assetAmount, stableMinReturn, stableID }) {
+interface Metaswap {
+  assetAmount: number;
+  stableMinReturn: number;
+  stableID: number;
+}
+
+async function metaswap({ assetAmount, stableMinReturn, stableID }: Metaswap) {
   if (!assetAmount || typeof stableMinReturn !== "number" || !stableID) throw new Error("invalid metaswap parameters");
-  const account = mnemonicToSecretKey(process.env.Mnemo);
+  const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
   const params = await algodClient.getTransactionParams().do();
 
