@@ -20,10 +20,9 @@ int 9975 // 0.25% fee
 load 3 // lTNano supply
 mulw // 128 bit value
 
-global CurrentApplicationAddress
-int ${assetID}
-asset_holding_get AssetBalance // assetID supply
-pop // pop the opt-in
+load 27 // assetID supply
+gtxn 1 AssetAmount  // I have to substract this here since the app call comes after gtxn 1 and load 27
+- // will thus include the asset ID supply + the amount that was just sent
 int 10000
 *
 gtxn 1 AssetAmount // input amount
@@ -142,7 +141,10 @@ itxn_next
 int appl
 itxn_field TypeEnum
 global MinTxnFee
-int 5 // for a swap in a nanoswap pool fee is at least 5x the min
+int 2 // Fee is at least 2x the min + whatever extra fee we calculated in the front-end
+txna ApplicationArgs 3
+btoi
++
 *
 itxn_field Fee
 int ${stable1Stable2AppId}

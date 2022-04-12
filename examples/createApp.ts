@@ -87,9 +87,9 @@ const createApp = async () => {
   });
   const transactions = [bootstrap, appBootstrap];
   assignGroupID(transactions);
-  txSigned = transactions.map((t) => signTransaction(t, account.sk));
-  const txIdAppCall = txSigned[1].txID;
-  await algodClient.sendRawTransaction(txSigned.map((t) => t.blob)).do();
+  let bootstrapSigned = transactions.map((t) => signTransaction(t, account.sk));
+  const txIdAppCall = bootstrapSigned[1].txID;
+  await algodClient.sendRawTransaction(bootstrapSigned.map((t) => t.blob)).do();
   transactionResponse = await waitForConfirmation(algodClient, txIdAppCall, 5);
   const { ["asset-index"]: metapoolLT } = transactionResponse["inner-txns"].find((e) => e["asset-index"]);
   console.log("Created Metapool liquity token: ", metapoolLT);

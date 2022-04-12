@@ -33,7 +33,7 @@ gtxn 1 AssetAmount
 int 9975
 * 
 load 27 // assetID supply
-load 28 // lTNano supply
+load 3 // lTNano supply
 int ${lTNano}
 load 32
 ==
@@ -41,7 +41,7 @@ select
 mulw // (asset_in_amount * 9975 * asset_out_supply)
 
 load 27 // assetID supply
-load 28 // lTNano supply
+load 3 // lTNano supply
 int ${lTNano}
 load 31
 ==

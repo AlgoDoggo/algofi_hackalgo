@@ -20,7 +20,7 @@ load 21
 divw
 store 29 // assetID amount to send back
 
-load 28
+load 3
 gtxn 1 AssetAmount
 mulw
 load 21

@@ -20,7 +20,6 @@ export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppI
 // 3: lTNano asset amount in the app
 // 21: issued amount of Metapool LT
 // 27: assetID supply
-// 28: lTNano supply
 
 // MetaSwap Specific:
 // 4: lTNano amount out for swap operation
@@ -96,7 +95,13 @@ global CurrentApplicationAddress
 int ${lTNano}
 asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
 pop // is app opted-in lTNano
-store 3 // lTNano asset amount in the app account
+store 3 // lTNano supply in the app account
+
+global CurrentApplicationAddress
+int ${assetID}
+asset_holding_get AssetBalance // liquidity token amount in the app
+pop
+store 27 // assetID supply
 
 // Allow bootstrap
 txna ApplicationArgs 0
@@ -152,18 +157,6 @@ asset_holding_get AssetBalance // liquidity token amount in the app
 pop
 - // (2**64 - 1 ) - actual balance
 store 21 // issued amount of Metapool LT
-
-global CurrentApplicationAddress
-int ${assetID}
-asset_holding_get AssetBalance // liquidity token amount in the app
-pop
-store 27 // assetID supply
-
-global CurrentApplicationAddress
-int ${lTNano}
-asset_holding_get AssetBalance // liquidity token amount in the app
-pop
-store 28 // lTNano supply
 
 txna ApplicationArgs 0
 byte "mint" 

@@ -28,11 +28,12 @@ const enc = new TextEncoder();
 interface Metaswap {
   assetAmount: number;
   stableMinReturn: number;
-  stableID: number;
+  stableOut: number;
+  extraComputeFee: number
 }
 
-async function metaswap({ assetAmount, stableMinReturn, stableID }: Metaswap) {
-  if (!assetAmount || typeof stableMinReturn !== "number" || !stableID) throw new Error("invalid metaswap parameters");
+async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeFee=0 }: Metaswap) {
+  if (!assetAmount || typeof stableMinReturn !== "number" || !stableOut) throw new Error("invalid metaswap parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
   const params = await algodClient.getTransactionParams().do();
@@ -66,8 +67,13 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }: Metaswap) {
     },
     from: account.addr,
     appIndex: metapool_app,
-    // appArgs:["metaswap", int minimumAmountOut, assetOutID (stable1 or stable2) ]
-    appArgs: [enc.encode("metaswap"), encodeUint64(stableMinReturn), encodeUint64(stableID)],
+    // appArgs:["metaswap", int minimumAmountOut, assetOutID (stable1 or stable2), extracompute fee [0-5] ish ]
+    appArgs: [
+      enc.encode("metaswap"),
+      encodeUint64(stableMinReturn),
+      encodeUint64(stableOut),
+      encodeUint64(extraComputeFee),
+    ],
     accounts: [nanopool_address],
     foreignAssets: [assetID, lTNano, stable1, stable2],
     foreignApps: [stable1_stable2_app, managerID_nanoswap],
@@ -79,10 +85,10 @@ async function metaswap({ assetAmount, stableMinReturn, stableID }: Metaswap) {
   await algodClient.sendRawTransaction(signedTxs.map((t) => t.blob)).do();
   const transactionResponse = await waitForConfirmation(algodClient, signedTxs[2].txID, 5);
   const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
-  const { aamt: stableOutAmount } = innerTX?.find((i) => i?.txn?.xaid === stableID)?.txn;
-  console.log(`Metaswapped ${assetAmount} asset for ${stableOutAmount} of ${stableID} stablecoin`);
+  const { aamt: stableOutAmount } = innerTX?.find((i) => i?.txn?.xaid === stableOut)?.txn;
+  console.log(`Metaswapped ${assetAmount} asset for ${stableOutAmount} of ${stableOut} stablecoin`);
   return { stableOutAmount };
 }
 export default metaswap;
 
-//metaswap({ assetAmount: 100, stableID: stable1, stableMinReturn: 0 }).catch((error) => console.log(error.message));
+metaswap({ assetAmount: 100, stableOut: stable1, stableMinReturn: 0,extraComputeFee:5 }).catch((error) => console.log(error.message));

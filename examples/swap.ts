@@ -66,4 +66,4 @@ async function swap({ asset, amount, minAmountOut }: Swap) {
 }
 export default swap;
 
-//swap({ amount: 200, asset: assetID, minAmountOut: 1 }).catch((error) => console.log(error.message));
+swap({ amount: 100, asset: assetID, minAmountOut: 1 }).catch((error) => console.log(error.message));

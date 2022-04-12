@@ -39,7 +39,7 @@ store 24
 gtxn 2 AssetAmount
 load 21
 mulw
-load 28 // lTNano supply
+load 3 // lTNano supply
 divw // lTNano amount * issued Metapool LT / lTNano supply
 dup
 store 25 // lTNano amount * issued Metapool LT / lTNano supply
