@@ -30,7 +30,6 @@ async function swap() {
   const tx0 = makeAssetTransferTxnWithSuggestedParamsFromObject({
     suggestedParams: {
       ...params,
-      fee: 0,
     },
     from: account.addr,
     to: nanopool_address,
@@ -42,7 +41,7 @@ async function swap() {
     // swap exact for
     suggestedParams: {
       ...params,
-      fee: params.fee * 8, //(fee is 5x for nanoswap 2x for regular swap)
+      fee: params.fee * 5, //(fee is 5x for nanoswap 2x for regular swap)
     },
     from: account.addr,
     appIndex: stable1_stable2_app,

@@ -14,13 +14,11 @@ dotenv.config();
 const enc = new TextEncoder();
 
 interface Mint {
-  optIn: boolean;
-  assetID_amount: number | bigint;
-  lTNano_amount: number | bigint;
-  maxSlippage: number;
+  ({}: { optIn: boolean; assetID_amount: number | bigint; lTNano_amount: number | bigint; maxSlippage: number }): 
+  Promise<{ mintAmount: number; redeemAmount: number; redeemAsset: number; }>;
 }
 
-const mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage }: Mint) => {
+const mint: Mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage }) => {
   if (!assetID_amount || !lTNano_amount || !maxSlippage) throw new Error("invalid mint parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!); // ! Non-null assertion operator
   let algodClient = setupClient();
@@ -83,9 +81,8 @@ const mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage }: Mint)
   let transactionResponse = await waitForConfirmation(algodClient, txId, 5);
   const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
   const { aamt: mintAmount } = innerTX?.find((i) => i?.txn?.xaid === metapoolLT)?.txn;
-  const { aamt: redeemAmount, xaid: redeemAsset } = innerTX?.find(
-    (i) => i?.txn?.xaid === assetID || i?.txn?.xaid === lTNano
-  )?.txn ?? { aamt: 0, xaid: "" };
+  const { aamt: redeemAmount, xaid: redeemAsset } = innerTX?.find((i) => i?.txn?.xaid === assetID || i?.txn?.xaid === lTNano)
+    ?.txn ?? { aamt: 0, xaid: "" };
   console.log("minted:", mintAmount, "metapool liquidity token");
   if (redeemAmount) console.log(`redeemed: ${redeemAmount} of ${redeemAsset} token`);
 

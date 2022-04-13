@@ -14,12 +14,13 @@ dotenv.config();
 const enc = new TextEncoder();
 
 interface Swap {
-  asset: number;
-  amount: number | bigint;
-  minAmountOut: number | bigint;
+  ({}: { asset: number; amount: number | bigint; minAmountOut: number | bigint }): Promise<{
+    amountOut: number;
+    assetOut: number;
+  }>;
 }
 
-async function swap({ asset, amount, minAmountOut }: Swap) {
+const swap: Swap = async ({ asset, amount, minAmountOut }) => {
   if (!asset || !amount) throw new Error("invalid swap parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
@@ -63,7 +64,7 @@ async function swap({ asset, amount, minAmountOut }: Swap) {
     console.log(`Swapped ${amount} nanopool LT for ${amountOut} asset`);
   }
   return { amountOut, assetOut };
-}
+};
 export default swap;
 
 swap({ amount: 100, asset: assetID, minAmountOut: 1 }).catch((error) => console.log(error.message));

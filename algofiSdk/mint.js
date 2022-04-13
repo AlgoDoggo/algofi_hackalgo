@@ -44,7 +44,6 @@ async function mint() {
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
     suggestedParams: {
       ...params,
-      fee:0
     },
     from: account.addr,
     to: nanopool_address,
@@ -55,7 +54,7 @@ async function mint() {
   const tx2 = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...params,
-      fee: params.fee * 10,
+      fee: params.fee * 5,
     },
     from: account.addr,
     appIndex: stable1_stable2_app,

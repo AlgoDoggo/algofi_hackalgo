@@ -26,13 +26,12 @@ dotenv.config();
 const enc = new TextEncoder();
 
 interface Metaswap {
-  assetAmount: number;
-  stableMinReturn: number;
-  stableOut: number;
-  extraComputeFee: number;
+  ({}: { assetAmount: number; stableMinReturn: number; stableOut: number; extraComputeFee: number }): Promise<{
+    stableOutAmount: number;
+  }>;
 }
 
-async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeFee = 2 }: Metaswap) {
+const metaswap: Metaswap = async ({ assetAmount, stableMinReturn, stableOut, extraComputeFee = 2 }) => {
   if (!assetAmount || typeof stableMinReturn !== "number" || !stableOut) throw new Error("invalid metaswap parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
@@ -80,7 +79,7 @@ async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeF
   const { aamt: stableOutAmount } = innerTX?.find((i) => i?.txn?.xaid === stableOut)?.txn;
   console.log(`Metaswapped ${assetAmount} asset for ${stableOutAmount} of ${stableOut} stablecoin`);
   return { stableOutAmount };
-}
+};
 export default metaswap;
 
 metaswap({ assetAmount: 100, stableOut: stable2, stableMinReturn: 0, extraComputeFee: 4 }).catch((error) =>

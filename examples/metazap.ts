@@ -26,22 +26,24 @@ dotenv.config();
 const enc = new TextEncoder();
 
 interface Metazap {
-  stableToZap: number;
-  zapAmount: number | bigint;
-  minAssetToGet: number | bigint;
-  toConvert: number | bigint;
-  extraFeeSwap: number;
-  extraFeeMint: number;
+  ({}: {
+    stableToZap: number;
+    zapAmount: number | bigint;
+    minAssetToGet: number | bigint;
+    toConvert: number | bigint;
+    extraFeeSwap: number;
+    extraFeeMint: number;
+  }): Promise<{ assetOutAmount: number }>;
 }
 
-async function metazap({
+const metazap: Metazap = async ({
   stableToZap,
   zapAmount,
   minAssetToGet,
   toConvert = 0,
   extraFeeSwap = 2,
   extraFeeMint = 0,
-}: Metazap) {
+}) => {
   if (!stableToZap || !zapAmount) throw new Error("invalid metazap parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
@@ -68,7 +70,7 @@ async function metazap({
   const tx2 = makeApplicationNoOpTxnFromObject({
     suggestedParams,
     from: account.addr,
-    appIndex: metapool_app,    
+    appIndex: metapool_app,
     appArgs: [
       enc.encode("metazap"),
       encodeUint64(minAssetToGet),
@@ -90,7 +92,7 @@ async function metazap({
   const { aamt: assetOutAmount } = innerTX?.find((i) => i?.txn?.xaid === assetID)?.txn;
   console.log(`metazapped ${zapAmount} ${stableToZap} for ${assetOutAmount} asset`);
   return { assetOutAmount };
-}
+};
 export default metazap;
 
 metazap({

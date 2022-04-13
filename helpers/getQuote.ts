@@ -2,7 +2,6 @@ import axios from "axios";
 import {
   assetID,
   lTNano,
-  metapoolLT,
   metapool_address,
   metapool_app,
   nanopool_address,
@@ -11,7 +10,14 @@ import {
 } from "../constants/constants.js";
 import { cristalBall, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
 
-export const fetchPoolState = async () => {
+export const fetchPoolState = async (): Promise<{
+  assetSupply: number;
+  lTNanoSupply: number;
+  stable1Supply: number;
+  stable2Supply: number;
+  metapoolLTIssued: number;
+  lTNanoIssued: number;
+}> => {
   const baseUrl = "https://testnet-idx.algonode.cloud/v2"; // algonode.io
   const { data: metapoolData } = await axios.get(`${baseUrl}/accounts/${metapool_address}`).catch(function (error) {
     throw new Error(
@@ -51,12 +57,15 @@ export const fetchPoolState = async () => {
   return { assetSupply, lTNanoSupply, stable1Supply, stable2Supply, metapoolLTIssued, lTNanoIssued };
 };
 
-type MintQuote = {
-  assetID_amount?: number;
-  lTNano_amount?: number;
-};
+interface MintQuote {
+  ({}: { assetID_amount?: number; lTNano_amount?: number }): Promise<{
+    assetID_needed: number;
+    lTNano_needed: number;
+    expectedMintAmount: number;
+  }>;
+}
 
-export const getMintQuote = async ({ assetID_amount, lTNano_amount }: MintQuote) => {
+export const getMintQuote: MintQuote = async ({ assetID_amount, lTNano_amount }) => {
   if (!assetID_amount && !lTNano_amount) throw new Error("Error, input params needed");
   const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolState();
   let lTNano_needed, assetID_needed;
@@ -74,13 +83,11 @@ export const getMintQuote = async ({ assetID_amount, lTNano_amount }: MintQuote)
   const expectedMintAmount = Math.floor(
     Math.min((assetID_needed * metapoolLTIssued) / assetSupply, (lTNano_needed * metapoolLTIssued) / lTNanoSupply)
   );
-  console.log(
-    `Send ${assetID_needed} asset and ${lTNano_needed} nanopool LT to receive ${expectedMintAmount} metapool LT`
-  );
+  console.log(`Send ${assetID_needed} asset and ${lTNano_needed} nanopool LT to receive ${expectedMintAmount} metapool LT`);
   return { assetID_needed, lTNano_needed, expectedMintAmount };
 };
 
-export const getBurnQuote = async (burnAmount) => {
+export const getBurnQuote = async (burnAmount: number): Promise<{ assetOut: number; lTNanoOut: number }> => {
   const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolState();
   // assetID out = assetID supply * burn amount / issued amount of Metapool LT
   // lTNano out = lTNano supply * burn amount / issued amount of Metapool LT
@@ -94,21 +101,23 @@ export const getBurnQuote = async (burnAmount) => {
   return { assetOut, lTNanoOut };
 };
 
-export const getSwapQuote = async ({ asset, assetAmount }) => {
+interface SwapQuote {
+  ({}: { asset: number; assetAmount: number }): Promise<{ amountOut: number; assetOut: number }>;
+}
+
+export const getSwapQuote: SwapQuote = async ({ asset, assetAmount }) => {
   const { assetSupply, lTNanoSupply } = await fetchPoolState();
   //  amount_out = (asset_in_amount * 9975 * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * 9975))
   if (asset === assetID) {
     const amount_out = Number(
-      (BigInt(assetAmount) * 9975n * BigInt(lTNanoSupply)) /
-        (BigInt(assetSupply) * 10000n + BigInt(assetAmount) * 9975n)
+      (BigInt(assetAmount) * 9975n * BigInt(lTNanoSupply)) / (BigInt(assetSupply) * 10000n + BigInt(assetAmount) * 9975n)
     );
     console.log(`Send ${assetAmount} asset, you will receive ${amount_out} nanopool LT`);
     return { amountOut: amount_out, assetOut: lTNano };
   }
   if (asset === lTNano) {
     const amount_out = Number(
-      (BigInt(assetAmount) * 9975n * BigInt(assetSupply)) /
-        (BigInt(lTNanoSupply) * 10000n + BigInt(assetAmount) * 9975n)
+      (BigInt(assetAmount) * 9975n * BigInt(assetSupply)) / (BigInt(lTNanoSupply) * 10000n + BigInt(assetAmount) * 9975n)
     );
     console.log(`Send ${assetAmount} nanopool LT, you will receive ${amount_out} asset`);
     return { amountOut: amount_out, assetOut: assetID };
@@ -116,7 +125,11 @@ export const getSwapQuote = async ({ asset, assetAmount }) => {
   throw new Error("Error, input params invalid");
 };
 
-export const getMetaSwapQuote = async ({ amountIn, stableOut }) => {
+interface MetaswapQuote {
+  ({}: { amountIn: number; stableOut: number }): Promise<{ stableOutAmount: number; extraFee: number }>;
+}
+
+export const getMetaSwapQuote: MetaswapQuote = async ({ amountIn, stableOut }) => {
   if (stableOut !== stable1 && stableOut !== stable2) throw new Error("Input params invalid");
   // estimate how much LTNano we'll get
   const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });
@@ -155,7 +168,16 @@ export const getMetaSwapQuote = async ({ amountIn, stableOut }) => {
   return { stableOutAmount, extraFee };
 };
 
-export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
+interface MetaZapQuote {
+  ({}: { amountIn: number; stableIn: number }): Promise<{
+    amountOut: number;
+    extraFeeMint: number;
+    extraFeeSwap: number;
+    toConvert: number;
+  }>;
+}
+
+export const getMetaZapQuote: MetaZapQuote = async ({ amountIn, stableIn }) => {
   if (stableIn !== stable1 && stableIn !== stable2) throw new Error("Stablecoin input invalid");
 
   const { stable1Supply, stable2Supply } = await fetchPoolState();
@@ -171,7 +193,7 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
     stable2SupplyAdj = stable2Supply + toConvert;
   }
 
-  const { lpDelta, extraComputeFee: extraFeeMint  } = await getNanoMintQuote({
+  const { lpDelta, extraComputeFee: extraFeeMint } = await getNanoMintQuote({
     assetId: stableIn,
     assetAmount: Math.floor(amountIn - toConvert),
     stable1Supply: stable1SupplyAdj,
@@ -181,5 +203,5 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
   console.log(`extra compute fee for nanomint: ${extraFeeMint}`);
   const { amountOut } = await getSwapQuote({ asset: lTNano, assetAmount: lpDelta });
   console.log(`Metazapping ${amountIn} ${stableIn} stablecoin will yield ${amountOut} asset`);
-  return { amountOut, extraFeeMint,extraFeeSwap, toConvert };
+  return { amountOut, extraFeeMint, extraFeeSwap, toConvert };
 };
