@@ -48,17 +48,26 @@ global CurrentApplicationAddress
 load 8 // stable-in ID
 asset_holding_get AssetBalance 
 pop // remove opt-in info
-dup
 store 12
-
-
-// let's start zapping.
 
 // To mint lTNano we must supply an appropriate ratio of stable1 and stable2 such as:
 // stable1 sent / stable2 sent = stable1 supply / stable2 supply
 
 // First let's convert stable-in into an appropriate amount of stable1-stable2 for the subsquent lTNano mint
-// The math to figure out the amount of stable-in to convert is the following:
+
+// The math to figure out the amount of stable-in to convert is not the same whether we are interacting
+// with a Nanopool or a normal Dex pool. We will do the calculation for the nanopool int he front-end and send the precise
+// value in app args, and leave the calculus for a normal dex in the smart contract, as a backup in case
+// no convert amount is set in app args
+
+// check wether the front end is giving us the amount of stable-in to convert
+txna ApplicationArgs 2
+btoi
+dup
+store 13
+bnz let_the_zappin_begin
+
+// Math for zapping in a normal dex pool:
 // if x is the amount of stable-in to convert, y the amount of stable-out to get
 // s1 the supply of stable-in, s2 the supply of stable-out
 // These equations must be respected for the proper ratio of stable coins to be had before minting lTNano:
@@ -73,7 +82,8 @@ store 12
 // let's rewrite it and compensate for the 0.25% fee loss
 // x = (sqrt( s1 * ( s1 + load 12)) - s1) * 10000 / 9975
 
-load 10 // s1, load 12 still once on the stack
+load 10 // s1
+load 12
 +
 itob // going for byteslice arithmetic to avoid overflow issues
 load 10
@@ -90,6 +100,8 @@ divw // x adjusted for 0.25% fee
 store 13 // stable-in amount to trade
 
 // let's swap stable-in for stable-out
+
+let_the_zappin_begin:
 
 itxn_begin
 

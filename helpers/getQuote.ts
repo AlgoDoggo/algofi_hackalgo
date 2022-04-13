@@ -9,7 +9,7 @@ import {
   stable1,
   stable2,
 } from "../constants/constants.js";
-import { binarySearch, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
+import { binarySearch, cristalBall, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
 
 export const fetchPoolState = async () => {
   const baseUrl = "https://testnet-idx.algonode.cloud/v2"; // algonode.io
@@ -162,82 +162,81 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
   const { assetSupply, lTNanoSupply, stable1Supply, stable2Supply, metapoolLTIssued, lTNanoIssued } =
     await fetchPoolState();
   let stable1Amount, stable2Amount, x;
-  let tradeQuote;
+  let tradeQuote = { asset1Delta: 0, asset2Delta: 0 };
   let tradeAmt = 0;
-  if (stableIn === stable1) {
-    let objective = async function (dx:number) {
-      const { asset2Delta: dy } = await getNanoSwapExactForQuote({
-        stable1Supply,
-        stable2Supply,
-        swapInAssetId: stableIn,
-        swapInAmount: dx,
-      });
-      return stable2Supply * amountIn + (stable1Supply + amountIn) * dy + stable2Supply * dx;
-    };
-    tradeAmt = await binarySearch(0, amountIn, objective);
-  } else {
-    let objective = async function (dy) {
-      const { asset1Delta: dx } = await getNanoSwapExactForQuote({
-        stable1Supply,
-        stable2Supply,
-        swapInAssetId: stableIn,
-        swapInAmount: dy,
-      });
+  const { toConvert, toGet } = await cristalBall({stable1Supply, stable2Supply,stableIn, amountIn })
+  // if (stableIn === stable1) {
+  //   let objective = async function (dx: number) {
+  //     const { asset2Delta: dy } = await getNanoSwapExactForQuote({
+  //       stable1Supply,
+  //       stable2Supply,
+  //       swapInAssetId: stableIn,
+  //       swapInAmount: dx,
+  //     });
+  //     console.log(dy)
+  //     return Number(
+  //       BigInt(stable2Supply) * BigInt(amountIn) +
+  //         (BigInt(stable1Supply) + BigInt(amountIn)) * BigInt(dy) +
+  //         BigInt(stable2Supply) * BigInt(dx)
+  //     );
+  //   };
+  //   tradeAmt = await binarySearch(0, amountIn, objective);
+  // } else {
+  //   let objective = async function (dy) {
+  //     const { asset1Delta: dx } = await getNanoSwapExactForQuote({
+  //       stable1Supply,
+  //       stable2Supply,
+  //       swapInAssetId: stableIn,
+  //       swapInAmount: dy,
+  //     });
 
-      return stable1Supply * amountIn + stable1Supply * dy + (stable2Supply + amountIn) * dx;
-    };
-    tradeAmt = await binarySearch(0, amountIn, objective);
-  }
-  console.log(`Swap ${tradeAmt} of ${stableIn} token for optimal mint ratio`);
-  if (tradeAmt > 1)
-    tradeQuote = await getNanoSwapExactForQuote({
-      stable1Supply,
-      stable2Supply,
-      swapInAssetId: stableIn,
-      swapInAmount: tradeAmt,
-    });
+  //     return stable1Supply * amountIn + stable1Supply * dy + (stable2Supply + amountIn) * dx;
+  //   };
+  //   tradeAmt = await binarySearch(0, amountIn, objective);
+  // }
+  // console.log(`Swap ${tradeAmt} of ${stableIn} token for optimal mint ratio`);
+  // if (tradeAmt > 1)
+  //   tradeQuote = await getNanoSwapExactForQuote({
+  //     stable1Supply,
+  //     stable2Supply,
+  //     swapInAssetId: stableIn,
+  //     swapInAmount: tradeAmt,
+  //   });
 
-  const stable1SupplyAdj = stable1Supply - tradeQuote.asset1Delta;
-  const stable2SupplyAdj = stable2Supply - tradeQuote.asset2Delta;
+  // const stable1SupplyAdj = stable1Supply - tradeQuote?.asset1Delta;
+  // const stable2SupplyAdj = stable2Supply - tradeQuote?.asset2Delta;
 
-  let whatIfDelta1 = (stableIn === stable1 ? amountIn : 0) + tradeQuote.asset1Delta;
-  let whatIfDelta2 = (stableIn === stable2 ? amountIn : 0) + tradeQuote.asset2Delta;
+  // let whatIfDelta1 = (stableIn === stable1 ? amountIn : 0) + tradeQuote?.asset1Delta;
+  // let whatIfDelta2 = (stableIn === stable2 ? amountIn : 0) + tradeQuote?.asset2Delta;
+
+  // let poolQuote = await getNanoMintQuote({
+  //   assetId: stableIn,
+  //   assetAmount: Math.floor(amountIn-toConvert),
+  //   whatIfDelta1: 0,
+  //   whatIfDelta2: 0,
+  //   stable1Supply: stable1SupplyAdj,
+  //   stable2Supply: stable2SupplyAdj,
+  // });
+
+  const stable1SupplyAdj = stable1Supply - tradeQuote?.asset1Delta;
+  const stable2SupplyAdj = stable2Supply - tradeQuote?.asset2Delta;
+
+  let whatIfDelta1 = (stableIn === stable1 ? amountIn : 0) + tradeQuote?.asset1Delta;
+  let whatIfDelta2 = (stableIn === stable2 ? amountIn : 0) + tradeQuote?.asset2Delta;
 
   let poolQuote = await getNanoMintQuote({
     assetId: stableIn,
-    assetAmount: whatIfDelta1,
-    whatIfDelta1,
-    whatIfDelta2,
+    assetAmount: Math.floor(amountIn-toConvert),
     stable1Supply: stable1SupplyAdj,
     stable2Supply: stable2SupplyAdj,
   });
+
   // stableOut estimated
+  
+  // 	Metapool LT out = Math.min(
+  // 	assetID amount * issued Metapool LT / assetID supply,
+  // 	lTNano amount * issued Metapool LT / lTNano supply
+  // )
   return console.log(poolQuote);
 
-  // estimate how much LTNano we'll get
-  const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });
-
-  //estimate how much stable coins we'll get from burning LTNano
-
-  const stable1Out = (BigInt(stable1Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued);
-  const stable2Out = (BigInt(stable2Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued);
-  //estimate the stable swap in the nanopool
-  // amount_out = (asset_in_amount * 9975 * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * 9975))
-  if (stableIn === stable1) {
-    const amount_out =
-      (BigInt(stable2Out) * 9975n * BigInt(stable1Supply)) /
-      (BigInt(stable2Supply) * 10000n + BigInt(stable2Out) * 9975n);
-    const stableOutAmount = Number(stable1Out + amount_out);
-    console.log(`Metaswapping ${amountIn} asset will get you ${stableOutAmount} stable1 token`);
-    return { stableOutAmount };
-  }
-  if (stableIn === stable2) {
-    const amount_out =
-      (BigInt(stable1Out) * 9975n * BigInt(stable2Supply)) /
-      (BigInt(stable1Supply) * 10000n + BigInt(stable1Out) * 9975n);
-    const stableOutAmount = Number(stable2Out + amount_out);
-    console.log(`Metaswapping ${amountIn} asset will get you ${stableOutAmount} stable1 token`);
-    return { stableOutAmount };
-  }
-  throw new Error("Error, input params invalid");
 };

@@ -29,9 +29,10 @@ interface Metazap {
   stableToZap: number;
   zapAmount: number | bigint;
   minAssetToGet: number | bigint;
+  toConvert: number | bigint;
 }
 
-async function metazap({ stableToZap, zapAmount, minAssetToGet }: Metazap) {
+async function metazap({ stableToZap, zapAmount, minAssetToGet, toConvert = 0 }: Metazap) {
   if (!stableToZap || !zapAmount) throw new Error("invalid metazap parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
@@ -66,8 +67,8 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }: Metazap) {
     },
     from: account.addr,
     appIndex: metapool_app,
-    // appArgs:["metazap", int minimumAmountOut]
-    appArgs: [enc.encode("metazap"), encodeUint64(minAssetToGet)],
+    // appArgs:["metazap", int minimumAmountOut, toConvert]
+    appArgs: [enc.encode("metazap"), encodeUint64(minAssetToGet), encodeUint64(toConvert)],
     accounts: [nanopool_address],
     foreignAssets: [assetID, lTNano, stable1, stable2],
     foreignApps: [stable1_stable2_app, managerID_nanoswap],
@@ -85,4 +86,6 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }: Metazap) {
 }
 export default metazap;
 
-metazap({ stableToZap: stable1, zapAmount: 1000, minAssetToGet: 1 }).catch((error) => console.log(error.message));
+metazap({ stableToZap: stable1, zapAmount: 1000, minAssetToGet: 1, toConvert: 600 }).catch((error) =>
+  console.log(error.message)
+);

@@ -91,4 +91,4 @@ async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeF
 }
 export default metaswap;
 
-//metaswap({ assetAmount: 100, stableOut: stable1, stableMinReturn: 0,extraComputeFee:5 }).catch((error) => console.log(error.message));
+//metaswap({ assetAmount: 100, stableOut: stable2, stableMinReturn: 0,extraComputeFee:4 }).catch((error) => console.log(error.message));

@@ -22,7 +22,7 @@ export const getNanoSwapExactForQuote = async ({ stable1Supply, stable2Supply, s
   const futureAmplificationFactor = nanoState.find((g) => g.key === "ZmFm")?.value?.uint;
   const initialAmplificationFactorTime = nanoState.find((g) => g.key === "aWF0")?.value?.uint;
   const futureAmplificationFactorTime = nanoState.find((g) => g.key === "ZmF0")?.value?.uint;
- 
+
   const amplificationFactor = getAmplificationFactor({
     t: Math.floor(Date.now() / 1000),
     initialAmplificationFactor,
@@ -133,20 +133,19 @@ export const getNanoMintQuote = async ({
   );
   lpsIssued = Math.floor(lpCirculation * Number((D1 - D0) / D0));
   numIter = numIterD0 + numIterD1;
-  const extraComputeFee = Math.ceil(numIter / (700 / 400))
-  const asset1Delta = -1 * asset1PooledAmount
-  const asset2Delta = -1 * asset2PooledAmount
-  let priceDelta 
+  const extraComputeFee = Math.ceil(numIter / (700 / 400));
+  const asset1Delta = -1 * asset1PooledAmount;
+  const asset2Delta = -1 * asset2PooledAmount;
+  let priceDelta;
 
   if (lpsIssued === 0) {
-    priceDelta = 0
+    priceDelta = 0;
   } else {
-    let startingPriceRatio = stable1Supply / stable2Supply
-    let finalPriceRatio = (stable1Supply + asset1Delta) / (stable2Supply + asset2Delta)
-    priceDelta = Math.abs((startingPriceRatio / finalPriceRatio) - 1)
+    let startingPriceRatio = stable1Supply / stable2Supply;
+    let finalPriceRatio = (stable1Supply + asset1Delta) / (stable2Supply + asset2Delta);
+    priceDelta = Math.abs(startingPriceRatio / finalPriceRatio - 1);
   }
-  return { asset1Delta, asset2Delta, lpDelta: lpsIssued, extraComputeFee, priceDelta }
-  
+  return { asset1Delta, asset2Delta, lpDelta: lpsIssued, extraComputeFee, priceDelta };
 };
 
 const A_PRECISION = BigInt(1000000);
@@ -238,9 +237,7 @@ function getAmplificationFactor({
   initialAmplificationFactorTime,
   futureAmplificationFactorTime,
 }): number {
-  return futureAmplificationFactor; // not ideal
-
-  if (t < futureAmplificationFactorTime) {
+  if (futureAmplificationFactorTime && t < futureAmplificationFactorTime) {
     return Math.floor(
       initialAmplificationFactor +
         ((futureAmplificationFactor - initialAmplificationFactor) * (t - initialAmplificationFactor)) /
@@ -251,19 +248,53 @@ function getAmplificationFactor({
   return futureAmplificationFactor;
 }
 
-export const binarySearch =async (lower, upper, objective) => {
-    if (lower > upper) return lower
-    let mid = Math.floor(lower + (upper - lower) / 2)
-    let midVal = await objective(mid)
-    console.log(mid,midVal)
-    let upperVal = await objective(upper)
-    let lowerVal =await  objective(lower)
-    
-    if (midVal < 0) {
-      return binarySearch(mid+1, upper, objective)
-    } else if (midVal > 0) {
-      return binarySearch(lower, mid-1, objective)
-    } else {
-      return mid
-    }
+export const binarySearch = async (lower, upper, objective) => {
+  if (lower > upper) return lower;
+  let mid = Math.floor(lower + (upper - lower) / 2);
+  let midVal = await objective(mid);
+  console.log(mid, midVal);
+  //let upperVal = await objective(upper)
+  //let lowerVal =await  objective(lower)
+
+  if (midVal < 0) {
+    return binarySearch(mid + 1, upper, objective);
+  } else if (midVal > 0) {
+    return binarySearch(lower, mid - 1, objective);
+  } else {
+    return mid;
   }
+};
+
+export const cristalBall = async ({ stable1Supply, stable2Supply, stableIn, amountIn }) => {
+  let toConvert = Math.floor(amountIn / 2);
+  let deltaError = 2;
+  let targetRatio = stable1Supply / stable2Supply;
+  let tokenRatio = 1;
+  let toGet;
+
+  while (deltaError > 1.01 || deltaError < 0.99) {
+    const { asset2Delta, asset1Delta } = await getNanoSwapExactForQuote({
+      stable1Supply,
+      stable2Supply,
+      swapInAssetId: stableIn,
+      swapInAmount: toConvert,
+    });
+
+    if (stableIn === stable1) {
+      toGet = asset2Delta;
+      targetRatio = (stable1Supply + toConvert) / (stable2Supply - toGet);
+      tokenRatio = (amountIn - toConvert) / toGet;
+      deltaError = tokenRatio / targetRatio;
+      toConvert = Math.floor(toConvert * Math.sqrt(deltaError));
+    } else {
+      toGet = asset1Delta;
+      targetRatio = (stable1Supply - toGet) / (stable2Supply + toConvert);
+      tokenRatio = toGet / (amountIn - toConvert);
+      deltaError = tokenRatio / targetRatio;
+      toConvert = Math.floor(toConvert / Math.sqrt(deltaError));
+    }
+    console.log("deltaError:", deltaError);
+  }
+  console.log("toConvert, toGet", toConvert, toGet);
+  return { toConvert, toGet };
+};
