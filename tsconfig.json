@@ -15,13 +15,14 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "allowUnreachableCode": true,
-    "useUnknownInCatchVariables": false // TypeScript 4.4+ only!
+    
+    "useUnknownInCatchVariables": false, // TypeScript 4.4+ only!
+    "sourceMap":true
   },
   "ts-node": {    
     "esm": true,
     "transpileOnly": true
   },
-  "include": ["**/*.ts", "src/**/*.ts", "examples/**/*.ts"],
+  "include": ["**/*.ts", "src/**/*.ts", "examples/**/*.ts", "test/testSuite.js"],
   "exclude": ["node_modules", "<node_internals>/**"]
 }

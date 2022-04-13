@@ -85,4 +85,4 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet }: Metazap) {
 }
 export default metazap;
 
-//metazap({ stableToZap: stable2, zapAmount: 1000, minAssetToGet: 1 }).catch((error) => console.log(error.message));
+metazap({ stableToZap: stable1, zapAmount: 1000, minAssetToGet: 1 }).catch((error) => console.log(error.message));

@@ -22,15 +22,14 @@ export const getNanoSwapExactForQuote = async ({ stable1Supply, stable2Supply, s
   const futureAmplificationFactor = nanoState.find((g) => g.key === "ZmFm")?.value?.uint;
   const initialAmplificationFactorTime = nanoState.find((g) => g.key === "aWF0")?.value?.uint;
   const futureAmplificationFactorTime = nanoState.find((g) => g.key === "ZmF0")?.value?.uint;
-
-  //   const { amplificationFactor } = getAmplificationFactor({
-  //     t: Math.floor(Date.now()/1000),
-  //     initialAmplificationFactor,
-  //     futureAmplificationFactor,
-  //     initialAmplificationFactorTime,
-  //     futureAmplificationFactorTime,
-  //   });
-  const amplificationFactor = futureAmplificationFactor;
+ 
+  const amplificationFactor = getAmplificationFactor({
+    t: Math.floor(Date.now() / 1000),
+    initialAmplificationFactor,
+    futureAmplificationFactor,
+    initialAmplificationFactorTime,
+    futureAmplificationFactorTime,
+  });
 
   let asset1Delta, asset2Delta, lpDelta, extraComputeFee;
   if (swapInAssetId === stable1) {
@@ -75,9 +74,84 @@ export const getNanoSwapExactForQuote = async ({ stable1Supply, stable2Supply, s
   return { asset1Delta, asset2Delta, lpDelta, extraComputeFee, priceDelta };
 };
 
+export const getNanoMintQuote = async ({
+  assetId,
+  assetAmount,
+  whatIfDelta1 = 0,
+  whatIfDelta2 = 0,
+  stable1Supply,
+  stable2Supply,
+}) => {
+  const { data: nanopoolData } = await axios
+    .get(`${baseUrl}/v2/applications/${stable1_stable2_app}`)
+    .catch(function (error) {
+      throw new Error(
+        error?.response?.data
+          ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}`
+          : error?.message
+      );
+    });
+  const nanoState = nanopoolData?.application?.params?.["global-state"];
+  const lpCirculation = nanoState.find((g) => g.key === "bGM=")?.value?.uint;
+  const initialAmplificationFactor = nanoState.find((g) => g.key === "aWFm")?.value?.uint;
+  const futureAmplificationFactor = nanoState.find((g) => g.key === "ZmFm")?.value?.uint;
+  const initialAmplificationFactorTime = nanoState.find((g) => g.key === "aWF0")?.value?.uint;
+  const futureAmplificationFactorTime = nanoState.find((g) => g.key === "ZmF0")?.value?.uint;
+  const amplificationFactor = getAmplificationFactor({
+    t: Math.floor(Date.now() / 1000),
+    initialAmplificationFactor,
+    futureAmplificationFactor,
+    initialAmplificationFactorTime,
+    futureAmplificationFactorTime,
+  });
+
+  if (lpCirculation === 0) {
+    throw new Error("Error: pool is empty");
+  }
+
+  let asset1PooledAmount = 0;
+  let asset2PooledAmount = 0;
+  let lpsIssued = 0;
+  let numIter = 0;
+
+  if (assetId === stable1) {
+    asset1PooledAmount = assetAmount;
+    asset2PooledAmount = Math.floor(
+      (asset1PooledAmount * (stable2Supply + whatIfDelta2)) / (stable1Supply + whatIfDelta1)
+    );
+  } else {
+    asset2PooledAmount = assetAmount;
+    asset1PooledAmount = Math.ceil(
+      (asset2PooledAmount * (stable1Supply + whatIfDelta1)) / (stable2Supply + whatIfDelta2)
+    );
+  }
+
+  let [D0, numIterD0] = getD([stable1Supply, stable2Supply], amplificationFactor);
+  let [D1, numIterD1] = getD(
+    [asset1PooledAmount + stable1Supply, asset2PooledAmount + stable2Supply],
+    amplificationFactor
+  );
+  lpsIssued = Math.floor(lpCirculation * Number((D1 - D0) / D0));
+  numIter = numIterD0 + numIterD1;
+  const extraComputeFee = Math.ceil(numIter / (700 / 400))
+  const asset1Delta = -1 * asset1PooledAmount
+  const asset2Delta = -1 * asset2PooledAmount
+  let priceDelta 
+
+  if (lpsIssued === 0) {
+    priceDelta = 0
+  } else {
+    let startingPriceRatio = stable1Supply / stable2Supply
+    let finalPriceRatio = (stable1Supply + asset1Delta) / (stable2Supply + asset2Delta)
+    priceDelta = Math.abs((startingPriceRatio / finalPriceRatio) - 1)
+  }
+  return { asset1Delta, asset2Delta, lpDelta: lpsIssued, extraComputeFee, priceDelta }
+  
+};
+
 const A_PRECISION = BigInt(1000000);
 
-export function getD(tokenAmounts: Array<number>, amplificationFactor: number): [number, number] {
+function getD(tokenAmounts: Array<number>, amplificationFactor: number): [number, number] {
   let N_COINS = tokenAmounts.length;
   let S = BigInt(0);
   let Dprev = BigInt(0);
@@ -113,7 +187,7 @@ export function getD(tokenAmounts: Array<number>, amplificationFactor: number): 
   }
 }
 
-export function getY(
+function getY(
   i: number,
   j: number,
   x: number,
@@ -163,17 +237,32 @@ function getAmplificationFactor({
   futureAmplificationFactor,
   initialAmplificationFactorTime,
   futureAmplificationFactorTime,
-}): { amplificationFactor: number } {
-  let amplificationFactor;
+}): number {
+  return futureAmplificationFactor; // not ideal
+
   if (t < futureAmplificationFactorTime) {
-    return {
-      amplificationFactor: Math.floor(
-        initialAmplificationFactor +
-          ((futureAmplificationFactor - initialAmplificationFactor) * (t - initialAmplificationFactor)) /
-            (futureAmplificationFactorTime - initialAmplificationFactorTime)
-      ),
-    };
+    return Math.floor(
+      initialAmplificationFactor +
+        ((futureAmplificationFactor - initialAmplificationFactor) * (t - initialAmplificationFactor)) /
+          (futureAmplificationFactorTime - initialAmplificationFactorTime)
+    );
   }
 
-  return { amplificationFactor };
+  return futureAmplificationFactor;
 }
+
+export const binarySearch = (lower, upper, objective) => {
+    if (lower > upper) return lower
+    let mid = Math.floor(lower + (upper - lower) / 2)
+    let midVal = objective(mid)
+    let upperVal = objective(upper)
+    let lowerVal = objective(lower)
+    
+    if (midVal < 0) {
+      return this.binarySearch(mid+1, upper, objective)
+    } else if (midVal > 0) {
+      return this.binarySearch(lower, mid-1, objective)
+    } else {
+      return mid
+    }
+  }

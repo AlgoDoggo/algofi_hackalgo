@@ -29,10 +29,10 @@ interface Metaswap {
   assetAmount: number;
   stableMinReturn: number;
   stableOut: number;
-  extraComputeFee: number
+  extraComputeFee: number;
 }
 
-async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeFee=0 }: Metaswap) {
+async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeFee = 0 }: Metaswap) {
   if (!assetAmount || typeof stableMinReturn !== "number" || !stableOut) throw new Error("invalid metaswap parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
@@ -47,7 +47,7 @@ async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeF
     },
     from: account.addr,
     to: metapool_address,
-    amount: 12000,
+    amount: params.fee * 8 + params.fee * extraComputeFee,
   });
 
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -91,4 +91,4 @@ async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeF
 }
 export default metaswap;
 
-metaswap({ assetAmount: 100, stableOut: stable1, stableMinReturn: 0,extraComputeFee:5 }).catch((error) => console.log(error.message));
+//metaswap({ assetAmount: 100, stableOut: stable1, stableMinReturn: 0,extraComputeFee:5 }).catch((error) => console.log(error.message));

@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { strict } from "assert";
 import { assetID, lTNano, stable1, stable2 } from "../constants/constants.js";
-import burn from "../examples/burn.js";
+import burn from "../dist/examples/burn.js";
 import mint from "../examples/mint.js";
 import metaswap from "../examples/metaswap.js";
 import metazap from "../examples/metazap.js";
@@ -183,16 +183,16 @@ describe("metaswapChecks", () => {
   it("test math metaswap for stable1", async () => {
     const amountIn = 100;
     const stableOut = stable1;
-    const { stableOutAmount: expectedStableOutAmount } = await getMetaSwapQuote({ amountIn, stableOut });
-    const { stableOutAmount } = await metaswap({ assetAmount: amountIn, stableID: stableOut, stableMinReturn: 0 });
+    const { stableOutAmount: expectedStableOutAmount,extraFee:extraComputeFee } = await getMetaSwapQuote({ amountIn, stableOut });
+    const { stableOutAmount } = await metaswap({ assetAmount: amountIn, stableID: stableOut, stableMinReturn: 0,extraComputeFee });
     // metaswap estimates are a little more complex I'm adding a 2% tolerance on expectation vs reality
     assert.approximately(stableOutAmount, expectedStableOutAmount, expectedStableOutAmount * 0.02);
   });
   it("test math, metaswap for stable2", async () => {
     const amountIn = 100;
     const stableOut = stable2;
-    const { stableOutAmount: expectedStableOutAmount } = await getMetaSwapQuote({ amountIn, stableOut });
-    const { stableOutAmount } = await metaswap({ assetAmount: amountIn, stableID: stableOut, stableMinReturn: 0 });
+    const { stableOutAmount: expectedStableOutAmount,extraFee:extraComputeFee } = await getMetaSwapQuote({ amountIn, stableOut });
+    const { stableOutAmount } = await metaswap({ assetAmount: amountIn, stableID: stableOut, stableMinReturn: 0,extraComputeFee });
     // metaswap estimates are a little more complex I'm adding a 2% tolerance on expectation vs reality
     assert.approximately(stableOutAmount, expectedStableOutAmount, expectedStableOutAmount * 0.02);
   });

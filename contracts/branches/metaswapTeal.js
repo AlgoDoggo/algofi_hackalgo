@@ -142,7 +142,7 @@ int appl
 itxn_field TypeEnum
 global MinTxnFee
 int 2 // Fee is at least 2x the min + whatever extra fee we calculated in the front-end
-txna ApplicationArgs 3
+txna ApplicationArgs 3 // we send extra fee in appargs 3
 btoi
 +
 *
@@ -190,7 +190,10 @@ itxn_field AssetReceiver
 
 itxn_submit
 
-int 11 // number of MinTxnFee consumed by the metapool
+int 8 // number of MinTxnFee consumed by the metapool
+txna ApplicationArgs 3 // + extra fee
+btoi
++
 store 20
 
 b checkFees

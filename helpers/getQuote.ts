@@ -9,7 +9,7 @@ import {
   stable1,
   stable2,
 } from "../constants/constants.js";
-import { getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
+import { binarySearch, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
 
 export const fetchPoolState = async () => {
   const baseUrl = "https://testnet-idx.algonode.cloud/v2"; // algonode.io
@@ -119,8 +119,8 @@ export const getSwapQuote = async ({ asset, assetAmount }) => {
 export const getMetaSwapQuote = async ({ amountIn, stableOut }) => {
   if (stableOut !== stable1 && stableOut !== stable2) throw new Error("Input params invalid");
   // estimate how much LTNano we'll get
-  const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn});
-  
+  const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });
+
   //estimate how much stable coins we'll get from burning LTNano
   const { stable1Supply, stable2Supply, lTNanoIssued } = await fetchPoolState();
 
@@ -130,7 +130,6 @@ export const getMetaSwapQuote = async ({ amountIn, stableOut }) => {
   console.log(`Burning ${LTNanoToBurn} nanopool LT will yield ${stable1Out} stable1 and ${stable2Out} stable2`);
 
   let stableOutAmount!: number, extraFee!: number;
-  
 
   if (stableOut === stable1) {
     const { asset1Delta, extraComputeFee } = await getNanoSwapExactForQuote({
@@ -139,7 +138,7 @@ export const getMetaSwapQuote = async ({ amountIn, stableOut }) => {
       swapInAssetId: stable2,
       swapInAmount: stable2Out,
     });
-    extraFee = extraComputeFee
+    extraFee = extraComputeFee;
     stableOutAmount = stable1Out + asset1Delta;
   } else if (stableOut === stable2) {
     const { asset2Delta, extraComputeFee } = await getNanoSwapExactForQuote({
@@ -148,11 +147,11 @@ export const getMetaSwapQuote = async ({ amountIn, stableOut }) => {
       swapInAssetId: stable1,
       swapInAmount: stable1Out,
     });
-    extraFee = extraComputeFee
+    extraFee = extraComputeFee;
     stableOutAmount = stable2Out + asset2Delta;
   }
   console.log(`Metaswapping ${amountIn} asset will get you ${stableOutAmount} ${stableOut} token`);
-  console.log (`Extra compute fee : ${extraFee}`)
+  console.log(`Extra compute fee : ${extraFee}`);
   return { stableOutAmount, extraFee };
 };
 
@@ -163,30 +162,63 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
   const { assetSupply, lTNanoSupply, stable1Supply, stable2Supply, metapoolLTIssued, lTNanoIssued } =
     await fetchPoolState();
   let stable1Amount, stable2Amount, x;
+  let tradeQuote;
+  let tradeAmt = 0;
   if (stableIn === stable1) {
-    x = (BigInt(Math.sqrt(stable1Supply * (stable1Supply + amountIn)) - stable1Supply) * 10000n) / 9975n;
-    const { asset2Delta: stable2Amount } = await getNanoSwapExactForQuote({
-      stable1Supply,
-      stable2Supply,
-      swapInAssetId: stable1,
-      swapInAmount: x,
-    });
-    stable1Amount = amountIn - x;
+    let objective = async function (dx) {
+      const { asset2Delta: dy } = await getNanoSwapExactForQuote({
+        stable1Supply,
+        stable2Supply,
+        swapInAssetId: stableIn,
+        swapInAmount: dx,
+      });
+      return stable2Supply * amountIn + (stable1Supply + amountIn) * dy + stable2Supply * dx;
+    };
+    tradeAmt = binarySearch(0, amountIn, objective);
+    
   } else {
-    x = (BigInt(Math.sqrt(stable2Supply * (stable2Supply + amountIn)) - stable2Supply) * 10000n) / 9975n;
-    const { asset1Delta: stable1Amount } = await getNanoSwapExactForQuote({
+    let objective = async function (dy) {
+      const { asset1Delta: dx } = await getNanoSwapExactForQuote({
+        stable1Supply,
+        stable2Supply,
+        swapInAssetId: stableIn,
+        swapInAmount: dy,
+      });
+      
+      return stable1Supply * amountIn + 
+      (stable1Supply ) * dy +
+      (stable2Supply + amountIn) * dx
+      }
+    tradeAmt = binarySearch(0, amountIn, objective)
+  }
+  if (tradeAmt > 1)
+    tradeQuote = await getNanoSwapExactForQuote({
       stable1Supply,
       stable2Supply,
-      swapInAssetId: stable2,
-      swapInAmount: x,
+      swapInAssetId: stableIn,
+      swapInAmount: tradeAmt,
     });
 
-    stable2Amount = amountIn - x;
-  }
+  const stable1SupplyAdj = stable1Supply - tradeQuote.asset1Delta;
+  const stable2SupplyAdj = stable2Supply - tradeQuote.asset2Delta;
+
+  let whatIfDelta1 = (stableIn === stable1 ? amountIn : 0) + tradeQuote.asset1Delta;
+  let whatIfDelta2 = (stableIn === stable2 ? amountIn : 0) + tradeQuote.asset2Delta;
+
+  let poolQuote = await getNanoMintQuote({
+    assetId: stableIn,
+    assetAmount: whatIfDelta1,
+    whatIfDelta1,
+    whatIfDelta2,
+    stable1Supply: stable1SupplyAdj,
+    stable2Supply: stable2SupplyAdj,
+  });
   // stableOut estimated
+  return console.log(poolQuote);
+
 
   // estimate how much LTNano we'll get
-  const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn, meta: true });
+  const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });
 
   //estimate how much stable coins we'll get from burning LTNano
 
