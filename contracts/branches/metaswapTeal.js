@@ -37,13 +37,9 @@ swap // get rid of the high uint64
 pop // so only low quotient remains on stack
 dup
 store 4 // lTNano amount out
-dup
 int 0
 >
 assert // check amount out is more than 0
-load 3 // lTNano amount
-<
-assert // check amount out is less than lTNano amount
 
 //let's call the nanoswap pools
 
@@ -104,10 +100,10 @@ txna ApplicationArgs 2
 btoi
 dup
 store 5
-int ${stable1} // D981
+int ${stable1} 
 ==
 load 5 // asset out
-int ${stable2} // D552
+int ${stable2}
 ==
 || 
 assert

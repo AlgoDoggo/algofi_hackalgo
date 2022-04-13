@@ -6,7 +6,7 @@ import mint from "../examples/mint.js";
 import metaswap from "../examples/metaswap.js";
 import metazap from "../examples/metazap.js";
 import swap from "../examples/swap.js";
-import { fetchPoolState, getBurnQuote, getMetaSwapQuote, getMintQuote, getSwapQuote } from "../helpers/getQuote.js";
+import { fetchPoolStates, getBurnQuote, getMetaSwapQuote, getMintQuote, getSwapQuote } from "../helpers/getQuote.js";
 /*
 describe("generalChecks", () => {
   it("stable1 < stable2", () => {
@@ -58,7 +58,7 @@ describe("mintChecks", () => {
   });
   it("test math for minting approximate metapool LT", async () => {
     const assetID_amount = 1000;
-    const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolState();
+    const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolStates();
     const { assetID_needed, lTNano_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
     const { mintAmount, redeemAmount } = await mint({
       assetID_amount: assetID_needed,

@@ -10,7 +10,7 @@ import {
 } from "../constants/constants.js";
 import { cristalBall, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
 
-export const fetchPoolState = async (): Promise<{
+export const fetchPoolStates = async (): Promise<{
   assetSupply: number;
   lTNanoSupply: number;
   stable1Supply: number;
@@ -52,7 +52,7 @@ export const fetchPoolState = async (): Promise<{
 
   const lTNanoIssued = Number(2n ** 64n - 1n - BigInt(lTNanoLeft.toString()));
 
-  if (!stable1Supply || !stable2Supply) throw new Error("Error, assets not found in the metapool");
+  if (!stable1Supply || !stable2Supply) throw new Error("Error, assets not found in the nanopool");
 
   return { assetSupply, lTNanoSupply, stable1Supply, stable2Supply, metapoolLTIssued, lTNanoIssued };
 };
@@ -67,7 +67,7 @@ interface MintQuote {
 
 export const getMintQuote: MintQuote = async ({ assetID_amount, lTNano_amount }) => {
   if (!assetID_amount && !lTNano_amount) throw new Error("Error, input params needed");
-  const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolState();
+  const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolStates();
   let lTNano_needed, assetID_needed;
   if (assetID_amount) {
     lTNano_needed = Math.floor((assetID_amount * lTNanoSupply) / assetSupply);
@@ -88,9 +88,7 @@ export const getMintQuote: MintQuote = async ({ assetID_amount, lTNano_amount })
 };
 
 export const getBurnQuote = async (burnAmount: number): Promise<{ assetOut: number; lTNanoOut: number }> => {
-  const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolState();
-  // assetID out = assetID supply * burn amount / issued amount of Metapool LT
-  // lTNano out = lTNano supply * burn amount / issued amount of Metapool LT
+  const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolStates();
   const assetOut = (assetSupply * burnAmount) / metapoolLTIssued;
   const lTNanoOut = (lTNanoSupply * burnAmount) / metapoolLTIssued;
   console.log(
@@ -106,7 +104,7 @@ interface SwapQuote {
 }
 
 export const getSwapQuote: SwapQuote = async ({ asset, assetAmount }) => {
-  const { assetSupply, lTNanoSupply } = await fetchPoolState();
+  const { assetSupply, lTNanoSupply } = await fetchPoolStates();
   //  amount_out = (asset_in_amount * 9975 * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * 9975))
   if (asset === assetID) {
     const amount_out = Number(
@@ -135,7 +133,7 @@ export const getMetaSwapQuote: MetaswapQuote = async ({ amountIn, stableOut }) =
   const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });
 
   //estimate how much stable coins we'll get from burning LTNano
-  const { stable1Supply, stable2Supply, lTNanoIssued } = await fetchPoolState();
+  const { stable1Supply, stable2Supply, lTNanoIssued } = await fetchPoolStates();
 
   const stable1Out = Number((BigInt(stable1Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued));
   const stable2Out = Number((BigInt(stable2Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued));
@@ -180,7 +178,7 @@ interface MetaZapQuote {
 export const getMetaZapQuote: MetaZapQuote = async ({ amountIn, stableIn }) => {
   if (stableIn !== stable1 && stableIn !== stable2) throw new Error("Stablecoin input invalid");
 
-  const { stable1Supply, stable2Supply } = await fetchPoolState();
+  const { stable1Supply, stable2Supply } = await fetchPoolStates();
 
   const { toConvert, toGet, extraFeeSwap } = await cristalBall({ stable1Supply, stable2Supply, stableIn, amountIn });
 

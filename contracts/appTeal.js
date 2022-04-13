@@ -8,12 +8,6 @@ import { burnTeal } from "./branches/burnTeal.js";
 import { swapTeal } from "./branches/swapTeal.js";
 
 export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
-// appl call arrays: 
-// foreignApps:[stable1Stable2AppId, managerID_nanoswap]
-// foreignAssets: [assetID, lTNano, stable1, stable2] stable1 < stable2
-// accounts: [stable1Stable2AppAddress aka the Nanoswap pool]
-// appArgs:["metaswap" || "metazap" etc, int minimumAmountOut,  assetOutID (stable1 or stable2): only for metaswap ]
-
 // scratch space :
 // 1: Metapool Liquidity token ID
 // 2: algo amount in the app

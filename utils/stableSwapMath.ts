@@ -62,7 +62,6 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
     asset2Delta = swapOutAmount;
     lpDelta = 0;
     extraComputeFee = Math.ceil(numIter / (700 / 400));
-    // return new BalanceDelta(this, -1 * swapInAmount, swapOutAmount, 0, numIter);
   } else {
     let [D, numIterD] = getD([stable1Supply, stable2Supply], amplificationFactor)!;
     let [y, numIterY] = getY(
@@ -80,11 +79,8 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
     asset2Delta = -1 * swapInAmount;
     lpDelta = 0;
     extraComputeFee = Math.ceil(numIter / (700 / 400));
-    //return new BalanceDelta(this, swapOutAmount, -1 * swapInAmount, 0, numIter);
   }
-  let priceDelta = 0;
-
-  return { asset1Delta, asset2Delta, lpDelta, extraComputeFee, priceDelta };
+  return { asset1Delta, asset2Delta, lpDelta, extraComputeFee, priceDelta:0 };
 };
 
 interface NanoMintQuote {
