@@ -30,30 +30,35 @@ interface Metazap {
   zapAmount: number | bigint;
   minAssetToGet: number | bigint;
   toConvert: number | bigint;
+  extraFeeSwap: number;
+  extraFeeMint: number;
 }
 
-async function metazap({ stableToZap, zapAmount, minAssetToGet, toConvert = 0 }: Metazap) {
+async function metazap({
+  stableToZap,
+  zapAmount,
+  minAssetToGet,
+  toConvert = 0,
+  extraFeeSwap = 2,
+  extraFeeMint = 0,
+}: Metazap) {
   if (!stableToZap || !zapAmount) throw new Error("invalid metazap parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
-  const params = await algodClient.getTransactionParams().do();
+  const suggestedParams = await algodClient.getTransactionParams().do();
 
-  params.fee = 1000;
-  params.flatFee = true;
+  suggestedParams.fee = 1000;
+  suggestedParams.flatFee = true;
 
   const tx0 = makePaymentTxnWithSuggestedParamsFromObject({
-    suggestedParams: {
-      ...params,
-    },
+    suggestedParams,
     from: account.addr,
     to: metapool_address,
-    amount: 13000,
+    amount: suggestedParams.fee * (13 + extraFeeSwap + extraFeeMint),
   });
 
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
-    suggestedParams: {
-      ...params,
-    },
+    suggestedParams,
     from: account.addr,
     to: metapool_address,
     assetIndex: stableToZap,
@@ -61,14 +66,16 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet, toConvert = 0 }:
   });
 
   const tx2 = makeApplicationNoOpTxnFromObject({
-    suggestedParams: {
-      ...params,
-      fee: params.fee * 5, //(fee is at least 5x for nanoswap 2x for regular swap)
-    },
+    suggestedParams,
     from: account.addr,
-    appIndex: metapool_app,
-    // appArgs:["metazap", int minimumAmountOut, toConvert]
-    appArgs: [enc.encode("metazap"), encodeUint64(minAssetToGet), encodeUint64(toConvert)],
+    appIndex: metapool_app,    
+    appArgs: [
+      enc.encode("metazap"),
+      encodeUint64(minAssetToGet),
+      encodeUint64(toConvert), // telling the contract how much how stableIn to convert for stableOut before minting
+      encodeUint64(extraFeeSwap),
+      encodeUint64(extraFeeMint),
+    ],
     accounts: [nanopool_address],
     foreignAssets: [assetID, lTNano, stable1, stable2],
     foreignApps: [stable1_stable2_app, managerID_nanoswap],
@@ -86,6 +93,11 @@ async function metazap({ stableToZap, zapAmount, minAssetToGet, toConvert = 0 }:
 }
 export default metazap;
 
-metazap({ stableToZap: stable1, zapAmount: 1000, minAssetToGet: 1, toConvert: 600 }).catch((error) =>
-  console.log(error.message)
-);
+metazap({
+  stableToZap: stable1,
+  zapAmount: 1000,
+  minAssetToGet: 1,
+  toConvert: 600,
+  extraFeeSwap: 4,
+  extraFeeMint: 3,
+}).catch((error) => console.log(error.message));

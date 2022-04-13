@@ -9,7 +9,7 @@ import {
   stable1,
   stable2,
 } from "../constants/constants.js";
-import { binarySearch, cristalBall, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
+import { cristalBall, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
 
 export const fetchPoolState = async () => {
   const baseUrl = "https://testnet-idx.algonode.cloud/v2"; // algonode.io
@@ -157,86 +157,29 @@ export const getMetaSwapQuote = async ({ amountIn, stableOut }) => {
 
 export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
   if (stableIn !== stable1 && stableIn !== stable2) throw new Error("Stablecoin input invalid");
-  // if x is the amount of stable-in to convert, s1 the supply of stable-in in the nanopool
-  // x = (sqrt( s1 * ( s1 + amountIn)) - s1) * 10000 / 9975
-  const { assetSupply, lTNanoSupply, stable1Supply, stable2Supply, metapoolLTIssued, lTNanoIssued } =
-    await fetchPoolState();
-  let stable1Amount, stable2Amount, x;
-  let tradeQuote = { asset1Delta: 0, asset2Delta: 0 };
-  let tradeAmt = 0;
-  const { toConvert, toGet } = await cristalBall({stable1Supply, stable2Supply,stableIn, amountIn })
-  // if (stableIn === stable1) {
-  //   let objective = async function (dx: number) {
-  //     const { asset2Delta: dy } = await getNanoSwapExactForQuote({
-  //       stable1Supply,
-  //       stable2Supply,
-  //       swapInAssetId: stableIn,
-  //       swapInAmount: dx,
-  //     });
-  //     console.log(dy)
-  //     return Number(
-  //       BigInt(stable2Supply) * BigInt(amountIn) +
-  //         (BigInt(stable1Supply) + BigInt(amountIn)) * BigInt(dy) +
-  //         BigInt(stable2Supply) * BigInt(dx)
-  //     );
-  //   };
-  //   tradeAmt = await binarySearch(0, amountIn, objective);
-  // } else {
-  //   let objective = async function (dy) {
-  //     const { asset1Delta: dx } = await getNanoSwapExactForQuote({
-  //       stable1Supply,
-  //       stable2Supply,
-  //       swapInAssetId: stableIn,
-  //       swapInAmount: dy,
-  //     });
 
-  //     return stable1Supply * amountIn + stable1Supply * dy + (stable2Supply + amountIn) * dx;
-  //   };
-  //   tradeAmt = await binarySearch(0, amountIn, objective);
-  // }
-  // console.log(`Swap ${tradeAmt} of ${stableIn} token for optimal mint ratio`);
-  // if (tradeAmt > 1)
-  //   tradeQuote = await getNanoSwapExactForQuote({
-  //     stable1Supply,
-  //     stable2Supply,
-  //     swapInAssetId: stableIn,
-  //     swapInAmount: tradeAmt,
-  //   });
+  const { stable1Supply, stable2Supply } = await fetchPoolState();
 
-  // const stable1SupplyAdj = stable1Supply - tradeQuote?.asset1Delta;
-  // const stable2SupplyAdj = stable2Supply - tradeQuote?.asset2Delta;
+  const { toConvert, toGet, extraFeeSwap } = await cristalBall({ stable1Supply, stable2Supply, stableIn, amountIn });
 
-  // let whatIfDelta1 = (stableIn === stable1 ? amountIn : 0) + tradeQuote?.asset1Delta;
-  // let whatIfDelta2 = (stableIn === stable2 ? amountIn : 0) + tradeQuote?.asset2Delta;
+  let stable1SupplyAdj, stable2SupplyAdj;
+  if (stableIn === stable1) {
+    stable1SupplyAdj = stable1Supply + toConvert;
+    stable2SupplyAdj = stable2Supply - toGet;
+  } else {
+    stable1SupplyAdj = stable1Supply - toGet;
+    stable2SupplyAdj = stable2Supply + toConvert;
+  }
 
-  // let poolQuote = await getNanoMintQuote({
-  //   assetId: stableIn,
-  //   assetAmount: Math.floor(amountIn-toConvert),
-  //   whatIfDelta1: 0,
-  //   whatIfDelta2: 0,
-  //   stable1Supply: stable1SupplyAdj,
-  //   stable2Supply: stable2SupplyAdj,
-  // });
-
-  const stable1SupplyAdj = stable1Supply - tradeQuote?.asset1Delta;
-  const stable2SupplyAdj = stable2Supply - tradeQuote?.asset2Delta;
-
-  let whatIfDelta1 = (stableIn === stable1 ? amountIn : 0) + tradeQuote?.asset1Delta;
-  let whatIfDelta2 = (stableIn === stable2 ? amountIn : 0) + tradeQuote?.asset2Delta;
-
-  let poolQuote = await getNanoMintQuote({
+  const { lpDelta, extraComputeFee: extraFeeMint  } = await getNanoMintQuote({
     assetId: stableIn,
-    assetAmount: Math.floor(amountIn-toConvert),
+    assetAmount: Math.floor(amountIn - toConvert),
     stable1Supply: stable1SupplyAdj,
     stable2Supply: stable2SupplyAdj,
   });
-
-  // stableOut estimated
-  
-  // 	Metapool LT out = Math.min(
-  // 	assetID amount * issued Metapool LT / assetID supply,
-  // 	lTNano amount * issued Metapool LT / lTNano supply
-  // )
-  return console.log(poolQuote);
-
+  console.log(`extra compute fee for nanoswap: ${extraFeeSwap}`);
+  console.log(`extra compute fee for nanomint: ${extraFeeMint}`);
+  const { amountOut } = await getSwapQuote({ asset: lTNano, assetAmount: lpDelta });
+  console.log(`Metazapping ${amountIn} ${stableIn} stablecoin will yield ${amountOut} asset`);
+  return { amountOut, extraFeeMint,extraFeeSwap, toConvert };
 };

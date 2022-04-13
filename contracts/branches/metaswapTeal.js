@@ -58,6 +58,8 @@ load 4 // lTNano amount out
 itxn_field AssetAmount
 addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
+global MinTxnFee // fee pooling is not supported atm by algofi nanopool
+itxn_field Fee
 
 itxn_next
 
@@ -134,6 +136,8 @@ pop
 itxn_field AssetAmount
 addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
+global MinTxnFee 
+itxn_field Fee
 
 itxn_next
 

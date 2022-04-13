@@ -4,7 +4,7 @@ import { getApplicationAddress } from "algosdk";
 
 // pool apps
 export const stable1_stable2_app = 77282939; // D981-D552 nanopool
-export const metapool_app = 83674504;
+export const metapool_app = 83696374;
 
 // algofi manager apps
 export const managerID_dex = 66008735;
@@ -15,7 +15,7 @@ export const assetID = 54215619; // This is the token for which the metapool is 
 export const lTNano = 77282957; // This is the stablecoins nanopool liquidity tokens
 export const stable1 = 77279127; // D981
 export const stable2 = 77279142; // D552
-export const metapoolLT = 83674519; // This is the liquidity token of the metapool
+export const metapoolLT = 83696452; // This is the liquidity token of the metapool
 
 //addresses
 export const metapool_address = getApplicationAddress(metapool_app)

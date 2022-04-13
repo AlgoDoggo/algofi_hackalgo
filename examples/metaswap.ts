@@ -32,28 +32,24 @@ interface Metaswap {
   extraComputeFee: number;
 }
 
-async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeFee = 0 }: Metaswap) {
+async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeFee = 2 }: Metaswap) {
   if (!assetAmount || typeof stableMinReturn !== "number" || !stableOut) throw new Error("invalid metaswap parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
-  const params = await algodClient.getTransactionParams().do();
+  const suggestedParams = await algodClient.getTransactionParams().do();
 
-  params.fee = 1000;
-  params.flatFee = true;
+  suggestedParams.fee = 1000;
+  suggestedParams.flatFee = true;
 
   const tx0 = makePaymentTxnWithSuggestedParamsFromObject({
-    suggestedParams: {
-      ...params,
-    },
+    suggestedParams,
     from: account.addr,
     to: metapool_address,
-    amount: params.fee * 8 + params.fee * extraComputeFee,
+    amount: suggestedParams.fee * (8 + extraComputeFee),
   });
 
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
-    suggestedParams: {
-      ...params,
-    },
+    suggestedParams,
     from: account.addr,
     to: metapool_address,
     assetIndex: assetID,
@@ -61,18 +57,14 @@ async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeF
   });
 
   const tx2 = makeApplicationNoOpTxnFromObject({
-    suggestedParams: {
-      ...params,
-      fee: params.fee * 2,
-    },
+    suggestedParams,
     from: account.addr,
     appIndex: metapool_app,
-    // appArgs:["metaswap", int minimumAmountOut, assetOutID (stable1 or stable2), extracompute fee [0-5] ish ]
     appArgs: [
       enc.encode("metaswap"),
-      encodeUint64(stableMinReturn),
-      encodeUint64(stableOut),
-      encodeUint64(extraComputeFee),
+      encodeUint64(stableMinReturn), // minimum asset out expected
+      encodeUint64(stableOut), // stable coin we want to metaswap our asset for
+      encodeUint64(extraComputeFee), // extra fee required by the nanopool for accurate swapping
     ],
     accounts: [nanopool_address],
     foreignAssets: [assetID, lTNano, stable1, stable2],
@@ -91,4 +83,6 @@ async function metaswap({ assetAmount, stableMinReturn, stableOut, extraComputeF
 }
 export default metaswap;
 
-//metaswap({ assetAmount: 100, stableOut: stable2, stableMinReturn: 0,extraComputeFee:4 }).catch((error) => console.log(error.message));
+metaswap({ assetAmount: 100, stableOut: stable2, stableMinReturn: 0, extraComputeFee: 4 }).catch((error) =>
+  console.log(error.message)
+);

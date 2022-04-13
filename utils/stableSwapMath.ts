@@ -248,38 +248,21 @@ function getAmplificationFactor({
   return futureAmplificationFactor;
 }
 
-export const binarySearch = async (lower, upper, objective) => {
-  if (lower > upper) return lower;
-  let mid = Math.floor(lower + (upper - lower) / 2);
-  let midVal = await objective(mid);
-  console.log(mid, midVal);
-  //let upperVal = await objective(upper)
-  //let lowerVal =await  objective(lower)
-
-  if (midVal < 0) {
-    return binarySearch(mid + 1, upper, objective);
-  } else if (midVal > 0) {
-    return binarySearch(lower, mid - 1, objective);
-  } else {
-    return mid;
-  }
-};
-
 export const cristalBall = async ({ stable1Supply, stable2Supply, stableIn, amountIn }) => {
   let toConvert = Math.floor(amountIn / 2);
   let deltaError = 2;
   let targetRatio = stable1Supply / stable2Supply;
   let tokenRatio = 1;
-  let toGet;
+  let toGet, extraFeeSwap;
 
   while (deltaError > 1.01 || deltaError < 0.99) {
-    const { asset2Delta, asset1Delta } = await getNanoSwapExactForQuote({
+    const { asset2Delta, asset1Delta, extraComputeFee } = await getNanoSwapExactForQuote({
       stable1Supply,
       stable2Supply,
       swapInAssetId: stableIn,
       swapInAmount: toConvert,
     });
-
+    extraFeeSwap = extraComputeFee;
     if (stableIn === stable1) {
       toGet = asset2Delta;
       targetRatio = (stable1Supply + toConvert) / (stable2Supply - toGet);
@@ -295,6 +278,6 @@ export const cristalBall = async ({ stable1Supply, stable2Supply, stableIn, amou
     }
     console.log("deltaError:", deltaError);
   }
-  console.log("toConvert, toGet", toConvert, toGet);
-  return { toConvert, toGet };
+  console.log("toConvert: ", toConvert, "toGet: ", toGet);
+  return { toConvert, toGet, extraFeeSwap };
 };

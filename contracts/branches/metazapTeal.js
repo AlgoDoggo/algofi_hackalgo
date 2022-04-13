@@ -114,6 +114,8 @@ load 13 // from our calculations
 itxn_field AssetAmount
 addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
+global MinTxnFee // fee pooling is not supported atm by algofi nanopool
+itxn_field Fee
 
 itxn_next
 
@@ -121,7 +123,10 @@ itxn_next
 int appl
 itxn_field TypeEnum
 global MinTxnFee
-int 6 // appl fee is 5x min for swap in nanoswap pools, sometimes 6x
+int 2 // appl fee is 2x min for nanoswap
+txna ApplicationArgs 3 // we send extra fee in appargs 3
+btoi
++
 *
 itxn_field Fee
 int ${stable1Stable2AppId}
@@ -215,6 +220,8 @@ select
 itxn_field AssetAmount
 addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
+global MinTxnFee
+itxn_field Fee
 
 itxn_next
 
@@ -232,6 +239,8 @@ select
 itxn_field AssetAmount
 addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver
+global MinTxnFee 
+itxn_field Fee
 
 itxn_next
 
@@ -239,7 +248,10 @@ itxn_next
 int appl
 itxn_field TypeEnum
 global MinTxnFee
-int 4 // this one has a dynamic budget as well 
+int 3 // nanomint is at least 3x min fee 
+txna ApplicationArgs 4 // we send extra mint fee in appargs 4
+btoi
++
 *
 itxn_field Fee
 int ${stable1Stable2AppId}
@@ -268,6 +280,8 @@ itxn_field ApplicationArgs
 int ${stable1} 
 itxn_field Assets
 callsub common_appl_fields
+global MinTxnFee 
+itxn_field Fee
 
 itxn_next
 
@@ -281,6 +295,8 @@ itxn_field ApplicationArgs
 int ${stable2} 
 itxn_field Assets
 callsub common_appl_fields
+global MinTxnFee 
+itxn_field Fee
 
 itxn_submit
 
@@ -366,6 +382,12 @@ callsub common_zap_fields
 itxn_submit
 
 int 13 // number of MinTxnFee consumed by the metapool
+txna ApplicationArgs 3 // extra swap fee
+btoi
++
+txna ApplicationArgs 4 // extra mint fee
+btoi
++
 store 20
 
 b checkFees

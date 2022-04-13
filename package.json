@@ -10,7 +10,7 @@
     "start": "nodemon index.ts",
     "create-app": "ts-node ./examples/createApp.ts",
     "burn": "nodemon ./examples/burn.ts",
-    "mint": "nodemon ./examples/mint.ts",
+    "mint": "ts-node ./examples/mint.ts",
     "swap": "nodemon ./examples/swap.ts",
     "metaswap": "nodemon ./examples/metaswap.ts",
     "metazap": "nodemon ./examples/metazap.ts",
