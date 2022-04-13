@@ -83,7 +83,7 @@ async function mint() {
     foreignAssets: [stable2],
   });
 
-  const transactions = [tx0, tx1, tx2, tx3, tx4];
+  const transactions = [tx0, tx1, tx2];
   assignGroupID(transactions);
   const signedTxs = transactions.map((t) => t.signTxn(account.sk));
   const { txId } = await algodClient.sendRawTransaction(signedTxs).do();

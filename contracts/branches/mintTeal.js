@@ -170,9 +170,9 @@ int 0
 itxn_field Fee
 int axfer
 itxn_field TypeEnum
-load 23 // Metapool Liquidity token ID
+load 23 // ID of asset that was sent in excess
 itxn_field XferAsset
-load 26 // amount of Metapool LT to send
+load 26 // amount to redeem
 itxn_field AssetAmount
 txn Sender
 itxn_field AssetReceiver

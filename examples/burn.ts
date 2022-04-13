@@ -59,4 +59,4 @@ const burn: Burn = async ({ burnAmount }) => {
 };
 export default burn;
 
-//burn({ burnAmount: 10 }).catch((error) => console.log(error.message));
+burn({ burnAmount: 100 }).catch((error) => console.log(error.message));
