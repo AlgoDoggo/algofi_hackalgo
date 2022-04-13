@@ -165,7 +165,7 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
   let tradeQuote;
   let tradeAmt = 0;
   if (stableIn === stable1) {
-    let objective = async function (dx) {
+    let objective = async function (dx:number) {
       const { asset2Delta: dy } = await getNanoSwapExactForQuote({
         stable1Supply,
         stable2Supply,
@@ -174,8 +174,7 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
       });
       return stable2Supply * amountIn + (stable1Supply + amountIn) * dy + stable2Supply * dx;
     };
-    tradeAmt = binarySearch(0, amountIn, objective);
-    
+    tradeAmt = await binarySearch(0, amountIn, objective);
   } else {
     let objective = async function (dy) {
       const { asset1Delta: dx } = await getNanoSwapExactForQuote({
@@ -184,13 +183,12 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
         swapInAssetId: stableIn,
         swapInAmount: dy,
       });
-      
-      return stable1Supply * amountIn + 
-      (stable1Supply ) * dy +
-      (stable2Supply + amountIn) * dx
-      }
-    tradeAmt = binarySearch(0, amountIn, objective)
+
+      return stable1Supply * amountIn + stable1Supply * dy + (stable2Supply + amountIn) * dx;
+    };
+    tradeAmt = await binarySearch(0, amountIn, objective);
   }
+  console.log(`Swap ${tradeAmt} of ${stableIn} token for optimal mint ratio`);
   if (tradeAmt > 1)
     tradeQuote = await getNanoSwapExactForQuote({
       stable1Supply,
@@ -215,7 +213,6 @@ export const getMetaZapQuote = async ({ amountIn, stableIn }) => {
   });
   // stableOut estimated
   return console.log(poolQuote);
-
 
   // estimate how much LTNano we'll get
   const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });

@@ -251,17 +251,18 @@ function getAmplificationFactor({
   return futureAmplificationFactor;
 }
 
-export const binarySearch = (lower, upper, objective) => {
+export const binarySearch =async (lower, upper, objective) => {
     if (lower > upper) return lower
     let mid = Math.floor(lower + (upper - lower) / 2)
-    let midVal = objective(mid)
-    let upperVal = objective(upper)
-    let lowerVal = objective(lower)
+    let midVal = await objective(mid)
+    console.log(mid,midVal)
+    let upperVal = await objective(upper)
+    let lowerVal =await  objective(lower)
     
     if (midVal < 0) {
-      return this.binarySearch(mid+1, upper, objective)
+      return binarySearch(mid+1, upper, objective)
     } else if (midVal > 0) {
-      return this.binarySearch(lower, mid-1, objective)
+      return binarySearch(lower, mid-1, objective)
     } else {
       return mid
     }
