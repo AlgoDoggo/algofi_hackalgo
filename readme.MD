@@ -27,10 +27,12 @@ During app creation a metapool liquidity token is also created with total supply
 
 ![ScreenShot](./screenshots/mint.webp)
 
-### Swap test token for nanopool liquifity token, in the metapool
+### Swap test token for nanopool liquidity token, in the metapool
 `npm run swap`
 
 ![ScreenShot](./screenshots/swap.webp)
+![ScreenShot](./screenshots/swap2.webp)
+![ScreenShot](./screenshots/swap3.webp)
 
 ### Burn Metapool Liquidity Token
 
