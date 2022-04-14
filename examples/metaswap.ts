@@ -82,7 +82,3 @@ const metaswap: Metaswap = async ({ assetAmount, stableMinReturn = 0, stableOut,
   return { stableOutAmount };
 };
 export default metaswap;
-
-// metaswap({ assetAmount: 100, stableOut: stable2, stableMinReturn: 0, extraComputeFee: 4 }).catch((error) =>
-//   console.log(error.message)
-// );

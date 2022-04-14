@@ -67,7 +67,10 @@ interface MintQuote {
 
 export const getMintQuote: MintQuote = async ({ assetID_amount, lTNano_amount }) => {
   if (!assetID_amount && !lTNano_amount) throw new Error("Error, input params needed");
-  const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolStates();
+  const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolStates().catch(() => {
+    return { assetSupply: 1, lTNanoSupply: 1, metapoolLTIssued: 1 };
+  });
+
   let lTNano_needed, assetID_needed;
   if (assetID_amount) {
     lTNano_needed = Math.floor((assetID_amount * lTNanoSupply) / assetSupply);
@@ -75,11 +78,7 @@ export const getMintQuote: MintQuote = async ({ assetID_amount, lTNano_amount })
   } else if (lTNano_amount) {
     assetID_needed = Math.floor((lTNano_amount * assetSupply) / lTNanoSupply);
     lTNano_needed = Math.floor(lTNano_amount);
-  }
-  // 	Metapool LT out = Math.min(
-  // 	assetID amount * issued Metapool LT / assetID supply,
-  // 	lTNano amount * issued Metapool LT / lTNano supply
-  // )
+  }  
   const expectedMintAmount = Math.floor(
     Math.min((assetID_needed * metapoolLTIssued) / assetSupply, (lTNano_needed * metapoolLTIssued) / lTNanoSupply)
   );
@@ -100,8 +99,7 @@ interface SwapQuote {
 }
 
 export const getSwapQuote: SwapQuote = async ({ asset, assetAmount }) => {
-  const { assetSupply, lTNanoSupply } = await fetchPoolStates();
-  //  amount_out = (asset_in_amount * 9975 * asset_out_supply) / ((asset_in_supply * 10000) + (asset_in_amount * 9975))
+  const { assetSupply, lTNanoSupply } = await fetchPoolStates(); 
   if (asset === assetID) {
     const amount_out = Number(
       (BigInt(assetAmount) * 9975n * BigInt(lTNanoSupply)) / (BigInt(assetSupply) * 10000n + BigInt(assetAmount) * 9975n)

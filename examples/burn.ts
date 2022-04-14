@@ -58,5 +58,3 @@ const burn: Burn = async ({ burnAmount }) => {
   return { assetOut, lTNanoOut };
 };
 export default burn;
-
-//burn({ burnAmount: 100 }).catch((error) => console.log(error.message));

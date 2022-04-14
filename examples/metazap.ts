@@ -95,12 +95,3 @@ const metazap: Metazap = async ({
   return { assetOutAmount };
 };
 export default metazap;
-
-// metazap({
-//   stableToZap: stable1,
-//   zapAmount: 1000,
-//   minAssetToGet: 0,
-//   toConvert: 600,
-//   extraFeeSwap: 4,
-//   extraFeeMint: 3,
-// }).catch((error) => console.log(error.message));
