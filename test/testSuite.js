@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { strict } from "assert";
 import { assetID, lTNano, stable1, stable2 } from "../constants/constants.js";
-import burn from "../dist/examples/burn.js";
+import burn from "../examples/burn.js";
 import mint from "../examples/mint.js";
 import metaswap from "../examples/metaswap.js";
 import metazap from "../examples/metazap.js";

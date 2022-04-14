@@ -52,10 +52,10 @@ Once the contract is deployed, its account is bootstrapped:
 `npm run metazap`
 
 - Either stable 1 or stable 2 is sent to the metapool.
-- Metapool converts it such as the resulting stable 1 / stable 2 ratio is equal to the nanopool stable 1 suupply / stable 2 supply ratio.
+- Metapool converts it such as the resulting stable 1 / stable 2 ratio is equal to the nanopool stable 1 supply / stable 2 supply ratio.
 - Send stable 1 and stable 2 to the nanopool to mint nanopool liquidity token.
 - Swap the nanopool LT for test token in the metapool and send it back to the user.
-- During mint operation in the nanopool it has us redeem any extra stable coins amounts, these amounts are redeemed in the metapool and then sent back to the user.
+- After minting the nanopool has us redeem any extra stable coins, these amounts are redeemed in the metapool and sent back to the user.
 
 ![ScreenShot](./screenshots/metazap.webp)
 
@@ -83,4 +83,4 @@ Once the contract is deployed, its account is bootstrapped:
 
 ### Troubleshoot
 
-If you have issues running the scripts installing ts-node globally can help: `npm install -g ts-node`
+Though it shouldn't be necessary, if you have issues running the scripts installing ts-node globally can help: `npm install -g ts-node`

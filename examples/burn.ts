@@ -6,7 +6,7 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
-import { setupClient } from "../adapters/algoD.js";
+import { setupClient } from "../adapters/algoD.js"
 import { lTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../constants/constants.js";
 
 dotenv.config();
@@ -59,4 +59,4 @@ const burn: Burn = async ({ burnAmount }) => {
 };
 export default burn;
 
-burn({ burnAmount: 100 }).catch((error) => console.log(error.message));
+//burn({ burnAmount: 100 }).catch((error) => console.log(error.message));
