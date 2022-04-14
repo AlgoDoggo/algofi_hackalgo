@@ -73,7 +73,7 @@ const metazap: Metazap = async ({
     appIndex: metapool_app,
     appArgs: [
       enc.encode("metazap"),
-      encodeUint64(minAssetToGet),
+      encodeUint64(minAssetToGet), // slippage protection
       encodeUint64(toConvert), // telling the contract how much how stableIn to convert for stableOut before minting
       encodeUint64(extraFeeSwap),
       encodeUint64(extraFeeMint),
