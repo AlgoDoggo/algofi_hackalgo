@@ -91,6 +91,6 @@ const mint: Mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage })
 };
 export default mint;
 
-mint({ optIn: false, assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: 1000000 }).catch((error) =>
-  console.log(error.message)
-);
+// mint({ optIn: false, assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: 1000000 }).catch((error) =>
+//   console.log(error.message)
+// );

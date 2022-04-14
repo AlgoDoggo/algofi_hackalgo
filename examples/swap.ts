@@ -67,4 +67,4 @@ const swap: Swap = async ({ asset, amount, minAmountOut }) => {
 };
 export default swap;
 
-swap({ amount: 100, asset: assetID, minAmountOut: 1 }).catch((error) => console.log(error.message));
+//swap({ amount: 100, asset: assetID, minAmountOut: 1 }).catch((error) => console.log(error.message));

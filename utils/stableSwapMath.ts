@@ -80,7 +80,7 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
     lpDelta = 0;
     extraComputeFee = Math.ceil(numIter / (700 / 400));
   }
-  return { asset1Delta, asset2Delta, lpDelta, extraComputeFee, priceDelta:0 };
+  return { asset1Delta, asset2Delta, lpDelta, extraComputeFee, priceDelta: 0 };
 };
 
 interface NanoMintQuote {
@@ -271,9 +271,13 @@ export const cristalBall: cristalBall = async ({ stable1Supply, stable2Supply, s
   let deltaError = 2;
   let targetRatio = stable1Supply / stable2Supply;
   let tokenRatio = 1;
-  let toGet, extraFeeSwap;
+  let toGet, extraFeeSwap, loopBreaker = 0;
 
   while (deltaError > 1.01 || deltaError < 0.99) {
+    // in some edge cases with too small a zap amount, deltaError will never fall below 1%
+    // in that case metazap will fail during the mint operation in the nanopool
+    loopBreaker += 1;
+    if(loopBreaker > 10) throw new Error ("Metazap not possible, increase metazap amount")
     const { asset2Delta, asset1Delta, extraComputeFee } = await getNanoSwapExactForQuote({
       stable1Supply,
       stable2Supply,
@@ -283,13 +287,13 @@ export const cristalBall: cristalBall = async ({ stable1Supply, stable2Supply, s
     extraFeeSwap = extraComputeFee;
     if (stableIn === stable1) {
       toGet = asset2Delta;
-      targetRatio = Number((BigInt(stable1Supply) + BigInt(toConvert)) / (BigInt(stable2Supply) - BigInt(toGet)));
+      targetRatio = (stable1Supply + toConvert) / (stable2Supply - toGet);
       tokenRatio = (amountIn - toConvert) / toGet;
       deltaError = tokenRatio / targetRatio;
       toConvert = Math.floor(toConvert * Math.sqrt(deltaError));
     } else {
       toGet = asset1Delta;
-      targetRatio = Number((BigInt(stable1Supply) - BigInt(toGet)) / (BigInt(stable2Supply) + BigInt(toConvert)));
+      targetRatio = (stable1Supply - toGet) / (stable2Supply + toConvert);
       tokenRatio = toGet / (amountIn - toConvert);
       deltaError = tokenRatio / targetRatio;
       toConvert = Math.floor(toConvert / Math.sqrt(deltaError));

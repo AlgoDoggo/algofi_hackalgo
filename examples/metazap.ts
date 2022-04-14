@@ -39,7 +39,7 @@ interface Metazap {
 const metazap: Metazap = async ({
   stableToZap,
   zapAmount,
-  minAssetToGet,
+  minAssetToGet = 0,
   toConvert = 0,
   extraFeeSwap = 2,
   extraFeeMint = 0,
@@ -95,11 +95,11 @@ const metazap: Metazap = async ({
 };
 export default metazap;
 
-metazap({
-  stableToZap: stable1,
-  zapAmount: 1000,
-  minAssetToGet: 1,
-  toConvert: 600,
-  extraFeeSwap: 4,
-  extraFeeMint: 3,
-}).catch((error) => console.log(error.message));
+// metazap({
+//   stableToZap: stable1,
+//   zapAmount: 1000,
+//   minAssetToGet: 0,
+//   toConvert: 600,
+//   extraFeeSwap: 4,
+//   extraFeeMint: 3,
+// }).catch((error) => console.log(error.message));

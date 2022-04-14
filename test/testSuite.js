@@ -6,8 +6,15 @@ import mint from "../examples/mint.js";
 import metaswap from "../examples/metaswap.js";
 import metazap from "../examples/metazap.js";
 import swap from "../examples/swap.js";
-import { fetchPoolStates, getBurnQuote, getMetaSwapQuote, getMintQuote, getSwapQuote } from "../helpers/getQuote.js";
-/*
+import {
+  fetchPoolStates,
+  getBurnQuote,
+  getMetaSwapQuote,
+  getMetaZapQuote,
+  getMintQuote,
+  getSwapQuote,
+} from "../helpers/getQuote.js";
+
 describe("generalChecks", () => {
   it("stable1 < stable2", () => {
     assert.isBelow(stable1, stable2);
@@ -68,13 +75,14 @@ describe("mintChecks", () => {
     assert.approximately(mintAmount, expectedMintAmount, 1);
     // Excess Metapool LT = Math.max(load 24, load 25) - (amount of Metapool LT to send ) - 1
     // redeem amount = Excess Metapool LT * load 23 supply / Metapool LT issued
-    const excess =
+    const excess = Math.floor(
       Math.max(
         (assetID_needed * metapoolLTIssued) / assetSupply,
         (Math.floor(lTNano_needed * 1.05) * metapoolLTIssued) / lTNanoSupply
       ) -
-      mintAmount -
-      1;
+        mintAmount -
+        1
+    );
     const expectedRedeemAmount = (excess * lTNanoSupply) / metapoolLTIssued;
     assert.approximately(redeemAmount, expectedRedeemAmount, 1);
   });
@@ -103,8 +111,7 @@ describe("burnChecks", () => {
     assert.approximately(lTNanoOut, expectedLTNanoOut, 1);
   });
 });
-*/
-/*
+
 describe("swapChecks", () => {
   it("handle 0 amount", async () => {
     await strict.rejects(swap({ amount: 0, asset: assetID, minAmountOut: 0 }));
@@ -135,22 +142,27 @@ describe("swapChecks", () => {
   });
   it("test math for swapping asset for nanopool LT", async () => {
     const assetID_amount = 100;
-    const asset_swapped = assetID
-    const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({asset:asset_swapped, assetAmount : assetID_amount });
-    const { amountOut, assetOut } = await swap({ amount: assetID_amount, asset: asset_swapped, minAmountOut: 1 })
+    const asset_swapped = assetID;
+    const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({
+      asset: asset_swapped,
+      assetAmount: assetID_amount,
+    });
+    const { amountOut, assetOut } = await swap({ amount: assetID_amount, asset: asset_swapped, minAmountOut: 1 });
     assert.approximately(amountOut, expectedAmountOut, 1);
-    strict.equal(assetOut,expectedAssetOut)
+    strict.equal(assetOut, expectedAssetOut);
   });
   it("test math for swapping nanopool LT for asset", async () => {
     const assetID_amount = 100;
-    const asset_swapped = lTNano
-    const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({asset:asset_swapped, assetAmount : assetID_amount });
-    const { amountOut, assetOut } = await swap({ amount: assetID_amount, asset: asset_swapped, minAmountOut: 1 })
+    const asset_swapped = lTNano;
+    const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({
+      asset: asset_swapped,
+      assetAmount: assetID_amount,
+    });
+    const { amountOut, assetOut } = await swap({ amount: assetID_amount, asset: asset_swapped, minAmountOut: 1 });
     assert.approximately(amountOut, expectedAmountOut, 1);
-    strict.equal(assetOut,expectedAssetOut)
+    strict.equal(assetOut, expectedAssetOut);
   });
 });
-*/
 
 describe("metaswapChecks", () => {
   it("handle 0 amount", async () => {
@@ -183,21 +195,33 @@ describe("metaswapChecks", () => {
   it("test math metaswap for stable1", async () => {
     const amountIn = 100;
     const stableOut = stable1;
-    const { stableOutAmount: expectedStableOutAmount,extraFee:extraComputeFee } = await getMetaSwapQuote({ amountIn, stableOut });
-    const { stableOutAmount } = await metaswap({ assetAmount: amountIn, stableID: stableOut, stableMinReturn: 0,extraComputeFee });
-    // metaswap estimates are a little more complex I'm adding a 2% tolerance on expectation vs reality
-    assert.approximately(stableOutAmount, expectedStableOutAmount, expectedStableOutAmount * 0.02);
+    const { stableOutAmount: expectedStableOutAmount, extraFee: extraComputeFee } = await getMetaSwapQuote({
+      amountIn,
+      stableOut,
+    });
+    const { stableOutAmount } = await metaswap({
+      assetAmount: amountIn,
+      stableOut,
+      extraComputeFee,
+    });
+    assert.approximately(stableOutAmount, expectedStableOutAmount, 1);
   });
   it("test math, metaswap for stable2", async () => {
     const amountIn = 100;
     const stableOut = stable2;
-    const { stableOutAmount: expectedStableOutAmount,extraFee:extraComputeFee } = await getMetaSwapQuote({ amountIn, stableOut });
-    const { stableOutAmount } = await metaswap({ assetAmount: amountIn, stableID: stableOut, stableMinReturn: 0,extraComputeFee });
-    // metaswap estimates are a little more complex I'm adding a 2% tolerance on expectation vs reality
-    assert.approximately(stableOutAmount, expectedStableOutAmount, expectedStableOutAmount * 0.02);
+    const { stableOutAmount: expectedStableOutAmount, extraFee: extraComputeFee } = await getMetaSwapQuote({
+      amountIn,
+      stableOut,
+    });
+    const { stableOutAmount } = await metaswap({
+      assetAmount: amountIn,
+      stableOut,
+      extraComputeFee,
+    });
+    assert.approximately(stableOutAmount, expectedStableOutAmount, 1);
   });
 });
-/*
+
 describe("metazapChecks", () => {
   it("handle 0 amount", async () => {
     await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 0, minAssetToGet: 0 }));
@@ -226,5 +250,46 @@ describe("metazapChecks", () => {
   it("test slippage control", async () => {
     await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 0, minAssetToGet: BigInt(2n ** 64n - 1n) }));
   });
+  it("test math for metazapping stable 1", async () => {
+    const amountIn = 1000;
+    const stableIn = stable1;
+    const {
+      amountOut: expectedAmountOut,
+      toConvert,
+      extraFeeMint,
+      extraFeeSwap,
+    } = await getMetaZapQuote({
+      amountIn,
+      stableIn,
+    });
+    const { assetOutAmount } = await metazap({
+      stableToZap: stableIn,
+      zapAmount: amountIn,
+      toConvert,
+      extraFeeSwap,
+      extraFeeMint,
+    });
+    assert.approximately(assetOutAmount, expectedAmountOut, 1);
+  });
+  it("test math for metazapping stable 2", async () => {
+    const amountIn = 1000;
+    const stableIn = stable2;
+    const {
+      amountOut: expectedAmountOut,
+      toConvert,
+      extraFeeMint,
+      extraFeeSwap,
+    } = await getMetaZapQuote({
+      amountIn,
+      stableIn,
+    });
+    const { assetOutAmount } = await metazap({
+      stableToZap: stableIn,
+      zapAmount: amountIn,
+      toConvert,
+      extraFeeSwap,
+      extraFeeMint,
+    });
+    assert.approximately(assetOutAmount, expectedAmountOut, 1);
+  });
 });
-*/

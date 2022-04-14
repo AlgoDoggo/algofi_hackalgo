@@ -89,13 +89,9 @@ export const getMintQuote: MintQuote = async ({ assetID_amount, lTNano_amount })
 
 export const getBurnQuote = async (burnAmount: number): Promise<{ assetOut: number; lTNanoOut: number }> => {
   const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolStates();
-  const assetOut = (assetSupply * burnAmount) / metapoolLTIssued;
-  const lTNanoOut = (lTNanoSupply * burnAmount) / metapoolLTIssued;
-  console.log(
-    `You will receive ${assetOut.toPrecision(4)} asset and ${lTNanoOut.toPrecision(
-      4
-    )} nanopool LT for burning ${burnAmount} metapool LT`
-  );
+  const assetOut = Math.floor((assetSupply * burnAmount) / metapoolLTIssued);
+  const lTNanoOut = Math.floor((lTNanoSupply * burnAmount) / metapoolLTIssued);
+  console.log(`You will receive ${assetOut} asset and ${lTNanoOut} nanopool LT for burning ${burnAmount} metapool LT`);
   return { assetOut, lTNanoOut };
 };
 

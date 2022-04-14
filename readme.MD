@@ -81,6 +81,16 @@ Once the contract is deployed, its account is bootstrapped:
 
 ![ScreenShot](./screenshots/burn.webp)
 
+### Testing
+
+`npm run test`
+
+Testing is done with mocha and chai.
+
+I have written tests to verify the sdk could handle unusual input types.
+We also test the slippage protection feature in the smart contract.  
+Finally we test the smart contract math for each operation type - mint, swap, burn, metaswap, metazap - by doing the same math in the front-end and comparing the outputs.
+
 ### Troubleshoot
 
 Though it shouldn't be necessary, if you have issues running the scripts installing ts-node globally can help: `npm install -g ts-node`
