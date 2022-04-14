@@ -91,6 +91,14 @@ I have written tests to verify the sdk could handle unusual input types.
 We also test the slippage protection feature in the smart contract.  
 Finally we test the smart contract math for each operation type - mint, swap, burn, metaswap, metazap - by doing the same math in the front-end and comparing the outputs.
 
+
+
+
+https://user-images.githubusercontent.com/93348148/163474906-065ff026-8311-47e1-9ed0-e6a9b489b4fc.mp4
+
+
+
+
 ### Troubleshoot
 
 Though it shouldn't be necessary, if you have issues running the scripts installing ts-node globally can help: `npm install -g ts-node`
