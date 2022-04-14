@@ -7,7 +7,27 @@ import { common_appl_fields } from "./subroutines/common_appl_fields.js";
 import { burnTeal } from "./branches/burnTeal.js";
 import { swapTeal } from "./branches/swapTeal.js";
 
-export const appTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
+interface App {
+  ({}: {
+    assetID: number;
+    lTNano: number;
+    stable1: number;
+    stable2: number;
+    stable1Stable2AppId: number;
+    stable1Stable2AppAddress: string;
+    managerID_nanoswap: number;
+  }): string;
+}
+
+export const appTeal : App = ({
+  assetID,
+  lTNano,
+  stable1,
+  stable2,
+  stable1Stable2AppId,
+  stable1Stable2AppAddress,
+  managerID_nanoswap,
+}) => `
 // scratch space :
 // 1: Metapool Liquidity token ID
 // 2: algo amount in the app
@@ -189,10 +209,10 @@ swap:
 ${swapTeal({ assetID, lTNano })}
 
 metaswap:
-${metaswapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
+${metaswapTeal({ assetID, lTNano, stable1, stable2, stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap })}
 
 metazap:
-${metazapTeal({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap})}
+${metazapTeal({ assetID, lTNano, stable1, stable2, stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap })}
 
 bootstrap:
 ${bootstrapTeal({ assetID, lTNano, stable1, stable2 })}
@@ -213,4 +233,4 @@ ${checkFeesTeal}
 allow:
 int 1
 
-`
+`;
