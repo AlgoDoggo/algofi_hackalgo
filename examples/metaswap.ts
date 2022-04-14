@@ -40,6 +40,7 @@ const metaswap: Metaswap = async ({ assetAmount, stableMinReturn = 0, stableOut,
   suggestedParams.fee = 1000;
   suggestedParams.flatFee = true;
 
+  // Fee pooling currently not possible with nanopools, this tx compensates the metapool.
   const tx0 = makePaymentTxnWithSuggestedParamsFromObject({
     suggestedParams,
     from: account.addr,

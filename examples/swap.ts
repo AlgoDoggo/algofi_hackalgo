@@ -32,7 +32,7 @@ const swap: Swap = async ({ asset, amount, minAmountOut }) => {
   const tx0 = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...params,
-      fee: params.fee * 2, //(fee + get Metapool token + get excess amount)
+      fee: params.fee * 2, //(call + get token)
     },
     from: account.addr,
     appIndex: metapool_app,
