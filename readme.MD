@@ -7,7 +7,7 @@ To run the the project:
 - You must have NodeJs installed on your machine.
 - Run `npm install` to install all the dependencies in your local folder.
 - Create an .env file in the root directory with `Mnemo="Your 25 words"`
-- To run the code as is you must opt-in the various test tokens and stable coins, the full list is in ./constants
+- To run the code as is you must opt-in the various testnet tokens and stable coins, the full list is in ./constants
 - ./algofiSDK regroups convenience functions to mint / swap / burn in the target D981 - D552 testnet nanopool
 
 ### General considerations about the contract
@@ -87,7 +87,7 @@ Once the contract is deployed, its account is bootstrapped:
 
 Testing is done with mocha and chai.
 
-I have written tests to verify the sdk could handle unusual input types.
+I have written tests to verify the sdk could handle unusual input types.  
 We also test the slippage protection feature in the smart contract.  
 Finally we test the smart contract math for each operation type - mint, swap, burn, metaswap, metazap - by doing the same math in the front-end and comparing the outputs.
 
