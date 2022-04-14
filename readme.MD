@@ -13,7 +13,10 @@ To run the the project:
 
 `npm run create-app` will deploy a new app with the constants from the relevant folder and bootstrap it. The target nanopool is D981 - D552, the metapool is made of test - AF-NANO-POOL-D981-D552.
 
-During app creation a metapool liquidity token is also created with total supply equal to max uint64.
+Once the contract is deployed, its account is bootstrapped
+- 1 Algo is sent to it
+- The account opts-in all the relevant tokens
+- A metapool liquidity token is also created with total supply equal to max uint64.
 
 ![ScreenShot](./screenshots/bootstrap.webp)
 
@@ -31,8 +34,7 @@ During app creation a metapool liquidity token is also created with total supply
 `npm run swap`
 
 ![ScreenShot](./screenshots/swap.webp)
-![ScreenShot](./screenshots/swap2.webp)
-![ScreenShot](./screenshots/swap3.webp)
+
 
 ### Burn Metapool Liquidity Token
 
