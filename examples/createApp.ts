@@ -30,6 +30,9 @@ const createApp = async () => {
   const algodClient = setupClient();
   const suggestedParams = await algodClient.getTransactionParams().do();
 
+  suggestedParams.fee = 1000;
+  suggestedParams.flatFee = true;
+
   const compileApp = await algodClient
     .compile(
       appTeal({
@@ -65,12 +68,10 @@ const createApp = async () => {
   const appId = transactionResponse["application-index"];
   console.log("Created metapool app: ", appId);
 
-  // bootstrap it
-  //const appId = 82478041
+  // bootstrap it  
   const bootstrap = makePaymentTxnWithSuggestedParamsFromObject({
     suggestedParams: {
       ...suggestedParams,
-      flatFee: true,
       fee: 6000,
     },
     from: account.addr,
