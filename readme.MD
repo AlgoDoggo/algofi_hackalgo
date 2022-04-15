@@ -12,7 +12,7 @@ To run the the project:
 
 ### General considerations about the contract
 
-In the contracts, stable 1 and stable 2 refer to the two stable coins of the target nanopool.
+In the contract, stable 1 and stable 2 refer to the two stable coins of the target nanopool.
 
 For the nanopools to work properly they must be called with the right amount of fees, calculated as base fee + extra compute fees in the front-end. In like manner for metaswaps and metazaps this amount is calculated and sent in appargs when calling the metapool contract so it can itself call the nanopool contract with the right fees.
 
