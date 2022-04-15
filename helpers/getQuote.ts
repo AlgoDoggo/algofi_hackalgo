@@ -4,11 +4,11 @@ import {
   lTNano,
   metapool_address,
   metapool_app,
-  nanopool_address,
   stable1,
+  stable1_stable2_app,
   stable2,
 } from "../constants/constants.js";
-import { cristalBall, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
+import { cristalBall, getAmplificationFactor, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
 
 export const fetchPoolStates = async (): Promise<{
   assetSupply: number;
@@ -17,6 +17,10 @@ export const fetchPoolStates = async (): Promise<{
   stable2Supply: number;
   metapoolLTIssued: number;
   lTNanoIssued: number;
+  initialAmplificationFactor: number;
+  futureAmplificationFactor: number;
+  initialAmplificationFactorTime: number;
+  futureAmplificationFactorTime: number;
 }> => {
   const baseUrl = "https://testnet-idx.algonode.cloud/v2"; // algonode.io
   const { data: metapoolData } = await axios.get(`${baseUrl}/accounts/${metapool_address}`).catch(function (error) {
@@ -40,21 +44,36 @@ export const fetchPoolStates = async (): Promise<{
 
   if (!assetSupply || !lTNanoSupply) throw new Error("Error, assets not found in the metapool");
 
-  const { data: nanopoolData } = await axios.get(`${baseUrl}/accounts/${nanopool_address}`).catch(function (error) {
-    throw new Error(
-      error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
-    );
-  });
-
-  const { amount: stable1Supply } = nanopoolData?.account?.assets?.find((array) => array["asset-id"] === stable1);
-  const { amount: stable2Supply } = nanopoolData?.account?.assets?.find((array) => array["asset-id"] === stable2);
-  const { amount: lTNanoLeft } = nanopoolData?.account?.assets?.find((array) => array["asset-id"] === lTNano);
-
-  const lTNanoIssued = Number(2n ** 64n - 1n - BigInt(lTNanoLeft.toString()));
+  const { data: nanopoolAppData } = await axios
+    .get(`${baseUrl}/applications/${stable1_stable2_app}`)
+    .catch(function (error) {
+      throw new Error(
+        error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
+      );
+    });
+  const nanopoolState = nanopoolAppData?.application?.params?.["global-state"];
+  const stable1Supply = nanopoolState.find((g) => g.key === "YjE=")?.value?.uint;
+  const stable2Supply = nanopoolState.find((g) => g.key === "YjI=")?.value?.uint;
+  const lTNanoIssued = nanopoolState.find((g) => g.key === "bGM=")?.value?.uint;
+  const initialAmplificationFactor = nanopoolState.find((g) => g.key === "aWFm")?.value?.uint;
+  const futureAmplificationFactor = nanopoolState.find((g) => g.key === "ZmFm")?.value?.uint;
+  const initialAmplificationFactorTime = nanopoolState.find((g) => g.key === "aWF0")?.value?.uint;
+  const futureAmplificationFactorTime = nanopoolState.find((g) => g.key === "ZmF0")?.value?.uint;
 
   if (!stable1Supply || !stable2Supply) throw new Error("Error, assets not found in the nanopool");
 
-  return { assetSupply, lTNanoSupply, stable1Supply, stable2Supply, metapoolLTIssued, lTNanoIssued };
+  return {
+    assetSupply,
+    lTNanoSupply,
+    stable1Supply,
+    stable2Supply,
+    metapoolLTIssued,
+    lTNanoIssued,
+    initialAmplificationFactor,
+    futureAmplificationFactor,
+    initialAmplificationFactorTime,
+    futureAmplificationFactorTime,
+  };
 };
 
 interface MintQuote {
@@ -78,7 +97,7 @@ export const getMintQuote: MintQuote = async ({ assetID_amount, lTNano_amount })
   } else if (lTNano_amount) {
     assetID_needed = Math.floor((lTNano_amount * assetSupply) / lTNanoSupply);
     lTNano_needed = Math.floor(lTNano_amount);
-  }  
+  }
   const expectedMintAmount = Math.floor(
     Math.min((assetID_needed * metapoolLTIssued) / assetSupply, (lTNano_needed * metapoolLTIssued) / lTNanoSupply)
   );
@@ -99,7 +118,7 @@ interface SwapQuote {
 }
 
 export const getSwapQuote: SwapQuote = async ({ asset, assetAmount }) => {
-  const { assetSupply, lTNanoSupply } = await fetchPoolStates(); 
+  const { assetSupply, lTNanoSupply } = await fetchPoolStates();
   if (asset === assetID) {
     const amount_out = Number(
       (BigInt(assetAmount) * 9975n * BigInt(lTNanoSupply)) / (BigInt(assetSupply) * 10000n + BigInt(assetAmount) * 9975n)
@@ -127,7 +146,23 @@ export const getMetaSwapQuote: MetaswapQuote = async ({ amountIn, stableOut }) =
   const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });
 
   //estimate how much stable coins we'll get from burning LTNano
-  const { stable1Supply, stable2Supply, lTNanoIssued } = await fetchPoolStates();
+  const {
+    stable1Supply,
+    stable2Supply,
+    lTNanoIssued,
+    initialAmplificationFactor,
+    futureAmplificationFactor,
+    initialAmplificationFactorTime,
+    futureAmplificationFactorTime,
+  } = await fetchPoolStates();
+
+  const amplificationFactor = getAmplificationFactor({
+    t: Math.floor(Date.now() / 1000),
+    initialAmplificationFactor,
+    futureAmplificationFactor,
+    initialAmplificationFactorTime,
+    futureAmplificationFactorTime,
+  });
 
   const stable1Out = Number((BigInt(stable1Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued));
   const stable2Out = Number((BigInt(stable2Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued));
@@ -142,6 +177,7 @@ export const getMetaSwapQuote: MetaswapQuote = async ({ amountIn, stableOut }) =
       stable2Supply,
       swapInAssetId: stable2,
       swapInAmount: stable2Out,
+      amplificationFactor,
     });
     extraFee = extraComputeFee;
     stableOutAmount = stable1Out + asset1Delta;
@@ -151,6 +187,7 @@ export const getMetaSwapQuote: MetaswapQuote = async ({ amountIn, stableOut }) =
       stable2Supply,
       swapInAssetId: stable1,
       swapInAmount: stable1Out,
+      amplificationFactor,
     });
     extraFee = extraComputeFee;
     stableOutAmount = stable2Out + asset2Delta;
@@ -172,9 +209,31 @@ interface MetaZapQuote {
 export const getMetaZapQuote: MetaZapQuote = async ({ amountIn, stableIn }) => {
   if (stableIn !== stable1 && stableIn !== stable2) throw new Error("Stablecoin input invalid");
 
-  const { stable1Supply, stable2Supply } = await fetchPoolStates();
+  const {
+    stable1Supply,
+    stable2Supply,
+    lTNanoIssued,
+    initialAmplificationFactor,
+    futureAmplificationFactor,
+    initialAmplificationFactorTime,
+    futureAmplificationFactorTime,
+  } = await fetchPoolStates();
 
-  const { toConvert, toGet, extraFeeSwap } = await cristalBall({ stable1Supply, stable2Supply, stableIn, amountIn });
+  const amplificationFactor = getAmplificationFactor({
+    t: Math.floor(Date.now() / 1000),
+    initialAmplificationFactor,
+    futureAmplificationFactor,
+    initialAmplificationFactorTime,
+    futureAmplificationFactorTime,
+  });
+
+  const { toConvert, toGet, extraFeeSwap } = await cristalBall({
+    stable1Supply,
+    stable2Supply,
+    stableIn,
+    amountIn,
+    amplificationFactor,
+  });
 
   let stable1SupplyAdj, stable2SupplyAdj;
   if (stableIn === stable1) {
@@ -190,6 +249,8 @@ export const getMetaZapQuote: MetaZapQuote = async ({ amountIn, stableIn }) => {
     assetAmount: Math.floor(amountIn - toConvert),
     stable1Supply: stable1SupplyAdj,
     stable2Supply: stable2SupplyAdj,
+    amplificationFactor,
+    lTNanoIssued,
   });
   console.log(`extra compute fee for nanoswap: ${extraFeeSwap}`);
   console.log(`extra compute fee for nanomint: ${extraFeeMint}`);

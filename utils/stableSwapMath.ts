@@ -4,7 +4,13 @@ import { stable1, stable1_stable2_app } from "../constants/constants.js";
 const baseUrl = "https://testnet-idx.algonode.cloud"; // algonode.io
 
 interface NanoSwapQuote {
-  ({}: { stable1Supply: number; stable2Supply: number; swapInAssetId: number; swapInAmount: number }): Promise<{
+  ({}: {
+    stable1Supply: number;
+    stable2Supply: number;
+    swapInAssetId: number;
+    swapInAmount: number;
+    amplificationFactor: number;
+  }): Promise<{
     asset1Delta: number;
     asset2Delta: number;
     lpDelta: number;
@@ -18,31 +24,11 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
   stable2Supply,
   swapInAssetId,
   swapInAmount,
+  amplificationFactor,
 }) => {
   let swapInAmountLessFees = swapInAmount - (Math.floor(swapInAmount * 0.001) + 1);
   let swapOutAmount = 0;
   let numIter = 0;
-
-  const { data: nanopoolData } = await axios
-    .get(`${baseUrl}/v2/applications/${stable1_stable2_app}`)
-    .catch(function (error) {
-      throw new Error(
-        error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
-      );
-    });
-  const nanoState = nanopoolData?.application?.params?.["global-state"];
-  const initialAmplificationFactor = nanoState.find((g) => g.key === "aWFm")?.value?.uint;
-  const futureAmplificationFactor = nanoState.find((g) => g.key === "ZmFm")?.value?.uint;
-  const initialAmplificationFactorTime = nanoState.find((g) => g.key === "aWF0")?.value?.uint;
-  const futureAmplificationFactorTime = nanoState.find((g) => g.key === "ZmF0")?.value?.uint;
-
-  const amplificationFactor = getAmplificationFactor({
-    t: Math.floor(Date.now() / 1000),
-    initialAmplificationFactor,
-    futureAmplificationFactor,
-    initialAmplificationFactorTime,
-    futureAmplificationFactorTime,
-  });
 
   let asset1Delta, asset2Delta, lpDelta, extraComputeFee;
   if (swapInAssetId === stable1) {
@@ -91,6 +77,8 @@ interface NanoMintQuote {
     whatIfDelta2?: number;
     stable1Supply: number;
     stable2Supply: number;
+    amplificationFactor: number;
+    lTNanoIssued: number;
   }): Promise<{ asset1Delta: number; asset2Delta: number; lpDelta: number; extraComputeFee: number; priceDelta: number }>;
 }
 
@@ -101,29 +89,10 @@ export const getNanoMintQuote: NanoMintQuote = async ({
   whatIfDelta2 = 0,
   stable1Supply,
   stable2Supply,
+  amplificationFactor,
+  lTNanoIssued,
 }) => {
-  const { data: nanopoolData } = await axios
-    .get(`${baseUrl}/v2/applications/${stable1_stable2_app}`)
-    .catch(function (error) {
-      throw new Error(
-        error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
-      );
-    });
-  const nanoState = nanopoolData?.application?.params?.["global-state"];
-  const lpCirculation = nanoState.find((g) => g.key === "bGM=")?.value?.uint;
-  const initialAmplificationFactor = nanoState.find((g) => g.key === "aWFm")?.value?.uint;
-  const futureAmplificationFactor = nanoState.find((g) => g.key === "ZmFm")?.value?.uint;
-  const initialAmplificationFactorTime = nanoState.find((g) => g.key === "aWF0")?.value?.uint;
-  const futureAmplificationFactorTime = nanoState.find((g) => g.key === "ZmF0")?.value?.uint;
-  const amplificationFactor = getAmplificationFactor({
-    t: Math.floor(Date.now() / 1000),
-    initialAmplificationFactor,
-    futureAmplificationFactor,
-    initialAmplificationFactorTime,
-    futureAmplificationFactorTime,
-  });
-
-  if (lpCirculation === 0) {
+  if (lTNanoIssued === 0) {
     throw new Error("Error: pool is empty");
   }
 
@@ -142,7 +111,7 @@ export const getNanoMintQuote: NanoMintQuote = async ({
 
   let [D0, numIterD0] = getD([stable1Supply, stable2Supply], amplificationFactor)!;
   let [D1, numIterD1] = getD([asset1PooledAmount + stable1Supply, asset2PooledAmount + stable2Supply], amplificationFactor)!;
-  lpsIssued = Math.floor(lpCirculation * Number((D1 - D0) / D0));
+  lpsIssued = Math.floor(lTNanoIssued * Number((D1 - D0) / D0));
   numIter = numIterD0 + numIterD1;
   const extraComputeFee = Math.ceil(numIter / (700 / 400));
   const asset1Delta = -1 * asset1PooledAmount;
@@ -240,7 +209,7 @@ function getY(
   }
 }
 
-function getAmplificationFactor({
+export function getAmplificationFactor({
   t,
   initialAmplificationFactor,
   futureAmplificationFactor,
@@ -259,30 +228,45 @@ function getAmplificationFactor({
 }
 
 interface cristalBall {
-  ({}: { stable1Supply: number; stable2Supply: number; stableIn: number; amountIn: number }): Promise<{
+  ({}: {
+    stable1Supply: number;
+    stable2Supply: number;
+    stableIn: number;
+    amountIn: number;
+    amplificationFactor: number;
+  }): Promise<{
     toConvert: number;
     toGet: number;
     extraFeeSwap: number;
   }>;
 }
 
-export const cristalBall: cristalBall = async ({ stable1Supply, stable2Supply, stableIn, amountIn }) => {
+export const cristalBall: cristalBall = async ({
+  stable1Supply,
+  stable2Supply,
+  stableIn,
+  amountIn,
+  amplificationFactor,
+}) => {
   let toConvert = Math.floor(amountIn / 2);
   let deltaError = 2;
   let targetRatio = stable1Supply / stable2Supply;
   let tokenRatio = 1;
-  let toGet, extraFeeSwap, loopBreaker = 0;
+  let toGet,
+    extraFeeSwap,
+    loopBreaker = 0;
 
   while (deltaError > 1.01 || deltaError < 0.99) {
     // in some edge cases with too small a zap amount, deltaError will never fall below 1%
     // in that case metazap will fail during the mint operation in the nanopool
     loopBreaker += 1;
-    if(loopBreaker > 10) throw new Error ("Metazap not possible, increase metazap amount")
+    if (loopBreaker > 10) throw new Error("Metazap not possible, increase metazap amount");
     const { asset2Delta, asset1Delta, extraComputeFee } = await getNanoSwapExactForQuote({
       stable1Supply,
       stable2Supply,
       swapInAssetId: stableIn,
       swapInAmount: toConvert,
+      amplificationFactor,
     });
     extraFeeSwap = extraComputeFee;
     if (stableIn === stable1) {

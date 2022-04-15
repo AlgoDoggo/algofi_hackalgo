@@ -26,19 +26,18 @@ global CurrentApplicationAddress
 ==
 assert
 
-// retrieve the asset ratio of the nanoswap pool
+// retrieve the stable-in supply of the nanoswap pool
 
-addr ${stable1Stable2AppAddress}
+int ${stable1Stable2AppId}
+byte "b1"
+byte "b2"
 load 8
-asset_holding_get AssetBalance
-pop // remove opt-in info
-store 10 // balance of stable-in asset or s1
-
-addr ${stable1Stable2AppAddress}
 load 9
-asset_holding_get AssetBalance
-pop // remove opt-in info
-store 11 // balance of stable-out asset or s2
+>
+select
+app_global_get_ex
+pop
+store 10 // balance of stable-in asset or s1
 
 // save the amount of stable-in to zap
 // here I could use gtxn 1 AssetAmount but I chose to use the metapool asset balance rather. 
@@ -169,10 +168,15 @@ store 15 // balance of stable-out asset to send for minting
 // retrieve the asset ratio of the nanoswap pools:
 
 load 14
-addr ${stable1Stable2AppAddress}
+int ${stable1Stable2AppId}
+byte "b1"
+byte "b2"
 load 9
-asset_holding_get AssetBalance // s2
-pop // remove opt-in info
+load 8
+>
+select
+app_global_get_ex // s2
+pop
 mulw // load 14 * s2
 load 10 // balance of stable-in asset
 load 13 // amount we swapped earlier
@@ -195,10 +199,15 @@ load 10
 load 13
 +
 mulw
-addr ${stable1Stable2AppAddress}
+int ${stable1Stable2AppId}
+byte "b1"
+byte "b2"
 load 9
-asset_holding_get AssetBalance // s2
-pop // remove opt-in info
+load 8
+>
+select
+app_global_get_ex // s2
+pop
 divw
 store 16
 

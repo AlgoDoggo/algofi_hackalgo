@@ -46,7 +46,6 @@ export const appTeal : App = ({
 // 8: stable in ID for the swap
 // 9: stable out ID for the swap
 // 10: nanopool balance of stable-in
-// 11: nanopool balance of stable-out
 // 12: amount of stable-in to zap, sent by the user
 // 13: amount of stable-in to exchange for the other stable coin so that we may get an appropriate ratio for minting
 // 14: amount of stable-in to send to the nanoswap for the mint
@@ -56,7 +55,7 @@ export const appTeal : App = ({
 // 18: lTNano amount mint
 // 19: final amount of assetID to send back
 
-// CheckFeess specific:
+// CheckFees specific:
 // 20: number of MinTxnFee consumed by the metapool
 
 // Mint specific:

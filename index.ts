@@ -9,7 +9,7 @@ import { getBurnQuote, getMetaSwapQuote, getMetaZapQuote, getMintQuote, getSwapQ
 const arg = process.argv[2];
 const amount = 1000;
 const assetToSwap = assetID
-const stableToMetaSwap = stable2
+const stableToMetaSwap = stable1
 const stableToMetaZap = stable2
 
 try {
