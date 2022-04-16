@@ -55,7 +55,7 @@ store 12
 // First let's convert stable-in into an appropriate amount of stable1-stable2 for the subsquent lTNano mint
 
 // The math to figure out the amount of stable-in to convert is not the same whether we are interacting
-// with a Nanopool or a normal Dex pool. We will do the calculation for the nanopool int he front-end and send the precise
+// with a Nanopool or a normal Dex pool. We will do the calculation for the nanopool in the front-end and send the precise
 // value in app args, and leave the calculus for a normal dex in the smart contract, as a backup in case
 // no convert amount is set in app args
 
@@ -71,7 +71,7 @@ bnz let_the_zappin_begin
 // s1 the supply of stable-in, s2 the supply of stable-out
 // These equations must be respected for the proper ratio of stable coins to be had before minting lTNano:
 
-// y = s1 - s1 * s2 / (s1 + x) this is the equation of token we'll get out from the swap
+// y = s2 - s1 * s2 / (s1 + x) this is the equation of token we'll get out from the swap
 // (load 12 - x) / y = (s1 + x) / (s2 - y) this is the correct ratio of stable1 stable2 we need after the swap
 
 // There is two solutions to these equations
