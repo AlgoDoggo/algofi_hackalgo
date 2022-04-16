@@ -1,5 +1,4 @@
-import axios from "axios";
-import { stable1, stable1_stable2_app } from "../constants/constants.js";
+import { stable1 } from "../constants/constants.js";
 
 const baseUrl = "https://testnet-idx.algonode.cloud"; // algonode.io
 

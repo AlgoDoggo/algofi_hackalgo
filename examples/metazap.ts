@@ -9,7 +9,7 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
-import { setupClient } from "../adapters/algoD.js";
+import { setupClient } from "../src/adapters/algoD.js";
 import {
   stable2,
   stable1,
@@ -20,7 +20,7 @@ import {
   assetID,
   metapool_address,
   nanopool_address,
-} from "../constants/constants.js";
+} from "../src/constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();

@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { strict } from "assert";
-import { assetID, lTNano, stable1, stable2 } from "../constants/constants.js";
+import { assetID, lTNano, stable1, stable2 } from "../src/constants/constants.js";
 import burn from "../examples/burn.js";
 import mint from "../examples/mint.js";
 import metaswap from "../examples/metaswap.js";
@@ -13,7 +13,7 @@ import {
   getMetaZapQuote,
   getMintQuote,
   getSwapQuote,
-} from "../helpers/getQuote.js";
+} from "../src/helpers/getQuote.js";
 
 describe("generalChecks", () => {
   it("stable1 < stable2", () => {

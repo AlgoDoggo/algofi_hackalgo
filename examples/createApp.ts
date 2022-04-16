@@ -1,4 +1,4 @@
-import { setupClient } from "../adapters/algoD.js";
+import { setupClient } from "../src/adapters/algoD.js";
 import fs from "fs";
 import {
   assignGroupID,
@@ -22,7 +22,7 @@ import {
   stable2,
   stable1,
   nanopool_address,
-} from "../constants/constants.js";
+} from "../src/constants/constants.js";
 dotenv.config();
 
 const createApp = async () => {

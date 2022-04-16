@@ -6,8 +6,8 @@ import {
   mnemonicToSecretKey,
 } from "algosdk";
 import dotenv from "dotenv";
-import { setupClient } from "../adapters/algoD.js";
-import { stable2, stable1, stable1_stable2_app, managerID_nanoswap, nanopool_address } from "../constants/constants.js";
+import { setupClient } from "../src/adapters/algoD.js";
+import { stable2, stable1, stable1_stable2_app, managerID_nanoswap, nanopool_address } from "../src/constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();
