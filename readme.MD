@@ -8,13 +8,13 @@ To run the the project:
 - Run `npm install` to install all the dependencies in your local folder.
 - Create an .env file in the root directory with `Mnemo="Your 25 words"`
 - To run the code as is you must opt-in the various testnet tokens and stable coins, the full list is in ./src/constants
-- ./algofiSDK regroups convenience functions to mint / swap / burn in the target D981 - D552 testnet nanopool
+- ./algofiSDK regroups convenience functions to mint / swap / burn in the target [D981 - D552 testnet nanopool](https://testnet.algoexplorer.io/address/73LJJN3MGSOVLJWRM4F5ARYT4BYJSIWHE4IAYGWTT7YEGYZXEYFZSO2Q6E)
 
 ### General considerations about the contract
 
 In the contract, stable 1 and stable 2 refer to the two stable coins of the target nanopool.
 
-For the nanopools to work properly they must be called with the right amount of fees, calculated as base fee + extra compute fees in the front-end. In like manner for metaswaps and metazaps this amount is calculated and sent in appargs when calling the metapool contract so it can itself call the nanopool contract with the right fees.
+For the nanopools to work optimally they must be called with the right amount of fees, calculated as base fee + extra compute fees. For that reason before metaswaps and metazaps this amount is calculated while getting the quote and then sent in appargs when calling the metapool contract so it can itself dynamically set the proper nanopool fees.
 
 Metaswaps and metazaps have slippage protection in the form of a minimum asset expected, set in app args. If the received amount is below that value the contract will fail.
 

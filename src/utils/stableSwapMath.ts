@@ -12,9 +12,7 @@ interface NanoSwapQuote {
   }): Promise<{
     asset1Delta: number;
     asset2Delta: number;
-    lpDelta: number;
     extraComputeFee: number;
-    priceDelta: number;
   }>;
 }
 
@@ -29,7 +27,7 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
   let swapOutAmount = 0;
   let numIter = 0;
 
-  let asset1Delta, asset2Delta, lpDelta, extraComputeFee;
+  let asset1Delta, asset2Delta, extraComputeFee;
   if (swapInAssetId === stable1) {
     let [D, numIterD] = getD([stable1Supply, stable2Supply], amplificationFactor)!;
     let [y, numIterY] = getY(
@@ -45,7 +43,6 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
 
     asset1Delta = -1 * swapInAmount;
     asset2Delta = swapOutAmount;
-    lpDelta = 0;
     extraComputeFee = Math.ceil(numIter / (700 / 400));
   } else {
     let [D, numIterD] = getD([stable1Supply, stable2Supply], amplificationFactor)!;
@@ -59,13 +56,11 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
     )!;
     swapOutAmount = stable1Supply - y - 1;
     numIter = numIterD + numIterY;
-
     asset1Delta = swapOutAmount;
     asset2Delta = -1 * swapInAmount;
-    lpDelta = 0;
     extraComputeFee = Math.ceil(numIter / (700 / 400));
   }
-  return { asset1Delta, asset2Delta, lpDelta, extraComputeFee, priceDelta: 0 };
+  return { asset1Delta, asset2Delta, extraComputeFee };
 };
 
 interface NanoMintQuote {
