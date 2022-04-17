@@ -8,9 +8,9 @@ import { getBurnQuote, getMetaSwapQuote, getMetaZapQuote, getMintQuote, getSwapQ
 
 const arg = process.argv[2];
 const amount = 1000;
-const assetToSwap = assetID
-const stableToMetaSwap = stable1
-const stableToMetaZap = stable2
+const assetToSwap = assetID;
+const stableToMetaSwap = stable1;
+const stableToMetaZap = stable1;
 
 try {
   if (arg === "mint") {
