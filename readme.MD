@@ -19,7 +19,7 @@ For the nanopools to work optimally they must be called with the right amount of
 Metaswaps and metazaps have slippage protection in the form of a minimum asset expected, set in app args. If the received amount is below that value the contract will fail.
 
 Metazaps have an extra challenge in that they must get the proper ratio of stable 1 to stable 2 to mint the nanopool liquidity token. This proper ratio is obtained by swapping an appropriate amount of the stable coin sent by the user for the other stable coin.  
-The math for a swap in a nanopool is too opcode expensive to be done in the metapool contract and is thus done in the front-end and set in appargs. As a backup, if no value is set in appargs, the metapool contract can estimate this amount by treating the nanopool like a regular pool.
+The math to accurately estimate the result of a swap in the nanopool is too opcode expensive to be done in the metapool contract and is thus done in the front-end, its result set in appargs. As a backup, if no value is set in appargs, the metapool contract can estimate this amount by treating the nanopool like a regular pool.
 
 ### Deploy a new metapool
 
@@ -35,7 +35,7 @@ Once the contract is deployed, its account is bootstrapped:
 
 ### Using the SDK
 
-By default mint, swap, burn, metaswap and metazap are done with an amount of 1000 and slippage protection turned off. The target stablecoin for metaswaps and metazaps is stable1 (D981). You can change these values in ./index.ts   
+By default mint, swap, burn, metaswap and metazap are done with an amount of 1000 and slippage protection turned off. The target stablecoin for metaswaps and metazaps is stable1 (D981). You can change these values in ./index.ts  
 Before any trade is executed the sdk will get a quote and log its result.
 
 ### Metaswap
