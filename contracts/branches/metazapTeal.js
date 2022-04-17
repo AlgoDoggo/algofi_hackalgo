@@ -365,11 +365,12 @@ callsub common_zap_fields
 itxn_next
 
 // when we minted our lTNano with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
+// let's send those amounts back to the user.
 
 load 8 // stable-in ID
 itxn_field XferAsset
 global CurrentApplicationAddress
-load 8 // stable-in ID
+load 8 
 asset_holding_get AssetBalance // get what's left in the metapool
 pop // remove opt-in info
 itxn_field AssetAmount
@@ -377,12 +378,11 @@ callsub common_zap_fields
 
 itxn_next
 
-// when we minted our lTNano with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
 
-load 9 // stable-in ID
+load 9 // stable-out ID
 itxn_field XferAsset
 global CurrentApplicationAddress
-load 9 // stable-in ID
+load 9 
 asset_holding_get AssetBalance // get what's left in the metapool
 pop // remove opt-in info
 itxn_field AssetAmount
