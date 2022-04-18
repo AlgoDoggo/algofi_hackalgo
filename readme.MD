@@ -58,10 +58,10 @@ Before any trade is executed the sdk will get a quote and log its result.
 `npm run metazap`
 
 - Either stable 1 or stable 2 is sent to the metapool.
-- Metapool converts it such as the resulting stable 1 / stable 2 ratio is equal to the nanopool stable 1 supply / stable 2 supply ratio.
+- Metapool does a nanoswap such as the resulting stable 1 / stable 2 ratio in the metapool is equal to the nanopool stable 1 supply / stable 2 supply ratio.
 - Send stable 1 and stable 2 to the nanopool to mint nanopool liquidity token.
-- Swap the nanopool LT for test token in the metapool and send it back to the user.
-- After minting the nanopool has us redeem any extra stable coins, these amounts are redeemed in the metapool and sent back to the user.
+- Swap the nanopool LT for the test token in the metapool and send it back to the user.
+- After minting, the nanopool has us redeem any extra stable coins, these amounts are redeemed in the metapool and then sent back to the user.
 
 ![ScreenShot](./screenshots/metazap.webp)
 
