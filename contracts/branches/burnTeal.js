@@ -1,4 +1,4 @@
-export const burnTeal = ({ assetID, lTNano }) => `
+export const burnTeal = ({ assetID, nanoLT }) => `
 
 // check the asset sent is the Metapool LT
 gtxn 1 XferAsset // by convention we'll send assetID first
@@ -11,7 +11,7 @@ global CurrentApplicationAddress
 assert
 
 // assetID out = assetID supply * burn amount / issued amount of Metapool LT
-// lTNano out = lTNano supply * burn amount / issued amount of Metapool LT
+// nanoLT out = nanoLT supply * burn amount / issued amount of Metapool LT
 
 load 27
 gtxn 1 AssetAmount
@@ -25,7 +25,7 @@ gtxn 1 AssetAmount
 mulw
 load 21
 divw
-store 30 // lTNano amount to send back
+store 30 // nanoLT amount to send back
 
 // let's send back those amounts to the user
 itxn_begin
@@ -38,7 +38,7 @@ callsub burn_commonFields
 
 itxn_next
 
-int ${lTNano}
+int ${nanoLT}
 itxn_field XferAsset
 load 30 // amount of Metapool LT to send
 itxn_field AssetAmount

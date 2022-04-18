@@ -7,13 +7,13 @@ import {
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../src/adapters/algoD.js"
-import { lTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../src/constants/constants.js";
+import { nanoLT, metapoolLT, metapool_app, assetID, metapool_address } from "../src/constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();
 
 interface Burn {
-  ({}: { burnAmount: number | bigint }): Promise<{ assetOut: number; lTNanoOut: number }>;
+  ({}: { burnAmount: number | bigint }): Promise<{ assetOut: number; nanoLTOut: number }>;
 }
 
 const burn: Burn = async ({ burnAmount }) => {
@@ -28,12 +28,12 @@ const burn: Burn = async ({ burnAmount }) => {
   const tx0 = makeApplicationNoOpTxnFromObject({
     suggestedParams: {
       ...params,
-      fee: params.fee * 3, //(fee + get assetID + get ltNano)
+      fee: params.fee * 3, //(fee + get assetID + get nanoLT)
     },
     from: account.addr,
     appIndex: metapool_app,
     appArgs: [enc.encode("burn")],
-    foreignAssets: [assetID, lTNano, metapoolLT],
+    foreignAssets: [assetID, nanoLT, metapoolLT],
   });
 
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -53,8 +53,8 @@ const burn: Burn = async ({ burnAmount }) => {
   const transactionResponse = await waitForConfirmation(algodClient, txId, 5);
   const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
   const { aamt: assetOut } = innerTX?.find((i) => i?.txn?.xaid === assetID)?.txn;
-  const { aamt: lTNanoOut } = innerTX?.find((i) => i?.txn?.xaid === lTNano)?.txn;
-  console.log(`Burned ${burnAmount} metapool LT, received ${assetOut} asset and ${lTNanoOut} nanopool LT`);
-  return { assetOut, lTNanoOut };
+  const { aamt: nanoLTOut } = innerTX?.find((i) => i?.txn?.xaid === nanoLT)?.txn;
+  console.log(`Burned ${burnAmount} metapool LT, received ${assetOut} asset and ${nanoLTOut} nanopool LT`);
+  return { assetOut, nanoLTOut };
 };
 export default burn;

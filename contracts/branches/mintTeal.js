@@ -1,11 +1,11 @@
-export const mintTeal = ({ assetID, lTNano }) => `
+export const mintTeal = ({ assetID, nanoLT }) => `
 
 // check the two assets sent are the right ones and going to the app
 gtxn 1 XferAsset // by convention we'll send assetID first
 int ${assetID}
 ==
 gtxn 2 XferAsset
-int ${lTNano}
+int ${nanoLT}
 ==
 &&
 gtxn 1 AssetReceiver
@@ -25,7 +25,7 @@ bz first_mint // if 0 LT issued then it's first mint
 // if not first mint let's calculate the Metapool LT to send
 // 	Metapool LT out = Math.min(
 // 		assetID amount * issued Metapool LT / assetID supply,
-// 		lTNano amount * issued Metapool LT / lTNano supply
+// 		nanoLT amount * issued Metapool LT / nanoLT supply
 // 	)
 
 gtxn 1 AssetAmount
@@ -39,21 +39,21 @@ store 24
 gtxn 2 AssetAmount
 load 21
 mulw
-load 3 // lTNano supply
-divw // lTNano amount * issued Metapool LT / lTNano supply
+load 3 // nanoLT supply
+divw // nanoLT amount * issued Metapool LT / nanoLT supply
 dup
-store 25 // lTNano amount * issued Metapool LT / lTNano supply
+store 25 // nanoLT amount * issued Metapool LT / nanoLT supply
 // second value on stack, let's just pick the smallest now
 dup2
 > // is first value bigger than second value ?
 // let's keep that value on stack for now
-// here I want to record wether it's assetID or ltNano that was supplied in excess amount
+// here I want to record wether it's assetID or nanoLT that was supplied in excess amount
 int ${assetID}
-int ${lTNano}
+int ${nanoLT}
 dig 2 // copying the 0 or 1 from > comparison
 int 0
 ==
-select // if 0 it means lTNano was sent in excess amount else it's assetID
+select // if 0 it means nanoLT was sent in excess amount else it's assetID
 store 23 // asset that was sent in excess
 select // now we're back at picking the smallest amount of the two
 store 22 // amount of Metapool LT to send
@@ -96,7 +96,7 @@ store 26 // redeem amount
 // now let's check we haven't exceeded max slippage
 gtxn 1 AssetAmount
 gtxn 2 AssetAmount
-int ${lTNano}
+int ${nanoLT}
 load 23
 ==
 select // pick the asset amount from the asset that was sent in excess

@@ -1,4 +1,4 @@
-export const metaswapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
+export const metaswapTeal = ({ assetID, nanoLT, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 
 // check that the first transaction is the asset we want to swap and corresponds to the one in the pool
 gtxn 1 XferAsset 
@@ -12,12 +12,12 @@ global CurrentApplicationAddress
 ==
 assert
 
-//  calculated_amount_out = (assetID amount * 9975 * lTNano supply) / ((assetID supply * 10000) + (assetID amount * 9975))
+//  calculated_amount_out = (assetID amount * 9975 * nanoLT supply) / ((assetID supply * 10000) + (assetID amount * 9975))
 
 gtxn 1 AssetAmount 
 int 9975 // 0.25% fee
 *
-load 3 // lTNano supply
+load 3 // nanoLT supply
 mulw // 128 bit value
 
 load 27 // assetID supply
@@ -36,7 +36,7 @@ pop // pop the remainder of the division
 swap // get rid of the high uint64
 pop // so only low quotient remains on stack
 dup
-store 4 // lTNano amount out
+store 4 // nanoLT amount out
 int 0
 >
 assert // check amount out is more than 0
@@ -45,12 +45,12 @@ assert // check amount out is more than 0
 
 itxn_begin
 
-// first tx we send the lTNano token in the pool for burning
+// first tx we send the nanoLT token in the pool for burning
 int axfer
 itxn_field TypeEnum
-int ${lTNano} // lTNano assetID
+int ${nanoLT} // nanoLT assetID
 itxn_field XferAsset
-load 4 // lTNano amount out
+load 4 // nanoLT amount out
 itxn_field AssetAmount
 addr ${stable1Stable2AppAddress}
 itxn_field AssetReceiver

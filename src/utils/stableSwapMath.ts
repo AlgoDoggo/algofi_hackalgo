@@ -72,7 +72,7 @@ interface NanoMintQuote {
     stable1Supply: number;
     stable2Supply: number;
     amplificationFactor: number;
-    lTNanoIssued: number;
+    nanoLTIssued: number;
   }): Promise<{ asset1Delta: number; asset2Delta: number; lpDelta: number; extraComputeFee: number; priceDelta: number }>;
 }
 
@@ -84,9 +84,9 @@ export const getNanoMintQuote: NanoMintQuote = async ({
   stable1Supply,
   stable2Supply,
   amplificationFactor,
-  lTNanoIssued,
+  nanoLTIssued,
 }) => {
-  if (lTNanoIssued === 0) {
+  if (nanoLTIssued === 0) {
     throw new Error("Error: pool is empty");
   }
 
@@ -105,7 +105,7 @@ export const getNanoMintQuote: NanoMintQuote = async ({
 
   let [D0, numIterD0] = getD([stable1Supply, stable2Supply], amplificationFactor)!;
   let [D1, numIterD1] = getD([asset1PooledAmount + stable1Supply, asset2PooledAmount + stable2Supply], amplificationFactor)!;
-  lpsIssued = Math.floor(lTNanoIssued * Number((D1 - D0) / D0));
+  lpsIssued = Math.floor(nanoLTIssued * Number((D1 - D0) / D0));
   numIter = numIterD0 + numIterD1;
   const extraComputeFee = Math.ceil(numIter / (700 / 400));
   const asset1Delta = -1 * asset1PooledAmount;

@@ -8,19 +8,19 @@ import {
 } from "algosdk";
 import dotenv from "dotenv";
 import { setupClient } from "../src/adapters/algoD.js";
-import { lTNano, metapoolLT, metapool_app, assetID, metapool_address } from "../src/constants/constants.js";
+import { nanoLT, metapoolLT, metapool_app, assetID, metapool_address } from "../src/constants/constants.js";
 import burn from "./burn";
 
 dotenv.config();
 const enc = new TextEncoder();
 
 interface Mint {
-  ({}: { optIn: boolean; assetID_amount: number | bigint; lTNano_amount: number | bigint; maxSlippage: number }): 
+  ({}: { optIn: boolean; assetID_amount: number | bigint; nanoLT_amount: number | bigint; maxSlippage: number }): 
   Promise<{ mintAmount: number; redeemAmount: number; redeemAsset: number; }>;
 }
 
-const mint: Mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage }) => {
-  if (!assetID_amount || !lTNano_amount || !maxSlippage) throw new Error("invalid mint parameters");
+const mint: Mint = async ({ optIn, assetID_amount, nanoLT_amount, maxSlippage }) => {
+  if (!assetID_amount || !nanoLT_amount || !maxSlippage) throw new Error("invalid mint parameters");
   const account = mnemonicToSecretKey(process.env.Mnemo!); // ! Non-null assertion operator
   let algodClient = setupClient();
   const params = await algodClient.getTransactionParams().do();
@@ -52,7 +52,7 @@ const mint: Mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage })
     appIndex: metapool_app,
     // second arg is max slippage in %. We'll follow Algofi's convention and consider 1% = 10000
     appArgs: [enc.encode("mint"), encodeUint64(maxSlippage)],
-    foreignAssets: [assetID, lTNano, metapoolLT],
+    foreignAssets: [assetID, nanoLT, metapoolLT],
   });
 
   const tx1 = makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -71,8 +71,8 @@ const mint: Mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage })
     },
     from: account.addr,
     to: metapool_address,
-    assetIndex: lTNano,
-    amount: lTNano_amount,
+    assetIndex: nanoLT,
+    amount: nanoLT_amount,
   });
 
   const transactions = [tx0, tx1, tx2];
@@ -82,7 +82,7 @@ const mint: Mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage })
   let transactionResponse = await waitForConfirmation(algodClient, txId, 5);
   const innerTX = transactionResponse["inner-txns"].map((t) => t.txn);
   const { aamt: mintAmount } = innerTX?.find((i) => i?.txn?.xaid === metapoolLT)?.txn;
-  const { aamt: redeemAmount, xaid: redeemAsset } = innerTX?.find((i) => i?.txn?.xaid === assetID || i?.txn?.xaid === lTNano)
+  const { aamt: redeemAmount, xaid: redeemAsset } = innerTX?.find((i) => i?.txn?.xaid === assetID || i?.txn?.xaid === nanoLT)
     ?.txn ?? { aamt: 0, xaid: "" };
   console.log("minted:", mintAmount, "metapool liquidity token");
   if (redeemAmount) console.log(`redeemed: ${redeemAmount} of ${redeemAsset} token`);

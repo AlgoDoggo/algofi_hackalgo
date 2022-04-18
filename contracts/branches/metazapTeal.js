@@ -1,4 +1,4 @@
-export const metazapTeal = ({ assetID, lTNano, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
+export const metazapTeal = ({ assetID, nanoLT, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
 // check that the first transaction is the asset we want to zap and corresponds to either stable1 or stable2
 gtxn 1 XferAsset
 dup
@@ -49,10 +49,10 @@ asset_holding_get AssetBalance
 pop // remove opt-in info
 store 12
 
-// To mint lTNano we must supply an appropriate ratio of stable1 and stable2 such as:
+// To mint nanoLT we must supply an appropriate ratio of stable1 and stable2 such as:
 // stable1 sent / stable2 sent = stable1 supply / stable2 supply
 
-// First let's convert stable-in into an appropriate amount of stable1-stable2 for the subsquent lTNano mint
+// First let's convert stable-in into an appropriate amount of stable1-stable2 for the subsquent nanoLT mint
 
 // The math to figure out the amount of stable-in to convert is not the same whether we are interacting
 // with a Nanopool or a normal Dex pool. We will do the calculation for the nanopool in the front-end and send the precise
@@ -69,7 +69,7 @@ bnz let_the_zappin_begin
 // Math for zapping in a normal dex pool:
 // if x is the amount of stable-in to convert, y the amount of stable-out to get
 // s1 the supply of stable-in, s2 the supply of stable-out
-// These equations must be respected for the proper ratio of stable coins to be had before minting lTNano:
+// These equations must be respected for the proper ratio of stable coins to be had before minting nanoLT:
 
 // y = s2 - s1 * s2 / (s1 + x) this is the equation of token we'll get out from the swap
 // (load 12 - x) / y = (s1 + x) / (s2 - y) this is the correct ratio of stable1 stable2 we need after the swap
@@ -143,7 +143,7 @@ callsub common_appl_fields
 
 itxn_submit
 
-// now let's mint our lTNano
+// now let's mint our nanoLT
 
 // first get the current balance of stable-in
 load 12 // what we had
@@ -253,7 +253,7 @@ itxn_field Fee
 
 itxn_next
 
-// third tx is app call to mint lTNano
+// third tx is app call to mint nanoLT
 int appl
 itxn_field TypeEnum
 global MinTxnFee
@@ -271,7 +271,7 @@ itxn_field ApplicationArgs
 int 10000 // 1%
 itob 
 itxn_field ApplicationArgs
-int ${lTNano} // lTNano id
+int ${nanoLT} // nanoLT id
 itxn_field Assets
 int ${managerID_nanoswap}
 itxn_field Applications
@@ -309,15 +309,15 @@ itxn_field Fee
 
 itxn_submit
 
-// now let's calculate how much our freshly minted lTNano is worth in assetID
-// how much lTNano did we mint?
+// now let's calculate how much our freshly minted nanoLT is worth in assetID
+// how much nanoLT did we mint?
 
 global CurrentApplicationAddress
-int ${lTNano}
+int ${nanoLT}
 asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
 pop // pop the opt-in
 load 3 // that's the amount the app had before the mint
-- // lTNano after mint - lTNano before mint
+- // nanoLT after mint - nanoLT before mint
 dup
 store 18
 
@@ -330,10 +330,10 @@ asset_holding_get AssetBalance // retrieve output supply amount in this case tha
 pop // pop the opt-in
 mulw // (asset_in_amount * 9975 * output_supply) 128 bit value
 
-load 3 // lTNano amount before mint
+load 3 // nanoLT amount before mint
 int 10000
 *
-load 18 // lTNano amount we got from minting
+load 18 // nanoLT amount we got from minting
 int 9975 // 0.25% fee
 *
 addw // ((input_supply * 10000) + (asset_in_amount * 9975))
@@ -364,7 +364,7 @@ callsub common_zap_fields
 
 itxn_next
 
-// when we minted our lTNano with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
+// when we minted our nanoLT with the nanoswap pool, Algofi had us redeem excess amounts of stable1 and stable2
 // let's send those amounts back to the user.
 
 load 8 // stable-in ID

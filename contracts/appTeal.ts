@@ -10,7 +10,7 @@ import { swapTeal } from "./branches/swapTeal.js";
 interface App {
   ({}: {
     assetID: number;
-    lTNano: number;
+    nanoLT: number;
     stable1: number;
     stable2: number;
     stable1Stable2AppId: number;
@@ -21,7 +21,7 @@ interface App {
 
 export const appTeal : App = ({
   assetID,
-  lTNano,
+  nanoLT,
   stable1,
   stable2,
   stable1Stable2AppId,
@@ -31,12 +31,12 @@ export const appTeal : App = ({
 // scratch space :
 // 1: Metapool Liquidity token ID
 // 2: algo amount in the app
-// 3: lTNano asset amount in the app
+// 3: nanoLT asset amount in the app
 // 21: issued amount of Metapool LT
 // 27: assetID supply
 
 // MetaSwap Specific:
-// 4: lTNano amount out for swap operation
+// 4: nanoLT amount out for swap operation
 // 5: ID of asset out, should be either stable1 or stable2
 // 6: ID of asset in, should be either stable1 or stable 2. Once the burn is done, 
 // this asset will be traded in against the other member of that pair.
@@ -52,7 +52,7 @@ export const appTeal : App = ({
 // 15: amount of stable-out in the app account
 // 16: actual amount of stable-in to send for minting
 // 17: actual amount of stable-out to send for minting
-// 18: lTNano amount mint
+// 18: nanoLT amount mint
 // 19: final amount of assetID to send back
 
 // CheckFees specific:
@@ -62,12 +62,12 @@ export const appTeal : App = ({
 // 22: amount of Metapool LT to send
 // 23: ID of asset that was sent in excess
 // 24: assetID amount * issued Metapool LT / assetID supply
-// 25: lTNano amount * issued Metapool LT / lTNano supply
+// 25: nanoLT amount * issued Metapool LT / nanoLT supply
 // 26: redeem amount of asset that was sent in excess
 
 // Burn specific:
 // 29: assetID amount to send back
-// 30: lTNano amount to send back
+// 30: nanoLT amount to send back
 
 // Swap specific:
 // 31: ID of asset-in 
@@ -105,10 +105,10 @@ app_global_get
 store 1 // Metapool Liquidity token ID
 
 global CurrentApplicationAddress
-int ${lTNano}
+int ${nanoLT}
 asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
-pop // is app opted-in lTNano
-store 3 // lTNano supply in the app account
+pop // is app opted-in nanoLT
+store 3 // nanoLT supply in the app account
 
 global CurrentApplicationAddress
 int ${assetID}
@@ -199,22 +199,22 @@ err
 // branches
 
 mint:
-${mintTeal({ assetID, lTNano })}
+${mintTeal({ assetID, nanoLT })}
 
 burn:
-${burnTeal({ assetID, lTNano })}
+${burnTeal({ assetID, nanoLT })}
 
 swap:
-${swapTeal({ assetID, lTNano })}
+${swapTeal({ assetID, nanoLT })}
 
 metaswap:
-${metaswapTeal({ assetID, lTNano, stable1, stable2, stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap })}
+${metaswapTeal({ assetID, nanoLT, stable1, stable2, stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap })}
 
 metazap:
-${metazapTeal({ assetID, lTNano, stable1, stable2, stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap })}
+${metazapTeal({ assetID, nanoLT, stable1, stable2, stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap })}
 
 bootstrap:
-${bootstrapTeal({ assetID, lTNano, stable1, stable2 })}
+${bootstrapTeal({ assetID, nanoLT, stable1, stable2 })}
 
 
 //common subroutines

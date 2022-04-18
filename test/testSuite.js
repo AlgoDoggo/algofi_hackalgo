@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { strict } from "assert";
-import { assetID, lTNano, stable1, stable2 } from "../src/constants/constants.js";
+import { assetID, nanoLT, stable1, stable2 } from "../src/constants/constants.js";
 import burn from "../examples/burn.js";
 import mint from "../examples/mint.js";
 import metaswap from "../examples/metaswap.js";
@@ -23,53 +23,53 @@ describe("generalChecks", () => {
 
 describe("mintChecks", () => {
   it("handle 0 amount", async () => {
-    await strict.rejects(mint({ optIn: false, assetID_amount: 0, lTNano_amount: 2000, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, lTNano_amount: 0, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: 0 }));
+    await strict.rejects(mint({ optIn: false, assetID_amount: 0, nanoLT_amount: 2000, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, nanoLT_amount: 0, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, nanoLT_amount: 2000, maxSlippage: 0 }));
   });
   it("handle undefined amount", async () => {
-    await strict.rejects(mint({ optIn: false, assetID_amount: undefined, lTNano_amount: 2000, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, lTNano_amount: undefined, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: undefined }));
+    await strict.rejects(mint({ optIn: false, assetID_amount: undefined, nanoLT_amount: 2000, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, nanoLT_amount: undefined, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, nanoLT_amount: 2000, maxSlippage: undefined }));
   });
   it("handle null amount", async () => {
-    await strict.rejects(mint({ optIn: false, assetID_amount: null, lTNano_amount: 2000, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, lTNano_amount: null, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: null }));
+    await strict.rejects(mint({ optIn: false, assetID_amount: null, nanoLT_amount: 2000, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, nanoLT_amount: null, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ optIn: false, assetID_amount: 1000, nanoLT_amount: 2000, maxSlippage: null }));
   });
   it("handle wrong types", async () => {
-    await strict.rejects(mint({ assetID_amount: "hello", lTNano_amount: 2000, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ assetID_amount: 1000, lTNano_amount: "hello", maxSlippage: 1000000 }));
-    await strict.rejects(mint({ assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: "hello" }));
-    await strict.rejects(mint({ assetID_amount: { test: 5 }, lTNano_amount: 2000, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ assetID_amount: 1000, lTNano_amount: { test: 5 }, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: { test: 5 } }));
-    await strict.rejects(mint({ assetID_amount: [], lTNano_amount: 2000, maxSlippage: 1000000 }));
-    await strict.rejects(mint({ assetID_amount: 1000, lTNano_amount: [], maxSlippage: 1000000 }));
-    await strict.rejects(mint({ assetID_amount: 1000, lTNano_amount: 2000, maxSlippage: [] }));
+    await strict.rejects(mint({ assetID_amount: "hello", nanoLT_amount: 2000, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ assetID_amount: 1000, nanoLT_amount: "hello", maxSlippage: 1000000 }));
+    await strict.rejects(mint({ assetID_amount: 1000, nanoLT_amount: 2000, maxSlippage: "hello" }));
+    await strict.rejects(mint({ assetID_amount: { test: 5 }, nanoLT_amount: 2000, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ assetID_amount: 1000, nanoLT_amount: { test: 5 }, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ assetID_amount: 1000, nanoLT_amount: 2000, maxSlippage: { test: 5 } }));
+    await strict.rejects(mint({ assetID_amount: [], nanoLT_amount: 2000, maxSlippage: 1000000 }));
+    await strict.rejects(mint({ assetID_amount: 1000, nanoLT_amount: [], maxSlippage: 1000000 }));
+    await strict.rejects(mint({ assetID_amount: 1000, nanoLT_amount: 2000, maxSlippage: [] }));
   });
   it("test max slippage protection", async () => {
     const assetID_amount = 100;
-    const { assetID_needed, lTNano_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
-    await strict.rejects(mint({ assetID_amount: assetID_needed, lTNano_amount: lTNano_needed * 2, maxSlippage: 1 }));
+    const { assetID_needed, nanoLT_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
+    await strict.rejects(mint({ assetID_amount: assetID_needed, nanoLT_amount: nanoLT_needed * 2, maxSlippage: 1 }));
   });
   it("test math for minting precise metapool LT", async () => {
     const assetID_amount = 1000;
-    const { assetID_needed, lTNano_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
+    const { assetID_needed, nanoLT_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
     const { mintAmount } = await mint({
       assetID_amount: assetID_needed,
-      lTNano_amount: lTNano_needed,
+      nanoLT_amount: nanoLT_needed,
       maxSlippage: 1000,
     });
     assert.approximately(mintAmount, expectedMintAmount, 1);
   });
   it("test math for minting approximate metapool LT", async () => {
     const assetID_amount = 1000;
-    const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolStates();
-    const { assetID_needed, lTNano_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
+    const { assetSupply, nanoLTSupply, metapoolLTIssued } = await fetchPoolStates();
+    const { assetID_needed, nanoLT_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
     const { mintAmount, redeemAmount } = await mint({
       assetID_amount: assetID_needed,
-      lTNano_amount: Math.floor(lTNano_needed * 1.05),
+      nanoLT_amount: Math.floor(nanoLT_needed * 1.05),
       maxSlippage: 100000,
     });
     assert.approximately(mintAmount, expectedMintAmount, 1);
@@ -78,12 +78,12 @@ describe("mintChecks", () => {
     const excess = Math.floor(
       Math.max(
         (assetID_needed * metapoolLTIssued) / assetSupply,
-        (Math.floor(lTNano_needed * 1.05) * metapoolLTIssued) / lTNanoSupply
+        (Math.floor(nanoLT_needed * 1.05) * metapoolLTIssued) / nanoLTSupply
       ) -
         mintAmount -
         1
     );
-    const expectedRedeemAmount = (excess * lTNanoSupply) / metapoolLTIssued;
+    const expectedRedeemAmount = (excess * nanoLTSupply) / metapoolLTIssued;
     assert.approximately(redeemAmount, expectedRedeemAmount, 1);
   });
 });
@@ -105,10 +105,10 @@ describe("burnChecks", () => {
   });
   it("test math for burning metapool LT", async () => {
     const burnAmount = 100;
-    const { assetOut: expectedAssetOut, lTNanoOut: expectedLTNanoOut } = await getBurnQuote(burnAmount);
-    const { assetOut, lTNanoOut } = await burn({ burnAmount });
+    const { assetOut: expectedAssetOut, nanoLTOut: expectednanoLTOut } = await getBurnQuote(burnAmount);
+    const { assetOut, nanoLTOut } = await burn({ burnAmount });
     assert.approximately(assetOut, expectedAssetOut, 1);
-    assert.approximately(lTNanoOut, expectedLTNanoOut, 1);
+    assert.approximately(nanoLTOut, expectednanoLTOut, 1);
   });
 });
 
@@ -153,7 +153,7 @@ describe("swapChecks", () => {
   });
   it("test math for swapping nanopool LT for asset", async () => {
     const assetID_amount = 100;
-    const asset_swapped = lTNano;
+    const asset_swapped = nanoLT;
     const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({
       asset: asset_swapped,
       assetAmount: assetID_amount,
@@ -204,7 +204,7 @@ describe("metaswapChecks", () => {
       stableOut,
       extraComputeFee,
     });
-    assert.approximately(stableOutAmount, expectedStableOutAmount, 1);
+    assert.approximately(stableOutAmount, expectedStableOutAmount, 2);
   });
   it("test math, metaswap for stable2", async () => {
     const amountIn = 100;
@@ -218,7 +218,7 @@ describe("metaswapChecks", () => {
       stableOut,
       extraComputeFee,
     });
-    assert.approximately(stableOutAmount, expectedStableOutAmount, 1);
+    assert.approximately(stableOutAmount, expectedStableOutAmount, 2);
   });
 });
 
@@ -269,7 +269,7 @@ describe("metazapChecks", () => {
       extraFeeSwap,
       extraFeeMint,
     });
-    assert.approximately(assetOutAmount, expectedAmountOut, 1);
+    assert.approximately(assetOutAmount, expectedAmountOut, 2);
   });
   it("test math for metazapping stable 2", async () => {
     const amountIn = 1000;
@@ -290,6 +290,6 @@ describe("metazapChecks", () => {
       extraFeeSwap,
       extraFeeMint,
     });
-    assert.approximately(assetOutAmount, expectedAmountOut, 1);
+    assert.approximately(assetOutAmount, expectedAmountOut, 2);
   });
 });

@@ -18,7 +18,7 @@ import {
   assetID,
   stable1_stable2_app,
   managerID_nanoswap,
-  lTNano,
+  nanoLT,
   stable2,
   stable1,
   nanopool_address,
@@ -39,7 +39,7 @@ const createApp = async () => {
         assetID: assetID,
         stable1: stable1,
         stable2: stable2,
-        lTNano: lTNano,
+        nanoLT: nanoLT,
         stable1Stable2AppId: stable1_stable2_app,
         stable1Stable2AppAddress: nanopool_address,
         managerID_nanoswap: managerID_nanoswap,
@@ -83,7 +83,7 @@ const createApp = async () => {
     suggestedParams,
     from: account.addr,
     appIndex: appId,
-    foreignAssets: [stable1, stable2, lTNano, assetID],
+    foreignAssets: [stable1, stable2, nanoLT, assetID],
     appArgs: [new Uint8Array(Buffer.from("bootstrap", "utf-8"))],
   });
   const transactions = [bootstrap, appBootstrap];

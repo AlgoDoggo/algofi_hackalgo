@@ -1,4 +1,4 @@
-export const bootstrapTeal = ({ assetID, lTNano, stable1, stable2 }) => `
+export const bootstrapTeal = ({ assetID, nanoLT, stable1, stable2 }) => `
 
 // To bootstrap the pool we'll send it 1 Algo
 // Let's verify those params
@@ -19,7 +19,7 @@ global CurrentApplicationAddress
 assert
 
 // The app will now opt-in all the relevant assets
-// assetID, stable1, stable2 and their liquity token lTNano
+// assetID, stable1, stable2 and their liquity token nanoLT
 
 itxn_begin
 
@@ -36,10 +36,10 @@ int ${stable1}
 itxn_field XferAsset
 callsub bootstrap_commonFields
 
-// optin-in stable2-stable1 lTNano
+// optin-in stable2-stable1 nanoLT
 itxn_next
 
-int ${lTNano}
+int ${nanoLT}
 itxn_field XferAsset
 callsub bootstrap_commonFields
 
@@ -69,7 +69,7 @@ int 0
 itxn_field ConfigAssetDefaultFrozen
 byte "METAPOOL"
 itxn_field ConfigAssetUnitName
-byte "Metapool LT ${assetID}-${lTNano}"
+byte "Metapool LT ${assetID}-${nanoLT}"
 itxn_field ConfigAssetName
 byte "https://github.com/AlgoDoggo/algofi_hackalgo" 
 itxn_field ConfigAssetURL

@@ -10,7 +10,7 @@ import { setupClient } from "../src/adapters/algoD.js";
 import {
   stable2,
   stable1,
-  lTNano,
+  nanoLT,
   stable1_stable2_app,
   managerID_nanoswap,
   nanopool_address,
@@ -59,7 +59,7 @@ async function mint() {
     from: account.addr,
     appIndex: stable1_stable2_app,
     appArgs: argsMint,
-    foreignAssets: [lTNano],
+    foreignAssets: [nanoLT],
     foreignApps: [managerID_nanoswap],
   });
 

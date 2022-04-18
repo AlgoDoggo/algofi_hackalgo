@@ -113,11 +113,11 @@ tx 0 : NoOp appl call
 
 - fee: 3x min
 - appArgs: ["mint", maxSlippage]
-- foreignAssets: [assetID, lTNano, metapoolLT]
+- foreignAssets: [assetID, nanoLT, metapoolLT]
 - appIndex: metapool_app
 
 tx 1 : Axfer asset  
-tx 2 : Axfer lTNano (= nanopool liquidity token)
+tx 2 : Axfer nanoLT (= nanopool liquidity token)
 
 #### Swap
 
@@ -125,10 +125,10 @@ tx 0 : NoOp appl call
 
 - fee: 2x min
 - appArgs: ["swap", minAmountOut]
-- foreignAssets: [assetID, lTNano, metapoolLT]
+- foreignAssets: [assetID, nanoLT, metapoolLT]
 - appIndex: metapool_app
 
-tx 1 : Axfer either asset or lTNano
+tx 1 : Axfer either asset or nanoLT
 
 #### Burn
 
@@ -136,7 +136,7 @@ tx 0 : NoOp appl call
 
 - fee: 3x min
 - appArgs: [ "burn" ]
-- foreignAssets: [assetID, lTNano, metapoolLT]
+- foreignAssets: [assetID, nanoLT, metapoolLT]
 - appIndex: metapool_app
 
 tx1 : Axfer metapool LT
@@ -151,7 +151,7 @@ tx 2 : NoOp appl call
 
 - appArgs: [ "metaswap", stableMinReturn, stableOut, extraComputeFee ]
 - accounts: [ nanopool_address ]
-- foreignAssets: [assetID, lTNano, stable1, stable2]
+- foreignAssets: [assetID, nanoLT, stable1, stable2]
 - foreignApps: [stable1_stable2_app, managerID_nanoswap]
 - appIndex: metapool_app
 
@@ -165,6 +165,6 @@ tx 2 : NoOp appl call
 
 - appArgs: [ "metazap", minAssetToGet, toConvert, extraFeeSwap, extraFeeMint ]
 - accounts: [ nanopool_address ]
-- foreignAssets: [assetID, lTNano, stable1, stable2]
+- foreignAssets: [assetID, nanoLT, stable1, stable2]
 - foreignApps: [stable1_stable2_app, managerID_nanoswap]
 - appIndex: metapool_app

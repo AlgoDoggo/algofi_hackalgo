@@ -1,7 +1,7 @@
 import axios from "axios";
 import {
   assetID,
-  lTNano,
+  nanoLT,
   metapool_address,
   metapool_app,
   stable1,
@@ -12,11 +12,11 @@ import { cristalBall, getAmplificationFactor, getNanoMintQuote, getNanoSwapExact
 
 export const fetchPoolStates = async (): Promise<{
   assetSupply: number;
-  lTNanoSupply: number;
+  nanoLTSupply: number;
   stable1Supply: number;
   stable2Supply: number;
   metapoolLTIssued: number;
-  lTNanoIssued: number;
+  nanoLTIssued: number;
   initialAmplificationFactor: number;
   futureAmplificationFactor: number;
   initialAmplificationFactorTime: number;
@@ -30,7 +30,7 @@ export const fetchPoolStates = async (): Promise<{
   });
 
   const { amount: assetSupply } = metapoolData?.account?.assets?.find((array) => array["asset-id"] === assetID);
-  const { amount: lTNanoSupply } = metapoolData?.account?.assets?.find((array) => array["asset-id"] === lTNano);
+  const { amount: nanoLTSupply } = metapoolData?.account?.assets?.find((array) => array["asset-id"] === nanoLT);
 
   const { data: metapoolAppData } = await axios.get(`${baseUrl}/applications/${metapool_app}`).catch(function (error) {
     throw new Error(
@@ -42,7 +42,7 @@ export const fetchPoolStates = async (): Promise<{
     (g) => g.key === "aXNzdWVkIE1ldGFwb29sIExU"
   )?.value?.uint;
 
-  if (!assetSupply || !lTNanoSupply) throw new Error("Error, assets not found in the metapool");
+  if (!assetSupply || !nanoLTSupply) throw new Error("Error, assets not found in the metapool");
 
   const { data: nanopoolAppData } = await axios
     .get(`${baseUrl}/applications/${stable1_stable2_app}`)
@@ -54,7 +54,7 @@ export const fetchPoolStates = async (): Promise<{
   const nanopoolState = nanopoolAppData?.application?.params?.["global-state"];
   const stable1Supply = nanopoolState.find((g) => g.key === "YjE=")?.value?.uint;
   const stable2Supply = nanopoolState.find((g) => g.key === "YjI=")?.value?.uint;
-  const lTNanoIssued = nanopoolState.find((g) => g.key === "bGM=")?.value?.uint;
+  const nanoLTIssued = nanopoolState.find((g) => g.key === "bGM=")?.value?.uint;
   const initialAmplificationFactor = nanopoolState.find((g) => g.key === "aWFm")?.value?.uint;
   const futureAmplificationFactor = nanopoolState.find((g) => g.key === "ZmFm")?.value?.uint;
   const initialAmplificationFactorTime = nanopoolState.find((g) => g.key === "aWF0")?.value?.uint;
@@ -64,11 +64,11 @@ export const fetchPoolStates = async (): Promise<{
 
   return {
     assetSupply,
-    lTNanoSupply,
+    nanoLTSupply,
     stable1Supply,
     stable2Supply,
     metapoolLTIssued,
-    lTNanoIssued,
+    nanoLTIssued,
     initialAmplificationFactor,
     futureAmplificationFactor,
     initialAmplificationFactorTime,
@@ -77,40 +77,40 @@ export const fetchPoolStates = async (): Promise<{
 };
 
 interface MintQuote {
-  ({}: { assetID_amount?: number; lTNano_amount?: number }): Promise<{
+  ({}: { assetID_amount?: number; nanoLT_amount?: number }): Promise<{
     assetID_needed: number;
-    lTNano_needed: number;
+    nanoLT_needed: number;
     expectedMintAmount: number;
   }>;
 }
 
-export const getMintQuote: MintQuote = async ({ assetID_amount, lTNano_amount }) => {
-  if (!assetID_amount && !lTNano_amount) throw new Error("Error, input params needed");
-  const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolStates().catch(() => {
-    return { assetSupply: 1, lTNanoSupply: 1, metapoolLTIssued: 1 };
+export const getMintQuote: MintQuote = async ({ assetID_amount, nanoLT_amount }) => {
+  if (!assetID_amount && !nanoLT_amount) throw new Error("Error, input params needed");
+  const { assetSupply, nanoLTSupply, metapoolLTIssued } = await fetchPoolStates().catch(() => {
+    return { assetSupply: 1, nanoLTSupply: 1, metapoolLTIssued: 1 };
   });
 
-  let lTNano_needed, assetID_needed;
+  let nanoLT_needed, assetID_needed;
   if (assetID_amount) {
-    lTNano_needed = Math.floor((assetID_amount * lTNanoSupply) / assetSupply);
+    nanoLT_needed = Math.floor((assetID_amount * nanoLTSupply) / assetSupply);
     assetID_needed = Math.floor(assetID_amount);
-  } else if (lTNano_amount) {
-    assetID_needed = Math.floor((lTNano_amount * assetSupply) / lTNanoSupply);
-    lTNano_needed = Math.floor(lTNano_amount);
+  } else if (nanoLT_amount) {
+    assetID_needed = Math.floor((nanoLT_amount * assetSupply) / nanoLTSupply);
+    nanoLT_needed = Math.floor(nanoLT_amount);
   }
   const expectedMintAmount = Math.floor(
-    Math.min((assetID_needed * metapoolLTIssued) / assetSupply, (lTNano_needed * metapoolLTIssued) / lTNanoSupply)
+    Math.min((assetID_needed * metapoolLTIssued) / assetSupply, (nanoLT_needed * metapoolLTIssued) / nanoLTSupply)
   );
-  console.log(`Send ${assetID_needed} asset and ${lTNano_needed} nanopool LT to receive ${expectedMintAmount} metapool LT`);
-  return { assetID_needed, lTNano_needed, expectedMintAmount };
+  console.log(`Send ${assetID_needed} asset and ${nanoLT_needed} nanopool LT to receive ${expectedMintAmount} metapool LT`);
+  return { assetID_needed, nanoLT_needed, expectedMintAmount };
 };
 
-export const getBurnQuote = async (burnAmount: number): Promise<{ assetOut: number; lTNanoOut: number }> => {
-  const { assetSupply, lTNanoSupply, metapoolLTIssued } = await fetchPoolStates();
+export const getBurnQuote = async (burnAmount: number): Promise<{ assetOut: number; nanoLTOut: number }> => {
+  const { assetSupply, nanoLTSupply, metapoolLTIssued } = await fetchPoolStates();
   const assetOut = Math.floor((assetSupply * burnAmount) / metapoolLTIssued);
-  const lTNanoOut = Math.floor((lTNanoSupply * burnAmount) / metapoolLTIssued);
-  console.log(`You will receive ${assetOut} asset and ${lTNanoOut} nanopool LT for burning ${burnAmount} metapool LT`);
-  return { assetOut, lTNanoOut };
+  const nanoLTOut = Math.floor((nanoLTSupply * burnAmount) / metapoolLTIssued);
+  console.log(`You will receive ${assetOut} asset and ${nanoLTOut} nanopool LT for burning ${burnAmount} metapool LT`);
+  return { assetOut, nanoLTOut };
 };
 
 interface SwapQuote {
@@ -118,17 +118,17 @@ interface SwapQuote {
 }
 
 export const getSwapQuote: SwapQuote = async ({ asset, assetAmount }) => {
-  const { assetSupply, lTNanoSupply } = await fetchPoolStates();
+  const { assetSupply, nanoLTSupply } = await fetchPoolStates();
   if (asset === assetID) {
     const amount_out = Number(
-      (BigInt(assetAmount) * 9975n * BigInt(lTNanoSupply)) / (BigInt(assetSupply) * 10000n + BigInt(assetAmount) * 9975n)
+      (BigInt(assetAmount) * 9975n * BigInt(nanoLTSupply)) / (BigInt(assetSupply) * 10000n + BigInt(assetAmount) * 9975n)
     );
     console.log(`Send ${assetAmount} asset, you will receive ${amount_out} nanopool LT`);
-    return { amountOut: amount_out, assetOut: lTNano };
+    return { amountOut: amount_out, assetOut: nanoLT };
   }
-  if (asset === lTNano) {
+  if (asset === nanoLT) {
     const amount_out = Number(
-      (BigInt(assetAmount) * 9975n * BigInt(assetSupply)) / (BigInt(lTNanoSupply) * 10000n + BigInt(assetAmount) * 9975n)
+      (BigInt(assetAmount) * 9975n * BigInt(assetSupply)) / (BigInt(nanoLTSupply) * 10000n + BigInt(assetAmount) * 9975n)
     );
     console.log(`Send ${assetAmount} nanopool LT, you will receive ${amount_out} asset`);
     return { amountOut: amount_out, assetOut: assetID };
@@ -142,14 +142,14 @@ interface MetaswapQuote {
 
 export const getMetaSwapQuote: MetaswapQuote = async ({ amountIn, stableOut }) => {
   if (stableOut !== stable1 && stableOut !== stable2) throw new Error("Input params invalid");
-  // estimate how much LTNano we'll get
-  const { amountOut: LTNanoToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });
+  // estimate how much nanoLT we'll get
+  const { amountOut: nanoLTToBurn } = await getSwapQuote({ asset: assetID, assetAmount: amountIn });
 
-  //estimate how much stable coins we'll get from burning LTNano
+  //estimate how much stable coins we'll get from burning nanoLT
   const {
     stable1Supply,
     stable2Supply,
-    lTNanoIssued,
+    nanoLTIssued,
     initialAmplificationFactor,
     futureAmplificationFactor,
     initialAmplificationFactorTime,
@@ -164,10 +164,10 @@ export const getMetaSwapQuote: MetaswapQuote = async ({ amountIn, stableOut }) =
     futureAmplificationFactorTime,
   });
 
-  const stable1Out = Number((BigInt(stable1Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued));
-  const stable2Out = Number((BigInt(stable2Supply) * BigInt(LTNanoToBurn)) / BigInt(lTNanoIssued));
+  const stable1Out = Number((BigInt(stable1Supply) * BigInt(nanoLTToBurn)) / BigInt(nanoLTIssued));
+  const stable2Out = Number((BigInt(stable2Supply) * BigInt(nanoLTToBurn)) / BigInt(nanoLTIssued));
   //estimate the stable swap in the nanopool
-  console.log(`Burning ${LTNanoToBurn} nanopool LT will yield ${stable1Out} stable1 and ${stable2Out} stable2`);
+  console.log(`Burning ${nanoLTToBurn} nanopool LT will yield ${stable1Out} stable1 and ${stable2Out} stable2`);
 
   let stableOutAmount!: number, extraFee!: number;
 
@@ -212,7 +212,7 @@ export const getMetaZapQuote: MetaZapQuote = async ({ amountIn, stableIn }) => {
   const {
     stable1Supply,
     stable2Supply,
-    lTNanoIssued,
+    nanoLTIssued,
     initialAmplificationFactor,
     futureAmplificationFactor,
     initialAmplificationFactorTime,
@@ -250,11 +250,11 @@ export const getMetaZapQuote: MetaZapQuote = async ({ amountIn, stableIn }) => {
     stable1Supply: stable1SupplyAdj,
     stable2Supply: stable2SupplyAdj,
     amplificationFactor,
-    lTNanoIssued,
+    nanoLTIssued,
   });
   console.log(`extra compute fee for nanoswap: ${extraFeeSwap}`);
   console.log(`extra compute fee for nanomint: ${extraFeeMint}`);
-  const { amountOut } = await getSwapQuote({ asset: lTNano, assetAmount: lpDelta });
+  const { amountOut } = await getSwapQuote({ asset: nanoLT, assetAmount: lpDelta });
   console.log(`Metazapping ${amountIn} ${stableIn} stablecoin will yield ${amountOut} asset`);
   return { amountOut, extraFeeMint, extraFeeSwap, toConvert };
 };
