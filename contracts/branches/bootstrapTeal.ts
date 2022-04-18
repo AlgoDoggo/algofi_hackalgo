@@ -1,4 +1,14 @@
-export const bootstrapTeal = ({ assetID, nanoLT, stable1, stable2 }) => `
+export const bootstrapTeal = ({
+  assetID,
+  nanoLT,
+  stable1,
+  stable2,
+}: {
+  assetID: number;
+  nanoLT: number;
+  stable1: number;
+  stable2: number;
+}) => `
 
 // To bootstrap the pool we'll send it 1 Algo
 // Let's verify those params
@@ -112,4 +122,4 @@ itxn_field AssetReceiver
 
 retsub
 
-`
+`;

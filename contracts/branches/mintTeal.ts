@@ -1,4 +1,4 @@
-export const mintTeal = ({ assetID, nanoLT }) => `
+export const mintTeal = ({ assetID, nanoLT }: { assetID: number; nanoLT: number }) => `
 
 // check the two assets sent are the right ones and going to the app
 gtxn 1 XferAsset // by convention we'll send assetID first
@@ -182,4 +182,4 @@ itxn_submit
 b allow
 
 
-`
+`;

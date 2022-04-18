@@ -1,4 +1,4 @@
-export const burnTeal = ({ assetID, nanoLT }) => `
+export const burnTeal = ({ assetID, nanoLT }: { assetID: number; nanoLT: number }) => `
 
 // check the asset sent is the Metapool LT
 gtxn 1 XferAsset // by convention we'll send assetID first
@@ -69,4 +69,4 @@ int 0
 itxn_field Fee
 retsub
 
-`
+`;

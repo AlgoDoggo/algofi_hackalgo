@@ -7,7 +7,7 @@ import swap from "./examples/swap.js";
 import { getBurnQuote, getMetaSwapQuote, getMetaZapQuote, getMintQuote, getSwapQuote } from "./src/helpers/getQuote.js";
 
 const arg = process.argv[2];
-const amount = 10000;
+const amount = 1000;
 const assetToSwap = assetID;
 const stableToMetaSwap = stable1;
 const stableToMetaZap = stable2;

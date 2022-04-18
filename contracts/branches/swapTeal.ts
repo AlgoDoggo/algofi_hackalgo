@@ -1,4 +1,4 @@
-export const swapTeal = ({ assetID, nanoLT }) => `
+export const swapTeal = ({ assetID, nanoLT }: { assetID: number; nanoLT: number }) => `
 
 // we can only swap assetID or nanoLT
 gtxn 1 XferAsset 
@@ -86,4 +86,4 @@ itxn_submit
 
 b allow
 
-`
+`;

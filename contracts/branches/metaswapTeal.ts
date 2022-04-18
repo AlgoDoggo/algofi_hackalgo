@@ -1,4 +1,20 @@
-export const metaswapTeal = ({ assetID, nanoLT, stable1, stable2 , stable1Stable2AppId, stable1Stable2AppAddress, managerID_nanoswap}) => `
+export const metaswapTeal = ({
+  assetID,
+  nanoLT,
+  stable1,
+  stable2,
+  stable1Stable2AppId,
+  stable1Stable2AppAddress,
+  managerID_nanoswap,
+}: {
+  assetID: number;
+  nanoLT: number;
+  stable1: number;
+  stable2: number;
+  stable1Stable2AppId: number;
+  stable1Stable2AppAddress: string;
+  managerID_nanoswap: number;
+}) => `
 
 // check that the first transaction is the asset we want to swap and corresponds to the one in the pool
 gtxn 1 XferAsset 
@@ -198,4 +214,4 @@ store 20
 
 b checkFees
 
-`
+`;
