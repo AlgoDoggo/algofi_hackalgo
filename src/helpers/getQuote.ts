@@ -8,7 +8,12 @@ import {
   stable1_stable2_app,
   stable2,
 } from "../constants/constants.js";
-import { cristalBall, getAmplificationFactor, getNanoMintQuote, getNanoSwapExactForQuote } from "../utils/stableSwapMath.js";
+import {
+  cristalBall,
+  getAmplificationFactor,
+  getNanoMintQuote,
+  getNanoSwapExactForQuote,
+} from "../utils/stableSwapMath.js";
 
 export const fetchPoolStates = async (): Promise<{
   assetSupply: number;
@@ -48,7 +53,9 @@ export const fetchPoolStates = async (): Promise<{
     .get(`${baseUrl}/applications/${stable1_stable2_app}`)
     .catch(function (error) {
       throw new Error(
-        error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
+        error?.response?.data
+          ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}`
+          : error?.message
       );
     });
   const nanopoolState = nanopoolAppData?.application?.params?.["global-state"];
@@ -101,7 +108,9 @@ export const getMintQuote: MintQuote = async ({ assetID_amount, nanoLT_amount })
   const expectedMintAmount = Math.floor(
     Math.min((assetID_needed * metapoolLTIssued) / assetSupply, (nanoLT_needed * metapoolLTIssued) / nanoLTSupply)
   );
-  console.log(`Send ${assetID_needed} asset and ${nanoLT_needed} nanopool LT to receive ${expectedMintAmount} metapool LT`);
+  console.log(
+    `Send ${assetID_needed} asset and ${nanoLT_needed} nanopool LT to receive ${expectedMintAmount} metapool LT`
+  );
   return { assetID_needed, nanoLT_needed, expectedMintAmount };
 };
 
@@ -121,14 +130,16 @@ export const getSwapQuote: SwapQuote = async ({ asset, assetAmount }) => {
   const { assetSupply, nanoLTSupply } = await fetchPoolStates();
   if (asset === assetID) {
     const amount_out = Number(
-      (BigInt(assetAmount) * 9975n * BigInt(nanoLTSupply)) / (BigInt(assetSupply) * 10000n + BigInt(assetAmount) * 9975n)
+      (BigInt(assetAmount) * 9975n * BigInt(nanoLTSupply)) /
+        (BigInt(assetSupply) * 10000n + BigInt(assetAmount) * 9975n)
     );
     console.log(`Send ${assetAmount} asset, you will receive ${amount_out} nanopool LT`);
     return { amountOut: amount_out, assetOut: nanoLT };
   }
   if (asset === nanoLT) {
     const amount_out = Number(
-      (BigInt(assetAmount) * 9975n * BigInt(assetSupply)) / (BigInt(nanoLTSupply) * 10000n + BigInt(assetAmount) * 9975n)
+      (BigInt(assetAmount) * 9975n * BigInt(assetSupply)) /
+        (BigInt(nanoLTSupply) * 10000n + BigInt(assetAmount) * 9975n)
     );
     console.log(`Send ${assetAmount} nanopool LT, you will receive ${amount_out} asset`);
     return { amountOut: amount_out, assetOut: assetID };
@@ -244,17 +255,40 @@ export const getMetaZapQuote: MetaZapQuote = async ({ amountIn, stableIn }) => {
     stable2SupplyAdj = stable2Supply + toConvert;
   }
 
-  const { lpDelta, extraComputeFee: extraFeeMint } = await getNanoMintQuote({
-    assetId: stableIn,
-    assetAmount: Math.floor(amountIn - toConvert),
+  const mintParams = {
     stable1Supply: stable1SupplyAdj,
     stable2Supply: stable2SupplyAdj,
     amplificationFactor,
     nanoLTIssued,
+  };
+
+  let extraFeeMint, mintAmount;
+  let { asset1Delta, asset2Delta, lpDelta, extraComputeFee } = await getNanoMintQuote({
+    assetId: stableIn,
+    assetAmount: Math.floor(amountIn - toConvert),
+    ...mintParams,
   });
+  (mintAmount = lpDelta), (extraFeeMint = extraComputeFee);
+
+  if (stableIn === stable1 && Math.abs(asset2Delta) > toGet) {
+    let { lpDelta, extraComputeFee } = await getNanoMintQuote({
+      assetId: stable2,
+      assetAmount: Math.floor(toGet),
+      ...mintParams,
+    });
+    (mintAmount = lpDelta), (extraFeeMint = extraComputeFee);
+  } else if (stableIn === stable2 && Math.abs(asset1Delta) > toGet) {
+    let { lpDelta, extraComputeFee } = await getNanoMintQuote({
+      assetId: stable1,
+      assetAmount: Math.floor(toGet),
+      ...mintParams,
+    });
+    (mintAmount = lpDelta), (extraFeeMint = extraComputeFee);
+  }
+
   console.log(`extra compute fee for nanoswap: ${extraFeeSwap}`);
   console.log(`extra compute fee for nanomint: ${extraFeeMint}`);
-  const { amountOut } = await getSwapQuote({ asset: nanoLT, assetAmount: lpDelta });
+  const { amountOut } = await getSwapQuote({ asset: nanoLT, assetAmount: mintAmount });
   console.log(`Metazapping ${amountIn} ${stableIn} stablecoin will yield ${amountOut} asset`);
   return { amountOut, extraFeeMint, extraFeeSwap, toConvert };
 };
