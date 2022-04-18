@@ -27,7 +27,7 @@ async function mint() {
   params.fee = 1000;
   params.flatFee = true;
 
-  const argsMint = [enc.encode("p"), encodeUint64(10000)]; // pool string, slippage percent scaled by 10k
+  const argsMint = [enc.encode("p"), encodeUint64(10000)]; // pool string, slippage percent 10k = 1%
   const argsredeemMint1 = [enc.encode("rpa1r")];
   const argsredeemMint2 = [enc.encode("rpa2r")];
 

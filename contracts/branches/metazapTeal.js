@@ -162,7 +162,7 @@ store 15 // balance of stable-out asset to send for minting
 
 // here an adversary could have sent stable out to the metapool to modify the stable 1 - stable 2 ratio
 // and make all minting and therefore metazaps impossible
-// the reason for this is algofi max slippage on minting is 1% or int 10000 (after scaling)
+// the reason for this is algofi max slippage on minting is 1% or int 10000
 // let's prevent this by making sure the stable-out amount sent = load 14 * s2 / s1
 
 // retrieve the asset ratio of the nanoswap pools:

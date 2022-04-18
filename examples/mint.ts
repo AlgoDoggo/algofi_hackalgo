@@ -50,7 +50,7 @@ const mint: Mint = async ({ optIn, assetID_amount, lTNano_amount, maxSlippage })
     },
     from: account.addr,
     appIndex: metapool_app,
-    // second arg is max slippage in %. We'll follow Algofi's convention and scale it by 10000
+    // second arg is max slippage in %. We'll follow Algofi's convention and consider 1% = 10000
     appArgs: [enc.encode("mint"), encodeUint64(maxSlippage)],
     foreignAssets: [assetID, lTNano, metapoolLT],
   });
