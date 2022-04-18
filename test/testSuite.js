@@ -138,7 +138,7 @@ describe("swapChecks", () => {
     await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: [] }));
   });
   it("test slippage control", async () => {
-    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: BigInt(2n ** 64n - 1n) }));
+    await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: 2n ** 64n - 1n }));
   });
   it("test math for swapping asset for nanopool LT", async () => {
     const assetID_amount = 100;
@@ -190,7 +190,7 @@ describe("metaswapChecks", () => {
     await strict.rejects(metaswap({ assetAmount: 1000, stableID: stable1, stableMinReturn: [] }));
   });
   it("test slippage control", async () => {
-    await strict.rejects(metaswap({ assetAmount: 1000, stableID: stable1, stableMinReturn: BigInt(2n ** 64n - 1n) }));
+    await strict.rejects(metaswap({ assetAmount: 1000, stableID: stable1, stableMinReturn: 2n ** 64n - 1n }));
   });
   it("test math metaswap for stable1", async () => {
     const amountIn = 100;
@@ -248,7 +248,7 @@ describe("metazapChecks", () => {
     await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 100, minAssetToGet: [] }));
   });
   it("test slippage control", async () => {
-    await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 0, minAssetToGet: BigInt(2n ** 64n - 1n) }));
+    await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 0, minAssetToGet: 2n ** 64n - 1n }));
   });
   it("test math for metazapping stable 1", async () => {
     const amountIn = 1000;
