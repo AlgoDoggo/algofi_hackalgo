@@ -4,7 +4,7 @@ import metaswap from "./examples/metaswap.js";
 import metazap from "./examples/metazap.js";
 import mint from "./examples/mint.js";
 import swap from "./examples/swap.js";
-import { getBurnQuote, getMetaSwapQuote, getMetaZapQuote, getMintQuote, getSwapQuote } from "./src/helpers/getQuote.js";
+import { getBurnQuote, getMetaSwapQuote, getMetaZapQuote, getMintQuote, getSwapQuote } from "./src/getQuote.js";
 
 const arg = process.argv[2];
 const amount = 1000;

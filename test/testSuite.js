@@ -13,7 +13,7 @@ import {
   getMetaZapQuote,
   getMintQuote,
   getSwapQuote,
-} from "../src/helpers/getQuote.js";
+} from "../src/getQuote.js";
 
 describe("generalChecks", () => {
   it("stable1 < stable2", () => {

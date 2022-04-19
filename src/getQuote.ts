@@ -7,13 +7,13 @@ import {
   stable1,
   stable1_stable2_app,
   stable2,
-} from "../constants/constants.js";
+} from "./constants/constants.js";
 import {
   cristalBall,
   getAmplificationFactor,
   getNanoMintQuote,
   getNanoSwapExactForQuote,
-} from "../utils/stableSwapMath.js";
+} from "./helpers/stableSwapMath.js";
 
 export const fetchPoolStates = async (): Promise<{
   assetSupply: number;
