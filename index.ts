@@ -35,7 +35,7 @@ try {
 
   if (arg === "metazap") {
     const { extraFeeMint, extraFeeSwap, toConvert } = await getMetaZapQuote({
-      amountIn: 1000,
+      amountIn: amount,
       stableIn: stableToMetaZap,
     });
     await metazap({
