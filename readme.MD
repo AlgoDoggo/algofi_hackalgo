@@ -1,4 +1,4 @@
-## This is a metapool contract, sdk and testing suite for Algofi's nanopools
+## A metapool contract, sdk and testing suite for Algofi's nanopools
 
 ### Prerequisites
 
