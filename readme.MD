@@ -22,6 +22,8 @@ Metazaps have an extra challenge in that they must get the proper ratio of stabl
 The math to accurately estimate the result of a swap in the nanopool is too opcode expensive to be done in the metapool contract and is thus done in the front-end, its result set in appargs. As a backup, if no value is set in appargs, the metapool contract can estimate this amount by treating the nanopool like a regular pool.  
 To run these specific estimates I couldn't get the [binarySearch](https://github.com/Algofiorg/algofi-amm-js-sdk/blob/377690b8ea97993900b34a92f113ea63e47f4dd0/src/v0/pool.ts#L492) function from the algofi-amm-js-sdk to work as I wanted so I wrote my own [function](https://github.com/AlgoDoggo/algofi_hackalgo/blob/794bf622aef0aeb6ddb9304459faf1fcb3411ceb/src/helpers/stableSwapMath.ts#L238). It only really shines when the stable coins ratio is far off in the nanopool, since the closer the ratio is to 1 : 1 the more the nanopool math is similar to that of a regular pool.
 
+The metapool charges 0.25% on swaps, metaswaps and metazaps.
+
 ### Deploy a new metapool
 
 `npm run create-app` will deploy a new app with the constants from the relevant folder and bootstrap it. The target nanopool is D981 - D552, the metapool is made of test - AF-NANO-POOL-D981-D552.

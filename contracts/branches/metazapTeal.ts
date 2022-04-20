@@ -94,8 +94,8 @@ bnz let_the_zappin_begin
 // x1 = -s1 - sqrt( s1* ( s1 + load 12)) and x2 = -s1 + sqrt( s1* ( s1 + load 12))
 // x and load 12 being both positive numbers the only solution is
 // x = -s1 + sqrt( s1* ( s1 + load 12))
-// let's rewrite it and compensate for the 0.25% fee loss
-// x = (sqrt( s1 * ( s1 + load 12)) - s1) * 10000 / 9975
+// let's rewrite it and compensate for the 0.1% fee loss
+// x = (sqrt( s1 * ( s1 + load 12)) - s1) * 1000 / 999
 
 load 10 // s1
 load 12
@@ -105,13 +105,13 @@ load 10
 itob 
 b*
 bsqrt
-btoi // it's cheaper to do the following substraction with uints than with byte slice arithmetic (b-)
+btoi // it's cheaper to do the following substraction with uints than with byte operator b-
 load 10
 - // here we have x, not adjusted for the fee the nanopool is going to charge
-int 10000 // = byte 0x2710 
+int 1000 
 mulw
-int 9975 // = byte 0x26f7 
-divw // x adjusted for 0.25% fee
+int 999 
+divw // x adjusted for 0.1% fee
 store 13 // stable-in amount to trade
 
 // let's swap stable-in for stable-out
