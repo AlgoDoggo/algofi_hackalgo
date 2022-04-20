@@ -49,7 +49,7 @@ describe("mintChecks", () => {
     await strict.rejects(mint({ assetID_amount: 1000, nanoLT_amount: 2000, maxSlippage: [] }));
   });
   it("test max slippage protection", async () => {
-    const assetID_amount = 100;
+    const assetID_amount = 1000;
     const { assetID_needed, nanoLT_needed, expectedMintAmount } = await getMintQuote({ assetID_amount });
     await strict.rejects(mint({ assetID_amount: assetID_needed, nanoLT_amount: nanoLT_needed * 2, maxSlippage: 1 }));
   });
@@ -104,7 +104,7 @@ describe("burnChecks", () => {
     await strict.rejects(burn({ burnAmount: [] }));
   });
   it("test math for burning metapool LT", async () => {
-    const burnAmount = 100;
+    const burnAmount = 1000;
     const { assetOut: expectedAssetOut, nanoLTOut: expectednanoLTOut } = await getBurnQuote(burnAmount);
     const { assetOut, nanoLTOut } = await burn({ burnAmount });
     assert.approximately(assetOut, expectedAssetOut, 1);
@@ -141,7 +141,7 @@ describe("swapChecks", () => {
     await strict.rejects(swap({ amount: 100, asset: assetID, minAmountOut: 2n ** 64n - 1n }));
   });
   it("test math for swapping asset for nanopool LT", async () => {
-    const assetID_amount = 100;
+    const assetID_amount = 1000;
     const asset_swapped = assetID;
     const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({
       asset: asset_swapped,
@@ -152,7 +152,7 @@ describe("swapChecks", () => {
     strict.equal(assetOut, expectedAssetOut);
   });
   it("test math for swapping nanopool LT for asset", async () => {
-    const assetID_amount = 100;
+    const assetID_amount = 1000;
     const asset_swapped = nanoLT;
     const { amountOut: expectedAmountOut, assetOut: expectedAssetOut } = await getSwapQuote({
       asset: asset_swapped,
@@ -193,7 +193,7 @@ describe("metaswapChecks", () => {
     await strict.rejects(metaswap({ assetAmount: 1000, stableID: stable1, stableMinReturn: 2n ** 64n - 1n }));
   });
   it("test math metaswap for stable1", async () => {
-    const amountIn = 100;
+    const amountIn = 1000;
     const stableOut = stable1;
     const { stableOutAmount: expectedStableOutAmount, extraFee: extraComputeFee } = await getMetaSwapQuote({
       amountIn,
@@ -204,10 +204,10 @@ describe("metaswapChecks", () => {
       stableOut,
       extraComputeFee,
     });
-    assert.approximately(stableOutAmount, expectedStableOutAmount, 2);
+    assert.approximately(stableOutAmount, expectedStableOutAmount, expectedStableOutAmount * 0.005);
   });
   it("test math, metaswap for stable2", async () => {
-    const amountIn = 100;
+    const amountIn = 1000;
     const stableOut = stable2;
     const { stableOutAmount: expectedStableOutAmount, extraFee: extraComputeFee } = await getMetaSwapQuote({
       amountIn,
@@ -218,7 +218,7 @@ describe("metaswapChecks", () => {
       stableOut,
       extraComputeFee,
     });
-    assert.approximately(stableOutAmount, expectedStableOutAmount, 2);
+    assert.approximately(stableOutAmount, expectedStableOutAmount, expectedStableOutAmount * 0.005);
   });
 });
 
@@ -269,7 +269,7 @@ describe("metazapChecks", () => {
       extraFeeSwap,
       extraFeeMint,
     });
-    assert.approximately(assetOutAmount, expectedAmountOut, 2);
+    assert.approximately(assetOutAmount, expectedAmountOut, expectedAmountOut * 0.005);
   });
   it("test math for metazapping stable 2", async () => {
     const amountIn = 1000;
@@ -290,6 +290,6 @@ describe("metazapChecks", () => {
       extraFeeSwap,
       extraFeeMint,
     });
-    assert.approximately(assetOutAmount, expectedAmountOut, 2);
+    assert.approximately(assetOutAmount, expectedAmountOut, expectedAmountOut * 0.005);
   });
 });

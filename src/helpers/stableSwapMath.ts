@@ -23,10 +23,10 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
   swapInAmount,
   amplificationFactor,
 }) => {
-  let swapInAmountLessFees = swapInAmount - (Math.floor(swapInAmount * 0.001) + 1);
+  let swapInAmountLessFees = swapInAmount - (Math.floor(swapInAmount * 0.001) + 1);  
   let swapOutAmount = 0;
   let numIter = 0;
-
+  
   let asset1Delta, asset2Delta, extraComputeFee;
   if (swapInAssetId === stable1) {
     let [D, numIterD] = getD([stable1Supply, stable2Supply], amplificationFactor)!;
@@ -38,7 +38,7 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
       D,
       amplificationFactor
     )!;
-    swapOutAmount = stable2Supply - Number(y) - 1;
+    swapOutAmount = Number(BigInt(stable2Supply) - BigInt(y) - 1n);
     numIter = numIterD + numIterY;
 
     asset1Delta = -1 * swapInAmount;
@@ -53,13 +53,13 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
       [stable1Supply, stable2Supply],
       D,
       amplificationFactor
-    )!;
-    swapOutAmount = stable1Supply - y - 1;
+    )!;    
+    swapOutAmount = Number(BigInt(stable1Supply) - BigInt(y) - 1n);
     numIter = numIterD + numIterY;
     asset1Delta = swapOutAmount;
     asset2Delta = -1 * swapInAmount;
     extraComputeFee = Math.ceil(numIter / (700 / 400));
-  }
+  }  
   return { asset1Delta, asset2Delta, extraComputeFee };
 };
 
@@ -121,21 +121,22 @@ export const getNanoMintQuote: NanoMintQuote = async ({
   return { asset1Delta, asset2Delta, lpDelta: lpsIssued, extraComputeFee, priceDelta };
 };
 
-const A_PRECISION = BigInt(1000000);
+const A_PRECISION = 1000000n;
 
 function getD(tokenAmounts: Array<number>, amplificationFactor: number): number[] | undefined {
   let N_COINS = tokenAmounts.length;
-  let S = BigInt(0);
-  let Dprev = BigInt(0);
+  let S = 0n;
+  let Dprev = 0n;
 
   for (var _x of Array.from(tokenAmounts)) {
     S += BigInt(_x);
   }
-  if (S == BigInt(0)) {
+  if (S == 0n) {
     return [0, 0];
   }
 
   let D = S;
+  
   let Ann = BigInt(amplificationFactor * Math.pow(N_COINS, N_COINS));
 
   for (var _i = 0; _i < 255; _i++) {
@@ -148,11 +149,11 @@ function getD(tokenAmounts: Array<number>, amplificationFactor: number): number[
       (((Ann * S) / A_PRECISION + D_P * BigInt(N_COINS)) * D) /
       (((Ann - A_PRECISION) * D) / A_PRECISION + BigInt(N_COINS + 1) * D_P);
     if (D > Dprev) {
-      if (D - Dprev <= BigInt(1)) {
+      if (D - Dprev <= BigInt(1)) {        
         return [Number(D), _i];
       }
     } else {
-      if (Dprev - D <= BigInt(1)) {
+      if (Dprev - D <= BigInt(1)) {        
         return [Number(D), _i];
       }
     }
@@ -169,10 +170,10 @@ function getY(
 ): number[] | undefined {
   let N_COINS = tokenAmounts.length;
   let Ann = BigInt(amplificationFactor * Math.pow(N_COINS, N_COINS));
-  let c = BigInt(D);
-  let S = BigInt(0);
-  let _x = BigInt(0);
-  let y_prev = BigInt(0);
+  let c = BigInt(D); 
+  let S = 0n;
+  let _x = 0n;
+  let y_prev = 0n;
 
   for (var _i = 0; _i < N_COINS; _i++) {
     if (_i == i) {
@@ -196,7 +197,7 @@ function getY(
         return [Number(y), _i];
       }
     } else {
-      if (y_prev - y <= BigInt(1)) {
+      if (y_prev - y <= BigInt(1)) {             
         return [Number(y), _i];
       }
     }
@@ -254,7 +255,7 @@ export const cristalBall: cristalBall = async ({
     // in some edge cases with too small a zap amount, deltaError will never fall below 1%
     // in that case metazap will fail during the mint operation in the nanopool
     loopBreaker += 1;
-    if (loopBreaker > 10) throw new Error("Metazap not possible, increase metazap amount");
+    if (loopBreaker > 15) throw new Error("Metazap not possible, increase metazap amount");
     const { asset2Delta, asset1Delta, extraComputeFee } = await getNanoSwapExactForQuote({
       stable1Supply,
       stable2Supply,
