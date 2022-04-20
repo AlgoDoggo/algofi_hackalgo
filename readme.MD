@@ -97,6 +97,8 @@ I have written tests to verify the sdk could handle unusual input types.
 We also test the slippage protection feature in the smart contract.  
 Finally we test the smart contract math for each operation type - mint, swap, burn, metaswap, metazap - by doing the same math in the front-end and comparing the outputs.
 
+For the math checks on metaswap and metazaps I have added a 0.5% tolerance factor on expectation vs reality. The reason for this is I am unable to get a pinpoint accurate nanoswap quote when the ratios in the nanopools are far off (2:1). My front-end stableswap math is copied/pasted from the algofi js sdk. I have double checked the functions, investigated for possible precision loss during BigInt to Number conversion, to no avail. It is simply possible that the tesnet nanopool contract math, as an earlier test pool, is not 100% similar to the sdk math.
+
 https://user-images.githubusercontent.com/93348148/163474906-065ff026-8311-47e1-9ed0-e6a9b489b4fc.mp4
 
 ### Troubleshoot
