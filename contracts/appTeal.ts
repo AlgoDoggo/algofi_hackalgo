@@ -130,12 +130,6 @@ int 2
 &&
 bnz bootstrap
 
-// Allow Opt-in.
-txn OnCompletion
-int OptIn
-==
-bnz allow
-
 // Before we go any further let's verify the pool is bootstrapped
 load 1 
 assert
