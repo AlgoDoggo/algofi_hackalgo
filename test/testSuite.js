@@ -1,11 +1,6 @@
 import { assert } from "chai";
 import { strict } from "assert";
 import { assetID, nanoLT, stable1, stable2 } from "../src/constants/constants.js";
-import burn from "../examples/burn.js";
-import mint from "../examples/mint.js";
-import metaswap from "../examples/metaswap.js";
-import metazap from "../examples/metazap.js";
-import swap from "../examples/swap.js";
 import {
   fetchPoolStates,
   getBurnQuote,
@@ -14,6 +9,11 @@ import {
   getMintQuote,
   getSwapQuote,
 } from "../src/getQuote.js";
+import mint from "../src/mint.js";
+import burn from "../src/burn.js";
+import swap from "../src/swap.js";
+import metaswap from "../src/metaswap.js";
+import metazap from "../src/metazap.js";
 
 describe("generalChecks", () => {
   it("stable1 < stable2", () => {

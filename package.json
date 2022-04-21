@@ -4,15 +4,18 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "test": "mocha",
-    "start": "nodemon index.ts",
+    "start": "nodemon ./examples/index.ts",
     "create-app": "ts-node ./examples/createApp.ts",
-    "mint": "ts-node index.ts mint",
-    "swap": "ts-node index.ts swap",
-    "burn": "ts-node index.ts burn",
-    "metaswap": "ts-node index.ts metaswap",
-    "metazap": "ts-node index.ts metazap",
+    "mint": "ts-node ./examples/index.ts mint",
+    "swap": "ts-node ./examples/index.ts swap",
+    "burn": "ts-node ./examples/index.ts burn",
+    "metaswap": "ts-node ./examples/index.ts metaswap",
+    "metazap": "ts-node ./examples/index.ts metazap",
     "algofi-burn": "ts-node ./algofiSdk/burn.js",
     "algofi-mint": "ts-node ./algofiSdk/mint.js",
     "algofi-swap": "ts-node ./algofiSdk/swap.js"

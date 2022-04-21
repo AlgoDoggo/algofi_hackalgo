@@ -17,12 +17,13 @@
     "forceConsistentCasingInFileNames": true,
     
     "useUnknownInCatchVariables": false, // TypeScript 4.4+ only!
-    "sourceMap":true
+    "sourceMap":true,
+    "declaration": true
   },
   "ts-node": {    
     "esm": true,
     "transpileOnly": true
   },
-  "include": ["./src/**/*"],
-  "exclude": ["node_modules", "<node_internals>/**","./dist/**/*"]
+  "include": ["index.ts","./src/**/*"],
+  "exclude": ["node_modules", "<node_internals>/**"]
 }

@@ -7,9 +7,8 @@ import {
   waitForConfirmation,
 } from "algosdk";
 import dotenv from "dotenv";
-import { setupClient } from "../src/adapters/algoD.js";
-import { nanoLT, metapoolLT, metapool_app, assetID, metapool_address } from "../src/constants/constants.js";
-import burn from "./burn";
+import { setupClient } from "./adapters/algoD.js";
+import { nanoLT, metapoolLT, metapool_app, assetID, metapool_address } from "./constants/constants.js";
 
 dotenv.config();
 const enc = new TextEncoder();
