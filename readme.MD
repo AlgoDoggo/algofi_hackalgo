@@ -4,8 +4,8 @@
 
 To run the the project:
 
-- You must have NodeJs installed on your machine.
-- Run `npm install` to install all the dependencies in your local folder.
+- Clone the repository.
+- Run `npm install` to install all the dependencies in your local copy.
 - Create an .env file in the root directory with `Mnemo="Your 25 words"`
 - To run the code as is you must opt-in the various testnet tokens and stable coins, the full list is in ./src/constants
 - ./algofiSDK regroups convenience functions to mint / swap / burn in the target [D981 - D552 testnet nanopool](https://testnet.algoexplorer.io/address/73LJJN3MGSOVLJWRM4F5ARYT4BYJSIWHE4IAYGWTT7YEGYZXEYFZSO2Q6E)
