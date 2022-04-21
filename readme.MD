@@ -38,7 +38,7 @@ Once the contract is deployed, its account is bootstrapped:
 
 ### Using the SDK
 
-By default mint, swap, burn, metaswap and metazap are done with an amount of 1000 and slippage protection turned off. The target stablecoin for metaswaps and metazaps is stable1 (D981). You can change these values in ./index.ts  
+By default mint, swap, burn, metaswap and metazap are done with an amount of 1000 and slippage protection turned off. The target stablecoin for metaswaps and metazaps is stable1 (D981). You can change these values in ./examples/index.ts  
 Before any trade is executed the sdk will get a quote and log its result.
 
 ### Metaswap
