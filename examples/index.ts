@@ -1,6 +1,6 @@
 import { getBurnQuote, getMetaSwapQuote, getMetaZapQuote, getMintQuote, getSwapQuote } from "../index.js";
 import { mint, swap, burn, metaswap, metazap } from "../index.js";
-import { assetID, stable1, stable2 } from "../src/constants/constants.js";
+import { assetID, nanoLT, stable1, stable2 } from "../src/constants/constants.js";
 
 const arg = process.argv[2];
 const amount = 1000;

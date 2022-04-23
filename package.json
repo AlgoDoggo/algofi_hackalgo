@@ -24,8 +24,7 @@
   "author": "AlgoDoggo",
   "license": "ISC",
   "dependencies": {
-    "algosdk": "^1.15.0",
-    "axios": "^0.26.1"
+    "algosdk": "^1.15.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",

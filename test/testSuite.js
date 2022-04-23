@@ -171,7 +171,6 @@ describe("metaswapChecks", () => {
   it("handle undefined params", async () => {
     await strict.rejects(metaswap({ assetAmount: undefined, stableID: stable1, stableMinReturn: 9 }));
     await strict.rejects(metaswap({ assetAmount: 1000, stableID: undefined, stableMinReturn: 9 }));
-    await strict.rejects(metaswap({ assetAmount: 1000, stableID: stable1, stableMinReturn: undefined }));
   });
   it("handle null params", async () => {
     await strict.rejects(metaswap({ assetAmount: null, stableID: stable1, stableMinReturn: 9 }));
@@ -224,12 +223,11 @@ describe("metaswapChecks", () => {
 
 describe("metazapChecks", () => {
   it("handle 0 amount", async () => {
-    await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 0, minAssetToGet: 0 }));
+    await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 0 }));
   });
   it("handle undefined params", async () => {
-    await strict.rejects(metazap({ stableToZap: undefined, zapAmount: 100, minAssetToGet: 0 }));
-    await strict.rejects(metazap({ stableToZap: stable1, zapAmount: undefined, minAssetToGet: 0 }));
-    await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 100, minAssetToGet: undefined }));
+    await strict.rejects(metazap({ stableToZap: undefined, zapAmount: 100 }));
+    await strict.rejects(metazap({ stableToZap: stable1, zapAmount: undefined }));
   });
   it("handle null params", async () => {
     await strict.rejects(metazap({ stableToZap: null, zapAmount: 100, minAssetToGet: 0 }));

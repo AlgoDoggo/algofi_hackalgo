@@ -7,3 +7,9 @@ export function setupClient() {
   const port = "";
   return new algosdk.Algodv2(token, server, port);
 }
+
+export const setupIndexer = () => {
+  let indexer = new algosdk.Indexer("", "https://testnet-idx.algonode.cloud", "");
+  indexer.setIntEncoding(algosdk.IntDecoding.MIXED);
+  return indexer;
+};

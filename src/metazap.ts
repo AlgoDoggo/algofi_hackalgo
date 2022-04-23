@@ -44,7 +44,7 @@ const metazap: Metazap = async ({
   extraFeeSwap = 2,
   extraFeeMint = 0,
 }) => {
-  if (!stableToZap || !zapAmount) throw new Error("invalid metazap parameters");
+  if (!stableToZap || !zapAmount) throw new Error("invalid metazap parameters");  
   const account = mnemonicToSecretKey(process.env.Mnemo!);
   let algodClient = setupClient();
   const suggestedParams = await algodClient.getTransactionParams().do();

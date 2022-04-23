@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   assetID,
   nanoLT,
@@ -14,6 +13,7 @@ import {
   getNanoMintQuote,
   getNanoSwapExactForQuote,
 } from "./helpers/stableSwapMath.js";
+import { setupIndexer } from "./adapters/algoD.js";
 
 export const fetchPoolStates = async (): Promise<{
   assetSupply: number;
@@ -27,38 +27,19 @@ export const fetchPoolStates = async (): Promise<{
   initialAmplificationFactorTime: number;
   futureAmplificationFactorTime: number;
 }> => {
-  const baseUrl = "https://testnet-idx.algonode.cloud/v2"; // algonode.io
-  const { data: metapoolData } = await axios.get(`${baseUrl}/accounts/${metapool_address}`).catch(function (error) {
-    throw new Error(
-      error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
-    );
-  });
+  const indexer = setupIndexer();
 
-  const { amount: assetSupply } = metapoolData?.account?.assets?.find((array) => array["asset-id"] === assetID);
-  const { amount: nanoLTSupply } = metapoolData?.account?.assets?.find((array) => array["asset-id"] === nanoLT);
-
-  const { data: metapoolAppData } = await axios.get(`${baseUrl}/applications/${metapool_app}`).catch(function (error) {
-    throw new Error(
-      error?.response?.data ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}` : error?.message
-    );
-  });
-
-  const metapoolLTIssued = metapoolAppData?.application?.params?.["global-state"].find(
-    (g) => g.key === "aXNzdWVkIE1ldGFwb29sIExU"
-  )?.value?.uint;
-
+  const assets = await indexer.lookupAccountAssets(metapool_address).do();
+  const { amount: assetSupply } = assets?.assets?.find((array) => array["asset-id"] === assetID);
+  const { amount: nanoLTSupply } = assets?.assets?.find((array) => array["asset-id"] === nanoLT);
   if (!assetSupply || !nanoLTSupply) throw new Error("Error, assets not found in the metapool");
 
-  const { data: nanopoolAppData } = await axios
-    .get(`${baseUrl}/applications/${stable1_stable2_app}`)
-    .catch(function (error) {
-      throw new Error(
-        error?.response?.data
-          ? `error: ${error.response.status}  ${JSON.stringify(error.response.data)}`
-          : error?.message
-      );
-    });
-  const nanopoolState = nanopoolAppData?.application?.params?.["global-state"];
+  const app = await indexer.lookupApplications(metapool_app).do();
+  const metapoolLTIssued = app?.application?.params?.["global-state"].find((g) => g.key === "aXNzdWVkIE1ldGFwb29sIExU")
+    ?.value?.uint;
+
+  const nanoApp = await indexer.lookupApplications(stable1_stable2_app).do();
+  const nanopoolState = nanoApp?.application?.params?.["global-state"];
   const stable1Supply = nanopoolState.find((g) => g.key === "YjE=")?.value?.uint;
   const stable2Supply = nanopoolState.find((g) => g.key === "YjI=")?.value?.uint;
   const nanoLTIssued = nanopoolState.find((g) => g.key === "bGM=")?.value?.uint;
