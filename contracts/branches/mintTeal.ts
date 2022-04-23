@@ -148,10 +148,7 @@ itxn_field Fee
 
 itxn_submit
 
-// adding the following as a workaround current indexer limitation
-// to retrieve issued metapool lt doing = 2**64-1 - current balance works in the smart contract
-// but wouldn't work in the front-end since the indexer gives inaccurate values
-// for very large numbers > 17 digits
+// update state
 byte "issued Metapool LT"
 dup
 app_global_get
