@@ -1,7 +1,7 @@
 export const burnTeal = ({ assetID, nanoLT }: { assetID: number; nanoLT: number }) => `
 
 // check the asset sent is the Metapool LT
-gtxn 1 XferAsset // by convention we'll send assetID first
+gtxn 1 XferAsset 
 load 1
 ==
 gtxn 1 AssetReceiver
