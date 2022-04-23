@@ -250,10 +250,10 @@ itxn_field Fee
 
 itxn_next
 
-// second tx we send the stable-in to the pool
+// second tx we send the stable 2 to the pool
 int axfer
 itxn_field TypeEnum
-int ${stable2} // stable-out ID
+int ${stable2} // stable 2 ID
 itxn_field XferAsset
 load 17 // stable out amount to send
 load 16 // stable in amount to send
@@ -330,7 +330,7 @@ itxn_submit
 
 global CurrentApplicationAddress
 int ${nanoLT}
-asset_holding_get AssetBalance // retrieve input supply amount in this case that's assetID
+asset_holding_get AssetBalance 
 pop // pop the opt-in
 load 3 // that's the amount the app had before the mint
 - // nanoLT after mint - nanoLT before mint
