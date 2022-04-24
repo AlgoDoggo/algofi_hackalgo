@@ -1,7 +1,5 @@
 import { stable1 } from "../constants/constants.js";
 
-const baseUrl = "https://testnet-idx.algonode.cloud"; // algonode.io
-
 interface NanoSwapQuote {
   ({}: {
     stable1Supply: bigint;
