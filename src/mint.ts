@@ -14,7 +14,7 @@ dotenv.config();
 const enc = new TextEncoder();
 
 interface Mint {
-  ({}: { optIn: boolean; assetID_amount: number | bigint; nanoLT_amount: number | bigint; maxSlippage: number }): 
+  ({}: { optIn?: boolean; assetID_amount: number | bigint; nanoLT_amount: number | bigint; maxSlippage: number }): 
   Promise<{ mintAmount: number; redeemAmount: number; redeemAsset: number; }>;
 }
 

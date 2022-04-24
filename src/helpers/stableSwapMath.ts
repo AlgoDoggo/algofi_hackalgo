@@ -4,8 +4,8 @@ const baseUrl = "https://testnet-idx.algonode.cloud"; // algonode.io
 
 interface NanoSwapQuote {
   ({}: {
-    stable1Supply: number;
-    stable2Supply: number;
+    stable1Supply: bigint;
+    stable2Supply: bigint;
     swapInAssetId: number;
     swapInAmount: number;
     amplificationFactor: number;
@@ -23,17 +23,17 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
   swapInAmount,
   amplificationFactor,
 }) => {
-  let swapInAmountLessFees = swapInAmount - (Math.floor(swapInAmount * 0.001) + 1);  
+  let swapInAmountLessFees = swapInAmount - (Math.floor(swapInAmount * 0.001) + 1);
   let swapOutAmount = 0;
   let numIter = 0;
-  
-  let asset1Delta, asset2Delta, extraComputeFee;
+
+  let asset1Delta:number, asset2Delta:number, extraComputeFee:number;
   if (swapInAssetId === stable1) {
     let [D, numIterD] = getD([stable1Supply, stable2Supply], amplificationFactor)!;
     let [y, numIterY] = getY(
       0,
       1,
-      stable1Supply + swapInAmountLessFees,
+      stable1Supply + BigInt(swapInAmountLessFees),
       [stable1Supply, stable2Supply],
       D,
       amplificationFactor
@@ -49,17 +49,17 @@ export const getNanoSwapExactForQuote: NanoSwapQuote = async ({
     let [y, numIterY] = getY(
       1,
       0,
-      stable2Supply + swapInAmountLessFees,
+      stable2Supply + BigInt(swapInAmountLessFees),
       [stable1Supply, stable2Supply],
       D,
       amplificationFactor
-    )!;    
+    )!;
     swapOutAmount = Number(BigInt(stable1Supply) - BigInt(y) - 1n);
     numIter = numIterD + numIterY;
     asset1Delta = swapOutAmount;
     asset2Delta = -1 * swapInAmount;
     extraComputeFee = Math.ceil(numIter / (700 / 400));
-  }  
+  }
   return { asset1Delta, asset2Delta, extraComputeFee };
 };
 
@@ -67,55 +67,64 @@ interface NanoMintQuote {
   ({}: {
     assetId: number;
     assetAmount: number;
-    whatIfDelta1?: number;
-    whatIfDelta2?: number;
-    stable1Supply: number;
-    stable2Supply: number;
+    whatIfDelta1?: bigint;
+    whatIfDelta2?: bigint;
+    stable1Supply: bigint;
+    stable2Supply: bigint;
     amplificationFactor: number;
-    nanoLTIssued: number;
-  }): Promise<{ asset1Delta: number; asset2Delta: number; lpDelta: number; extraComputeFee: number; priceDelta: number }>;
+    nanoLTIssued: bigint;
+  }): Promise<{
+    asset1Delta: number;
+    asset2Delta: number;
+    lpDelta: number;
+    extraComputeFee: number;
+    priceDelta: number;
+  }>;
 }
 
 export const getNanoMintQuote: NanoMintQuote = async ({
   assetId,
   assetAmount,
-  whatIfDelta1 = 0,
-  whatIfDelta2 = 0,
+  whatIfDelta1 = 0n,
+  whatIfDelta2 = 0n,
   stable1Supply,
   stable2Supply,
   amplificationFactor,
   nanoLTIssued,
 }) => {
-  if (nanoLTIssued === 0) {
+  if (nanoLTIssued == 0n) {
     throw new Error("Error: pool is empty");
   }
 
-  let asset1PooledAmount = 0;
-  let asset2PooledAmount = 0;
+  let asset1PooledAmount = 0n;
+  let asset2PooledAmount = 0n;
   let lpsIssued = 0;
   let numIter = 0;
 
   if (assetId === stable1) {
-    asset1PooledAmount = assetAmount;
-    asset2PooledAmount = Math.floor((asset1PooledAmount * (stable2Supply + whatIfDelta2)) / (stable1Supply + whatIfDelta1));
+    asset1PooledAmount = BigInt(assetAmount);
+    asset2PooledAmount = (asset1PooledAmount * (stable2Supply + whatIfDelta2)) / (stable1Supply + whatIfDelta1);
   } else {
-    asset2PooledAmount = assetAmount;
-    asset1PooledAmount = Math.ceil((asset2PooledAmount * (stable1Supply + whatIfDelta1)) / (stable2Supply + whatIfDelta2));
+    asset2PooledAmount = BigInt(assetAmount);
+    asset1PooledAmount = (asset2PooledAmount * (stable1Supply + whatIfDelta1)) / (stable2Supply + whatIfDelta2) + 1n;
   }
 
   let [D0, numIterD0] = getD([stable1Supply, stable2Supply], amplificationFactor)!;
-  let [D1, numIterD1] = getD([asset1PooledAmount + stable1Supply, asset2PooledAmount + stable2Supply], amplificationFactor)!;
-  lpsIssued = Math.floor(nanoLTIssued * Number((D1 - D0) / D0));
+  let [D1, numIterD1] = getD(
+    [asset1PooledAmount + stable1Supply, asset2PooledAmount + stable2Supply],
+    amplificationFactor
+  )!;
+  lpsIssued = Math.floor(Number(nanoLTIssued) * Number((D1 - D0) / D0));
   numIter = numIterD0 + numIterD1;
   const extraComputeFee = Math.ceil(numIter / (700 / 400));
-  const asset1Delta = -1 * asset1PooledAmount;
-  const asset2Delta = -1 * asset2PooledAmount;
+  const asset1Delta = -1 * Number(asset1PooledAmount);
+  const asset2Delta = -1 * Number(asset2PooledAmount);
   let priceDelta;
   if (lpsIssued === 0) {
     priceDelta = 0;
   } else {
-    let startingPriceRatio = stable1Supply / stable2Supply;
-    let finalPriceRatio = (stable1Supply + asset1Delta) / (stable2Supply + asset2Delta);
+    let startingPriceRatio = Number(stable1Supply) / Number(stable2Supply);
+    let finalPriceRatio = (Number(stable1Supply) + asset1Delta) / (Number(stable2Supply) + asset2Delta);
     priceDelta = Math.abs(startingPriceRatio / finalPriceRatio - 1);
   }
   return { asset1Delta, asset2Delta, lpDelta: lpsIssued, extraComputeFee, priceDelta };
@@ -123,7 +132,7 @@ export const getNanoMintQuote: NanoMintQuote = async ({
 
 const A_PRECISION = 1000000n;
 
-function getD(tokenAmounts: Array<number>, amplificationFactor: number): number[] | undefined {
+function getD(tokenAmounts: Array<bigint>, amplificationFactor: number): number[] | undefined {
   let N_COINS = tokenAmounts.length;
   let S = 0n;
   let Dprev = 0n;
@@ -136,7 +145,7 @@ function getD(tokenAmounts: Array<number>, amplificationFactor: number): number[
   }
 
   let D = S;
-  
+
   let Ann = BigInt(amplificationFactor * Math.pow(N_COINS, N_COINS));
 
   for (var _i = 0; _i < 255; _i++) {
@@ -149,11 +158,11 @@ function getD(tokenAmounts: Array<number>, amplificationFactor: number): number[
       (((Ann * S) / A_PRECISION + D_P * BigInt(N_COINS)) * D) /
       (((Ann - A_PRECISION) * D) / A_PRECISION + BigInt(N_COINS + 1) * D_P);
     if (D > Dprev) {
-      if (D - Dprev <= BigInt(1)) {        
+      if (D - Dprev <= 1n) {
         return [Number(D), _i];
       }
     } else {
-      if (Dprev - D <= BigInt(1)) {        
+      if (Dprev - D <= 1n) {
         return [Number(D), _i];
       }
     }
@@ -163,14 +172,14 @@ function getD(tokenAmounts: Array<number>, amplificationFactor: number): number[
 function getY(
   i: number,
   j: number,
-  x: number,
-  tokenAmounts: number[],
+  x: bigint,
+  tokenAmounts: bigint[],
   D: number,
   amplificationFactor: number
 ): number[] | undefined {
   let N_COINS = tokenAmounts.length;
   let Ann = BigInt(amplificationFactor * Math.pow(N_COINS, N_COINS));
-  let c = BigInt(D); 
+  let c = BigInt(D);
   let S = 0n;
   let _x = 0n;
   let y_prev = 0n;
@@ -197,12 +206,20 @@ function getY(
         return [Number(y), _i];
       }
     } else {
-      if (y_prev - y <= BigInt(1)) {             
+      if (y_prev - y <= BigInt(1)) {
         return [Number(y), _i];
       }
     }
   }
 }
+
+type GetAmpFactor = {
+  t: bigint;
+  initialAmplificationFactor: bigint;
+  futureAmplificationFactor?: bigint;
+  initialAmplificationFactorTime?: bigint;
+  futureAmplificationFactorTime?: bigint;
+};
 
 export function getAmplificationFactor({
   t,
@@ -210,22 +227,26 @@ export function getAmplificationFactor({
   futureAmplificationFactor,
   initialAmplificationFactorTime,
   futureAmplificationFactorTime,
-}): number {
-  if (futureAmplificationFactorTime && t < futureAmplificationFactorTime) {
-    return Math.floor(
+}: GetAmpFactor): number {
+  if (
+    futureAmplificationFactor &&
+    initialAmplificationFactorTime &&
+    futureAmplificationFactorTime &&
+    t < futureAmplificationFactorTime
+  ) {
+    return Number(
       initialAmplificationFactor +
         ((futureAmplificationFactor - initialAmplificationFactor) * (t - initialAmplificationFactor)) /
           (futureAmplificationFactorTime - initialAmplificationFactorTime)
     );
   }
-
-  return futureAmplificationFactor;
+  return Number(futureAmplificationFactor);
 }
 
 interface cristalBall {
   ({}: {
-    stable1Supply: number;
-    stable2Supply: number;
+    stable1Supply: bigint;
+    stable2Supply: bigint;
     stableIn: number;
     amountIn: number;
     amplificationFactor: number;
@@ -244,12 +265,12 @@ export const cristalBall: cristalBall = async ({
   amplificationFactor,
 }) => {
   let toConvert = Math.floor(amountIn / 2);
-  let deltaError = 2;
-  let targetRatio = stable1Supply / stable2Supply;
-  let tokenRatio = 1;
-  let toGet,
-    extraFeeSwap,
-    loopBreaker = 0;
+  let targetRatio = Number(stable1Supply) / Number(stable2Supply);
+  let toGet = 0,
+    extraFeeSwap = 0,
+    loopBreaker = 0,
+    deltaError = 2,
+    tokenRatio = 1;
 
   while (deltaError > 1.01 || deltaError < 0.99) {
     // in some edge cases with too small a zap amount, deltaError will never fall below 1%
@@ -266,13 +287,13 @@ export const cristalBall: cristalBall = async ({
     extraFeeSwap = extraComputeFee;
     if (stableIn === stable1) {
       toGet = asset2Delta;
-      targetRatio = (stable1Supply + toConvert) / (stable2Supply - toGet);
+      targetRatio = (Number(stable1Supply) + toConvert) / (Number(stable2Supply) - toGet);
       tokenRatio = (amountIn - toConvert) / toGet;
       deltaError = tokenRatio / targetRatio;
       toConvert = Math.floor(toConvert * Math.sqrt(deltaError));
     } else {
       toGet = asset1Delta;
-      targetRatio = (stable1Supply - toGet) / (stable2Supply + toConvert);
+      targetRatio = (Number(stable1Supply) - toGet) / (Number(stable2Supply) + toConvert);
       tokenRatio = toGet / (amountIn - toConvert);
       deltaError = tokenRatio / targetRatio;
       toConvert = Math.floor(toConvert / Math.sqrt(deltaError));

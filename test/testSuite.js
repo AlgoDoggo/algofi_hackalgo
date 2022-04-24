@@ -77,14 +77,14 @@ describe("mintChecks", () => {
     // redeem amount = Excess Metapool LT * load 23 supply / Metapool LT issued
     const excess = Math.floor(
       Math.max(
-        (assetID_needed * metapoolLTIssued) / assetSupply,
-        (Math.floor(nanoLT_needed * 1.05) * metapoolLTIssued) / nanoLTSupply
+        (assetID_needed * Number(metapoolLTIssued)) / Number(assetSupply),
+        (Math.floor(nanoLT_needed * 1.05) * Number(metapoolLTIssued)) / Number(nanoLTSupply)
       ) -
         mintAmount -
         1
     );
-    const expectedRedeemAmount = (excess * nanoLTSupply) / metapoolLTIssued;
-    assert.approximately(redeemAmount, expectedRedeemAmount, 1);
+    const expectedRedeemAmount = (BigInt(excess) * nanoLTSupply) / metapoolLTIssued;
+    assert.approximately(redeemAmount, Number(expectedRedeemAmount), 1);
   });
 });
 
@@ -192,7 +192,7 @@ describe("metaswapChecks", () => {
     await strict.rejects(metaswap({ assetAmount: 1000, stableID: stable1, stableMinReturn: 2n ** 64n - 1n }));
   });
   it("test math metaswap for stable1", async () => {
-    const amountIn = 1000;
+    const amountIn = 2000;
     const stableOut = stable1;
     const { stableOutAmount: expectedStableOutAmount, extraFee: extraComputeFee } = await getMetaSwapQuote({
       amountIn,
@@ -206,7 +206,7 @@ describe("metaswapChecks", () => {
     assert.approximately(stableOutAmount, expectedStableOutAmount, expectedStableOutAmount * 0.005);
   });
   it("test math, metaswap for stable2", async () => {
-    const amountIn = 1000;
+    const amountIn = 2000;
     const stableOut = stable2;
     const { stableOutAmount: expectedStableOutAmount, extraFee: extraComputeFee } = await getMetaSwapQuote({
       amountIn,
@@ -249,7 +249,7 @@ describe("metazapChecks", () => {
     await strict.rejects(metazap({ stableToZap: stable1, zapAmount: 0, minAssetToGet: 2n ** 64n - 1n }));
   });
   it("test math for metazapping stable 1", async () => {
-    const amountIn = 1000;
+    const amountIn = 2000;
     const stableIn = stable1;
     const {
       amountOut: expectedAmountOut,
@@ -270,7 +270,7 @@ describe("metazapChecks", () => {
     assert.approximately(assetOutAmount, expectedAmountOut, expectedAmountOut * 0.005);
   });
   it("test math for metazapping stable 2", async () => {
-    const amountIn = 1000;
+    const amountIn = 2000;
     const stableIn = stable2;
     const {
       amountOut: expectedAmountOut,

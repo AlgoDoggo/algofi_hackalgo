@@ -10,6 +10,6 @@ export function setupClient() {
 
 export const setupIndexer = () => {
   let indexer = new algosdk.Indexer("", "https://testnet-idx.algonode.cloud", "");
-  indexer.setIntEncoding(algosdk.IntDecoding.MIXED);
+  indexer.setIntEncoding(algosdk.IntDecoding.BIGINT);
   return indexer;
 };
